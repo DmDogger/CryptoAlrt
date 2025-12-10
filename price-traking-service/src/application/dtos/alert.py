@@ -1,14 +1,20 @@
-from dataclasses import field, dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, UTC
 from typing import final
 from uuid import UUID
 
-from domain.value_objects.threshold import Threshold
+from ...domain.value_objects.threshold import Threshold
+
 
 @final
 @dataclass(frozen=True, slots=True, kw_only=True)
 class AlertDTO:
-    """Application DTO for transferring alert data between layers. """
+    """
+    Data Transfer Object for Alert entity.
+
+    Used to transfer alert data between application layers without exposing
+    domain logic. Contains all necessary fields for alert representation.
+    """
     id: UUID
     email: str
     cryptocurrency: str
