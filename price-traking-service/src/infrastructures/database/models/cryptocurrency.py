@@ -4,7 +4,7 @@ from datetime import datetime
 from sqlalchemy import UUID as PG_UUID, String, DateTime, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from ..base import Base
+from .base import Base
 
 
 class Cryptocurrency(Base):
@@ -16,7 +16,7 @@ class Cryptocurrency(Base):
         primary_key=True,
         unique=True,
         nullable=False,
-        server_default=uuid.uuid4()
+        default=uuid.uuid4
     )
     symbol: Mapped[str] = mapped_column(String(100), nullable=False, unique=True)
     name: Mapped[str] = mapped_column(String(10), nullable=False, unique=True)

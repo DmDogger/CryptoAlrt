@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import UTC
 from typing import final
 
-from ...domain.entities.cryptocurrency import CryptocurrencyEntity
+from src.domain.entities.cryptocurrency import CryptocurrencyEntity
 from ..models.cryptocurrency import Cryptocurrency
 
 

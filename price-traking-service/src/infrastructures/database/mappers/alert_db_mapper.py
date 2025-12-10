@@ -4,8 +4,8 @@ from decimal import Decimal
 from typing import final
 from uuid import UUID
 
-from ...domain.entities.alert import AlertEntity
-from ...domain.value_objects.threshold import ThresholdValueObject
+from src.domain.entities.alert import AlertEntity
+from src.domain.value_objects.threshold import ThresholdValueObject
 from ..models.alert import Alert
 
 
@@ -56,6 +56,15 @@ class AlertDBMapper:
             AttributeError: If model.cryptocurrency relationship is not loaded.
                 Ensure to use joinedload or selectinload when querying.
         """
+
+        # Get cryptocurrency symbol from relationship
+        # This requires the relationship to be loaded (e.g., via joinedload)
+        if model.cryptocurrency is None:
+            raise AttributeError(
+                "Alert.cryptocurrency relationship must be loaded. "
+                "Use joinedload(Alert.cryptocurrency) or selectinload(Alert.cryptocurrency) "
+                "when querying the Alert model."
+            )
 
         return AlertEntity(
             id=model.id,
