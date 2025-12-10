@@ -10,3 +10,9 @@ class DomainValidationError(Exception):
 class RepositoryError(Exception):
     """Raised when repository operation fails."""
     ...
+
+
+@final
+class PublishError(Exception):
+    """Raised when event publishing fails."""
+    ...

@@ -4,6 +4,7 @@ from typing import final
 from sqlalchemy.ext.asyncio import AsyncSession
 from structlog import getLogger
 
+from application.interfaces.repositories import AlertRepositoryProtocol
 from infrastructures.database.mappers.cryptocurrency_db_mapper import CryptocurrencyDBMapper
 
 logger = getLogger(__name__)
