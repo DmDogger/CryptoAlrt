@@ -7,24 +7,37 @@ from pydantic_settings import BaseSettings
 @final
 class BrokerSettings(BaseSettings):
     """
-    Message broker configuration settings.
+    Kafka broker configuration settings.
 
     Attributes:
-        broker_url (str): Message broker URL.
-        broker_new_artifact_queue (str): Queue name for new artifact messages.
+        bootstrap_servers (str): Kafka bootstrap servers (comma-separated).
+            Example: "localhost:9092" or "kafka1:9092,kafka2:9092"
+        price_updates_topic (str): Topic name for price update events.
+        alert_created_topic (str): Topic name for alert creation events.
         publish_retries (int): Number of retries for publishing operations.
         publish_retry_backoff (float): Backoff factor for publish retries.
     """
 
-    broker_url: str = Field(
-        ..., alias="BROKER_URL"
-    )  # e.g. amqp://guest:guest@localhost:5672/
-    broker_new_artifact_queue: str = Field(
-        "new_artifacts", alias="BROKER_NEW_ARTIFACT_QUEUE"
+    bootstrap_servers: str = Field(
+        default="localhost:9092",
+        alias="KAFKA_BOOTSTRAP_SERVERS"
     )
-
-    publish_retries: int = Field(3, alias="PUBLISH_RETRIES")
-    publish_retry_backoff: float = Field(0.5, alias="PUBLISH_RETRY_BACKOFF")
+    price_updates_topic: str = Field(
+        default="price-updates",
+        alias="KAFKA_PRICE_UPDATES_TOPIC"
+    )
+    alert_created_topic: str = Field(
+        default="alert-created",
+        alias="KAFKA_ALERT_CREATED_TOPIC"
+    )
+    publish_retries: int = Field(
+        default=3,
+        alias="KAFKA_PUBLISH_RETRIES"
+    )
+    publish_retry_backoff: float = Field(
+        default=0.5,
+        alias="KAFKA_PUBLISH_RETRY_BACKOFF"
+    )
 
     class Config:
         env_file = ".env"
