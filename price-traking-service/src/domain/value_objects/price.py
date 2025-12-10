@@ -17,6 +17,8 @@ class Price:
             raise DomainValidationError("Price cannot be below than zero")
         if len(self.cryptocurrency) < 3 or len(self.cryptocurrency) > 100:
             raise DomainValidationError("Cryptocurrency symbol must be between 3 and 100 characters")
+        if self.timestamp > datetime.now(UTC):
+            raise DomainValidationError("Timestamp can't be in future")
 
     def to_dict(self):
         return {

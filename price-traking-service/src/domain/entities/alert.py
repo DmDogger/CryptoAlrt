@@ -1,11 +1,12 @@
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from decimal import Decimal
 from typing import final
 from uuid import UUID
 import re
 
 from ..exceptions import DomainValidationError
+from ..value_objects.threshold import Threshold
+
 
 @final
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -13,7 +14,7 @@ class Alert:
     id: UUID
     email: str
     cryptocurrency: str
-    threshold_price: Decimal
+    threshold_price: Threshold
     condition: str
     is_active: bool
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
@@ -23,8 +24,6 @@ class Alert:
             raise DomainValidationError("Invalid email format")
         if len(self.cryptocurrency) < 3 or len(self.cryptocurrency) > 100:
             raise DomainValidationError("Cryptocurrency symbol must be between 3 and 100 characters")
-        if self.threshold_price < 0:
-            raise DomainValidationError("Threshold price must be more than 0")
 
 
 
