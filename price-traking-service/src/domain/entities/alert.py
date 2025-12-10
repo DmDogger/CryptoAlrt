@@ -10,7 +10,7 @@ from ..value_objects.threshold import Threshold
 
 @final
 @dataclass(frozen=True, slots=True, kw_only=True)
-class Alert:
+class AlertEntity:
     id: UUID
     email: str
     cryptocurrency: str

@@ -7,7 +7,7 @@ from ..exceptions import DomainValidationError
 
 @final
 @dataclass(frozen=True, slots=True, kw_only=True)
-class Threshold:
+class ThresholdValueObject:
     """Value object for price threshold with validation and comparison methods."""
     value: Decimal
 

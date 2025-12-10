@@ -7,7 +7,7 @@ from ..exceptions import DomainValidationError
 
 @final
 @dataclass(frozen=True, slots=True, kw_only=True)
-class Price:
+class PriceValueObject:
     cryptocurrency: str
     price: Decimal
     timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
