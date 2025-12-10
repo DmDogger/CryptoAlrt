@@ -5,7 +5,7 @@ from uuid import UUID
 import re
 
 from ..exceptions import DomainValidationError
-from ..value_objects.threshold import Threshold
+from ..value_objects.threshold import ThresholdValueObject
 
 
 @final
@@ -14,7 +14,7 @@ class AlertEntity:
     id: UUID
     email: str
     cryptocurrency: str
-    threshold_price: Threshold
+    threshold_price: ThresholdValueObject
     condition: str
     is_active: bool
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))

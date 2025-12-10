@@ -5,7 +5,7 @@ from uuid import UUID
 
 from ...application.dtos.alert import AlertDTO
 from ...application.interfaces.serialization import SerializationMapperProtocol
-from ...domain.value_objects.threshold import Threshold
+from ...domain.value_objects.threshold import ThresholdValueObject
 
 
 @final
@@ -40,7 +40,7 @@ class InfrastructureAlertMapper(SerializationMapperProtocol):
             id=UUID(data['id']),
             email=data['email'],
             cryptocurrency=data['cryptocurrency'],
-            threshold_price=Threshold.from_dict(data['threshold_price']),
+            threshold_price=ThresholdValueObject.from_dict(data['threshold_price']),
             condition=data['condition'],
             is_active=data['is_active'],
             created_at=datetime.fromisoformat(data['created_at']),

@@ -13,18 +13,22 @@ class PriceValueObject:
     timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     def __post_init__(self):
-        if self.price < 0:
-            raise DomainValidationError("Price cannot be below than zero")
+        if self.price <= 0:
+            raise DomainValidationError("Price must be positive")
         if len(self.cryptocurrency) < 3 or len(self.cryptocurrency) > 100:
             raise DomainValidationError("Cryptocurrency symbol must be between 3 and 100 characters")
         if self.timestamp > datetime.now(UTC):
             raise DomainValidationError("Timestamp can't be in future")
 
+    def calculate_change_price_percent(self, new_price: int | float | Decimal) -> Decimal:
+        new_price = Decimal(new_price)
+        return ((new_price - self.price) / self.price) * 100
+
     def to_dict(self):
         return {
             'cryptocurrency': self.cryptocurrency,
-            'price': self.price,
-            'timestamp': self.timestamp,
+            'price': str(self.price),
+            'timestamp': self.timestamp.isoformat(),
         }
 
     def __eq__(self, other):

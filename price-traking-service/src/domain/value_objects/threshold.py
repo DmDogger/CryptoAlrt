@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from decimal import Decimal
-from typing import final
+from typing import final, Dict
 
 from ..exceptions import DomainValidationError
 
@@ -31,7 +31,14 @@ class ThresholdValueObject:
         """Serialize to dictionary."""
         return {"value": str(self.value)}
 
+    @classmethod
+    def from_dict(cls, data: dict) -> "ThresholdValueObject":
+        """Deserialize from dictionary."""
+        return cls(value=Decimal(data["value"]))
+
     def __eq__(self, value):
-        if not isinstance(value, (int, float, Decimal)):
-            return False
-        return self.value == value
+        if isinstance(value, (int, float, Decimal)):
+            return self.value == value
+        if isinstance(value, ThresholdValueObject):
+            return self.value == value.value
+        return False

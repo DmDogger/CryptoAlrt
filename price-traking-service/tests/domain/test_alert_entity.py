@@ -1,0 +1,125 @@
+import pytest
+from datetime import UTC, datetime
+from decimal import Decimal
+from uuid import UUID, uuid4
+
+from src.domain.entities.alert import AlertEntity
+from src.domain.value_objects.threshold import ThresholdValueObject
+from src.domain.exceptions import DomainValidationError
+
+
+class TestAlertEntity:
+    """Tests for AlertEntity domain entity."""
+
+    def test_create_valid_alert(self):
+        """Test creating a valid alert with all required fields."""
+        threshold = ThresholdValueObject(value=Decimal("50000"))
+        alert = AlertEntity(
+            id=uuid4(),
+            email="user@example.com",
+            cryptocurrency="BTC",
+            threshold_price=threshold,
+            condition="above",
+            is_active=True,
+            created_at=datetime.now(UTC)
+        )
+
+        assert alert.email == "user@example.com"
+        assert alert.cryptocurrency == "BTC"
+        assert alert.threshold_price.value == Decimal("50000")
+        assert alert.condition == "above"
+        assert alert.is_active is True
+        assert isinstance(alert.id, UUID)
+
+    def test_alert_with_invalid_email(self):
+        """Test that invalid email raises DomainValidationError."""
+        threshold = ThresholdValueObject(value=Decimal("50000"))
+
+        with pytest.raises(DomainValidationError, match="Invalid email format"):
+            AlertEntity(
+                id=uuid4(),
+                email="invalid-email",
+                cryptocurrency="BTC",
+                threshold_price=threshold,
+                condition="above",
+                is_active=True,
+                created_at=datetime.now(UTC)
+            )
+
+    def test_alert_with_short_cryptocurrency(self):
+        """Test that cryptocurrency shorter than 3 characters raises error."""
+        threshold = ThresholdValueObject(value=Decimal("50000"))
+
+        with pytest.raises(DomainValidationError, match="Cryptocurrency symbol must be between 3 and 100 characters"):
+            AlertEntity(
+                id=uuid4(),
+                email="user@example.com",
+                cryptocurrency="BT",
+                threshold_price=threshold,
+                condition="above",
+                is_active=True,
+                created_at=datetime.now(UTC)
+            )
+
+    def test_alert_with_long_cryptocurrency(self):
+        """Test that cryptocurrency longer than 100 characters raises error."""
+        threshold = ThresholdValueObject(value=Decimal("50000"))
+        long_crypto = "A" * 101
+
+        with pytest.raises(DomainValidationError, match="Cryptocurrency symbol must be between 3 and 100 characters"):
+            AlertEntity(
+                id=uuid4(),
+                email="user@example.com",
+                cryptocurrency=long_crypto,
+                threshold_price=threshold,
+                condition="above",
+                is_active=True,
+                created_at=datetime.now(UTC)
+            )
+
+    def test_alert_immutable(self):
+        """Test that AlertEntity is immutable (frozen dataclass)."""
+        threshold = ThresholdValueObject(value=Decimal("50000"))
+        alert = AlertEntity(
+            id=uuid4(),
+            email="user@example.com",
+            cryptocurrency="BTC",
+            threshold_price=threshold,
+            condition="above",
+            is_active=True,
+            created_at=datetime.now(UTC)
+        )
+
+        with pytest.raises(AttributeError):
+            alert.is_active = False
+
+    def test_alert_with_invalid_condition(self):
+        """Test that invalid condition doesn't raise error in entity (validated elsewhere if needed)."""
+        # Note: Condition validation might be in use case, not entity
+        threshold = ThresholdValueObject(value=Decimal("50000"))
+        alert = AlertEntity(
+            id=uuid4(),
+            email="user@example.com",
+            cryptocurrency="BTC",
+            threshold_price=threshold,
+            condition="invalid",
+            is_active=True,
+            created_at=datetime.now(UTC)
+        )
+
+        assert alert.condition == "invalid"  # No validation in entity
+
+    def test_alert_created_at_default(self):
+        """Test that created_at has default value."""
+        threshold = ThresholdValueObject(value=Decimal("50000"))
+        alert = AlertEntity(
+            id=uuid4(),
+            email="user@example.com",
+            cryptocurrency="BTC",
+            threshold_price=threshold,
+            condition="above",
+            is_active=True
+            # created_at not provided, should use default
+        )
+
+        assert isinstance(alert.created_at, datetime)
