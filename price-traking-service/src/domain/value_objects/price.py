@@ -20,8 +20,7 @@ class PriceValueObject:
         if self.timestamp > datetime.now(UTC):
             raise DomainValidationError("Timestamp can't be in future")
 
-    def calculate_change_price_percent(self, new_price: int | float | Decimal) -> Decimal:
-        new_price = Decimal(new_price)
+    def calculate_change_price_percent(self, new_price: Decimal) -> Decimal:
         return ((new_price - self.price) / self.price) * 100
 
     def to_dict(self):

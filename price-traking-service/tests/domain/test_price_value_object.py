@@ -121,25 +121,25 @@ class TestPriceValueObject:
         assert result == Decimal("0")
 
     def test_price_calculate_change_price_percent_with_float(self):
-        """Test calculating price change percent with float input."""
+        """Test calculating price change percent with Decimal converted from float."""
         price = PriceValueObject(
             cryptocurrency="BTC",
             price=Decimal("50000"),
             timestamp=datetime.now(UTC)
         )
 
-        result = price.calculate_change_price_percent(52500.0)
+        result = price.calculate_change_price_percent(Decimal("52500.0"))
         assert result == Decimal("5")  # (52500 - 50000) / 50000 * 100 = 5
 
     def test_price_calculate_change_price_percent_with_int(self):
-        """Test calculating price change percent with int input."""
+        """Test calculating price change percent with Decimal converted from int."""
         price = PriceValueObject(
             cryptocurrency="BTC",
             price=Decimal("50000"),
             timestamp=datetime.now(UTC)
         )
 
-        result = price.calculate_change_price_percent(60000)
+        result = price.calculate_change_price_percent(Decimal("60000"))
         assert result == Decimal("20")  # (60000 - 50000) / 50000 * 100 = 20
 
     def test_price_immutable(self):
