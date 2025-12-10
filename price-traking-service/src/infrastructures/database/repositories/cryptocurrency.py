@@ -27,6 +27,21 @@ class SQLAlchemyCryptocurrencyRepository(CryptocurrencyRepositoryProtocol):
     session: AsyncSession
     _mapper: CryptocurrencyDBMapper
 
+    def __init__(
+        self,
+        session: AsyncSession,
+        mapper: CryptocurrencyDBMapper,
+    ) -> None:
+        """
+        Initialize the repository with database session and mapper.
+
+        Args:
+            session: The async SQLAlchemy session for database operations.
+            mapper: The mapper for converting between entities and database models.
+        """
+        object.__setattr__(self, 'session', session)
+        object.__setattr__(self, '_mapper', mapper)
+
     async def get_by_cryptocurrency_id(
         self,
         cryptocurrency_id: UUID,
