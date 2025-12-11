@@ -51,7 +51,12 @@ class AlertDBMapper:
 
         Returns:
             AlertEntity instance.
+
+        Raises:
+            ValueError: If cryptocurrency relationship is not loaded.
         """
+        if model.cryptocurrency is None:
+            raise ValueError("Cryptocurrency relationship must be loaded")
         return AlertEntity(
             id=model.id,
             email=model.email,

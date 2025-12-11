@@ -73,6 +73,24 @@ class SQLAlchemyCryptocurrencyRepository(CryptocurrencyRepositoryProtocol):
             logger.error(f"Error: {e}, ID: {cryptocurrency_id}")
             raise RepositoryError(f"Occurred error during retrieving cryptocurrency information with ID: {cryptocurrency_id}")
 
+    async def get_cryptocurrency_by_symbol(self, symbol: str):
+        try:
+            stmt = (
+                select(Cryptocurrency)
+                .where(Cryptocurrency.symbol == symbol)
+            )
+            res = await self.session.scalars(stmt)
+            result = res.first()
+
+            if result is None:
+                logger.error(f"[Not found]: Not found cryptocurrency with symbol: {symbol}")
+                return None
+            return self._mapper.from_database_model(result)
+
+        except SQLAlchemyError as e:
+            logger.error(f"[SQLAlchemyError]: Occurred error during retrieving from database {e}")
+            raise RepositoryError(f"Database error occurred while retrieving crypto with symbol: {symbol}")
+
     async def get_last_price(self, cryptocurrency_id: str | UUID) -> Decimal | None:
         """
         Get the last known price for a cryptocurrency.

@@ -79,5 +79,5 @@ class TestAlertDBMapper:
         model.created_at = datetime(2023, 1, 1, 12, 0, 0)
         model.cryptocurrency = None  # Relationship not loaded
 
-        with pytest.raises(AttributeError, match="relationship must be loaded"):
+        with pytest.raises(ValueError, match="Cryptocurrency relationship must be loaded"):
             mapper.from_database_model(model)
