@@ -9,6 +9,7 @@ from typing import final
 class PriceUpdatedEvent:
     """Domain event triggered when a cryptocurrency price is updated."""
     cryptocurrency: str
+    name: str
     price: Decimal
     timestamp: datetime
 

@@ -16,3 +16,7 @@ class RepositoryError(Exception):
 class PublishError(Exception):
     """Raised when event publishing fails."""
     ...
+
+@final
+class CryptocurrencyNotFound(Exception):
+    """Raised when cryptocurrency not in database. """
