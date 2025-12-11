@@ -18,18 +18,15 @@ class PublishPriceUpdateToBrokerUseCase:
             self,
             broker: EventPublisherProtocol,
             repository: CryptocurrencyRepositoryProtocol,
-            price_update_service: PriceUpdateDomainService,
     ):
         """Initialize the use case with required dependencies.
 
         Args:
             broker: Event publisher for sending messages to broker.
             repository: Repository for accessing cryptocurrency entities.
-            price_update_service: Domain service for creating price update events.
         """
         self._broker = broker
         self._repository = repository
-        self._price_update_service = price_update_service
 
     async def execute(
             self,
@@ -54,8 +51,10 @@ class PublishPriceUpdateToBrokerUseCase:
             if not cryptocurrency:
                 logger.error(f"Occurred error during retrieving cryptocurrency from database")
                 raise CryptocurrencyNotFound(f"Cryptocurrency with this ID not found")
-            event = await self._price_update_service.create_price_updated_event(
-                cryptocurrency_id=cryptocurrency_id,
+            event = await PriceUpdateDomainService.create_price_updated_event(
+                cryptocurrency_id=cryptocurrency.id,
+                cryptocurrency_symbol=cryptocurrency.symbol,
+                cryptocurrency_name=cryptocurrency.name,
                 new_price=new_price
             )
             logger.info(f'Event was created successfully. Event ID: {event.id}')
@@ -64,6 +63,7 @@ class PublishPriceUpdateToBrokerUseCase:
                 event=event,
             )
             logger.info(f"Event was successfully published into topic {broker_settings.price_updates_topic}, Event ID: {event.id}")
+
         except Exception as e:
             logger.error(f"Occurred error during publishing event, error: {e}")
             raise PublishError("Occurred error during publishing event.")

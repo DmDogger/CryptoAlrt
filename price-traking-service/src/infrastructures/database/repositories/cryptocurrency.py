@@ -115,10 +115,12 @@ class SQLAlchemyCryptocurrencyRepository(CryptocurrencyRepositoryProtocol):
             model = self._mapper.to_database_model(cryptocurrency_entity)
             self.session.add(model)
             await self.session.commit()
+
         except IntegrityError as e:
             await self.session.rollback()
             logger.error(f"IntegrityError: {e}, entity: {cryptocurrency_entity}")
             raise RepositoryError(f"Occurred error during saving cryptocurrency information with ID: {cryptocurrency_entity.id}")
+
         except SQLAlchemyError as e:
             await self.session.rollback()
             logger.error(f"SQLAlchemyError: {e}, entity: {cryptocurrency_entity}")
