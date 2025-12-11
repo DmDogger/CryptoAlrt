@@ -31,7 +31,9 @@ class TestPriceUpdatedEvent:
         )
 
         data = event.to_dict()
+        assert "id" in data
         assert data["cryptocurrency"] == "BTC"
+        assert data["name"] == ""  # Default value
         assert data["price"] == "50000"
         assert data["timestamp"] == timestamp.isoformat()
 
@@ -45,7 +47,9 @@ class TestPriceUpdatedEvent:
         }
 
         event = PriceUpdatedEvent.from_dict(data)
+        assert event.id is not None  # Should be generated
         assert event.cryptocurrency == "BTC"
+        assert event.name == ""  # Default value
         assert event.price == Decimal("50000")
         assert event.timestamp == datetime.fromisoformat(timestamp_str)
 

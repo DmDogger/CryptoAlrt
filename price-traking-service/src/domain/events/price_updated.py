@@ -1,25 +1,27 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from decimal import Decimal
 from typing import final
-from uuid import UUID
+from uuid import UUID, uuid4
 
 
 @final
 @dataclass(frozen=True, slots=True, kw_only=True)
 class PriceUpdatedEvent:
     """Domain event triggered when a cryptocurrency price is updated."""
-    id: UUID
+    id: UUID = field(default_factory=uuid4)
     cryptocurrency: str
-    name: str
+    name: str = ""
     price: Decimal
     timestamp: datetime
 
     def to_dict(self) -> dict:
         """Serialize the event to a dictionary for external systems (e.g., Kafka)."""
         return {
+            "id": str(self.id),
             "cryptocurrency": self.cryptocurrency,
-            "price": str(self.price),  # Decimal to string for JSON
+            "name": self.name,
+            "price": str(self.price),
             "timestamp": self.timestamp.isoformat()
         }
 
@@ -27,7 +29,9 @@ class PriceUpdatedEvent:
     def from_dict(cls, data: dict) -> "PriceUpdatedEvent":
         """Deserialize the event from a dictionary."""
         return cls(
+            id=UUID(data["id"]) if "id" in data and data["id"] else uuid4(),
             cryptocurrency=data["cryptocurrency"],
+            name=data.get("name", ""),
             price=Decimal(data["price"]),
-            timestamp=datetime.fromisoformat(data["timestamp"])
+            timestamp=datetime.fromisoformat(data["timestamp"]),
         )
