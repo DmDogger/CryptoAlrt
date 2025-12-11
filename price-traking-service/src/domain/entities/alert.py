@@ -1,7 +1,8 @@
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
+from decimal import Decimal
 from typing import final
-from uuid import UUID
+from uuid import UUID, uuid4
 import re
 
 from ..exceptions import DomainValidationError
@@ -15,7 +16,6 @@ class AlertEntity:
     email: str
     cryptocurrency: str
     threshold_price: ThresholdValueObject
-    condition: str
     is_active: bool
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
@@ -24,6 +24,34 @@ class AlertEntity:
             raise DomainValidationError("Invalid email format")
         if len(self.cryptocurrency) < 3 or len(self.cryptocurrency) > 100:
             raise DomainValidationError("Cryptocurrency symbol must be between 3 and 100 characters")
+
+    @classmethod
+    def create(
+        cls,
+        email: str,
+        cryptocurrency: str,
+        threshold_price: Decimal,
+        is_active: bool = True,
+    ) -> "AlertEntity":
+        """Creates a new AlertEntity instance.
+
+        Args:
+            email: User's email.
+            cryptocurrency: Cryptocurrency symbol.
+            threshold_price: Threshold price value.
+            is_active: Whether the alert is active.
+
+        Returns:
+            AlertEntity instance.
+        """
+        return cls(
+            id=uuid4(),
+            email=email,
+            cryptocurrency=cryptocurrency,
+            threshold_price=ThresholdValueObject(value=threshold_price),
+            is_active=is_active,
+            created_at=datetime.now(UTC),
+        )
 
 
 

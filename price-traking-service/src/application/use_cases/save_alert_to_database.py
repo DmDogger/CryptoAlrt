@@ -1,3 +1,4 @@
+from decimal import Decimal
 from uuid import UUID
 
 import structlog
@@ -18,19 +19,31 @@ class SaveAlertToDBUseCase:
 
     async def execute(
             self,
-            alert: AlertEntity,
+            email: str,
+            cryptocurrency: str,
+            threshold_price: Decimal,
             cryptocurrency_id: UUID,
+            is_active: bool = True,
     ) -> None:
-        """Saves alert entity to database.
+        """Creates and saves alert entity to database.
 
         Args:
-            alert: AlertEntity to save.
+            email: User's email.
+            cryptocurrency: Cryptocurrency symbol.
+            threshold_price: Threshold price value.
             cryptocurrency_id: ID of the cryptocurrency.
+            is_active: Whether the alert is active.
 
         Raises:
             AlertSavingError: If saving fails.
         """
         try:
+            alert = AlertEntity.create(
+                email=email,
+                cryptocurrency=cryptocurrency,
+                threshold_price=threshold_price,
+                is_active=is_active,
+            )
             await self._alert_repository.save(
                 cryptocurrency_id=cryptocurrency_id,
                 alert=alert

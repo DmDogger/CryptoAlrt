@@ -19,7 +19,6 @@ class TestInfrastructureAlertMapper:
             email="user@example.com",
             cryptocurrency="BTC",
             threshold_price=threshold,
-            condition="above",
             is_active=True,
             created_at=datetime(2023, 1, 1, tzinfo=UTC)
         )
@@ -31,7 +30,6 @@ class TestInfrastructureAlertMapper:
         assert data["email"] == "user@example.com"
         assert data["cryptocurrency"] == "BTC"
         assert data["threshold_price"]["value"] == "50000"
-        assert data["condition"] == "above"
         assert data["is_active"] is True
         assert data["created_at"] == "2023-01-01T00:00:00+00:00"
 
@@ -42,7 +40,6 @@ class TestInfrastructureAlertMapper:
             "email": "user@example.com",
             "cryptocurrency": "BTC",
             "threshold_price": {"value": "50000"},
-            "condition": "above",
             "is_active": True,
             "created_at": "2023-01-01T00:00:00+00:00"
         }
@@ -54,6 +51,5 @@ class TestInfrastructureAlertMapper:
         assert dto.email == "user@example.com"
         assert dto.cryptocurrency == "BTC"
         assert dto.threshold_price.value == Decimal("50000")
-        assert dto.condition == "above"
         assert dto.is_active is True
         assert dto.created_at == datetime(2023, 1, 1, tzinfo=UTC)

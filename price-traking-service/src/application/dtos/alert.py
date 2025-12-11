@@ -19,6 +19,5 @@ class AlertDTO:
     email: str
     cryptocurrency: str
     threshold_price: ThresholdValueObject
-    condition: str
     is_active: bool
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))

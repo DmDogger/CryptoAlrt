@@ -19,7 +19,6 @@ class TestAlertEntity:
             email="user@example.com",
             cryptocurrency="BTC",
             threshold_price=threshold,
-            condition="above",
             is_active=True,
             created_at=datetime.now(UTC)
         )
@@ -27,7 +26,6 @@ class TestAlertEntity:
         assert alert.email == "user@example.com"
         assert alert.cryptocurrency == "BTC"
         assert alert.threshold_price.value == Decimal("50000")
-        assert alert.condition == "above"
         assert alert.is_active is True
         assert isinstance(alert.id, UUID)
 
@@ -41,7 +39,6 @@ class TestAlertEntity:
                 email="invalid-email",
                 cryptocurrency="BTC",
                 threshold_price=threshold,
-                condition="above",
                 is_active=True,
                 created_at=datetime.now(UTC)
             )
@@ -56,7 +53,6 @@ class TestAlertEntity:
                 email="user@example.com",
                 cryptocurrency="BT",
                 threshold_price=threshold,
-                condition="above",
                 is_active=True,
                 created_at=datetime.now(UTC)
             )
@@ -72,7 +68,6 @@ class TestAlertEntity:
                 email="user@example.com",
                 cryptocurrency=long_crypto,
                 threshold_price=threshold,
-                condition="above",
                 is_active=True,
                 created_at=datetime.now(UTC)
             )
@@ -85,7 +80,6 @@ class TestAlertEntity:
             email="user@example.com",
             cryptocurrency="BTC",
             threshold_price=threshold,
-            condition="above",
             is_active=True,
             created_at=datetime.now(UTC)
         )
@@ -93,21 +87,6 @@ class TestAlertEntity:
         with pytest.raises(AttributeError):
             alert.is_active = False
 
-    def test_alert_with_invalid_condition(self):
-        """Test that invalid condition doesn't raise error in entity (validated elsewhere if needed)."""
-        # Note: Condition validation might be in use case, not entity
-        threshold = ThresholdValueObject(value=Decimal("50000"))
-        alert = AlertEntity(
-            id=uuid4(),
-            email="user@example.com",
-            cryptocurrency="BTC",
-            threshold_price=threshold,
-            condition="invalid",
-            is_active=True,
-            created_at=datetime.now(UTC)
-        )
-
-        assert alert.condition == "invalid"  # No validation in entity
 
     def test_alert_created_at_default(self):
         """Test that created_at has default value."""
@@ -117,7 +96,6 @@ class TestAlertEntity:
             email="user@example.com",
             cryptocurrency="BTC",
             threshold_price=threshold,
-            condition="above",
             is_active=True
             # created_at not provided, should use default
         )

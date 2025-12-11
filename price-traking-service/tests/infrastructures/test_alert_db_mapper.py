@@ -25,7 +25,6 @@ class TestAlertDBMapper:
             email="user@example.com",
             cryptocurrency="BTC",
             threshold_price=ThresholdValueObject(value=Decimal("50000")),
-            condition="above",
             is_active=True,
             created_at=datetime(2023, 1, 1, 12, 0, 0, tzinfo=UTC)
         )
@@ -38,7 +37,6 @@ class TestAlertDBMapper:
             assert call_kwargs['email'] == entity.email
             assert call_kwargs['cryptocurrency_id'] == cryptocurrency_id
             assert call_kwargs['threshold_price'] == entity.threshold_price.value
-            assert call_kwargs['condition'] == entity.condition
             assert call_kwargs['is_active'] == entity.is_active
             assert call_kwargs['created_at'] == entity.created_at
 
@@ -49,10 +47,9 @@ class TestAlertDBMapper:
         model.id = uuid4()
         model.email = "user@example.com"
         model.threshold_price = Decimal("50000")
-        model.condition = "above"
         model.is_active = True
         model.created_at = datetime(2023, 1, 1, 12, 0, 0)
-        
+
         # Mock cryptocurrency relationship
         mock_crypto = MagicMock()
         mock_crypto.symbol = "BTC"
@@ -64,7 +61,6 @@ class TestAlertDBMapper:
         assert entity.email == model.email
         assert entity.cryptocurrency == "BTC"  # From relationship
         assert entity.threshold_price.value == model.threshold_price
-        assert entity.condition == model.condition
         assert entity.is_active == model.is_active
 
     def test_from_database_model_missing_relationship(self, mapper):
@@ -74,7 +70,6 @@ class TestAlertDBMapper:
         model.email = "user@example.com"
         model.cryptocurrency_id = uuid4()
         model.threshold_price = Decimal("50000")
-        model.condition = "above"
         model.is_active = True
         model.created_at = datetime(2023, 1, 1, 12, 0, 0)
         model.cryptocurrency = None  # Relationship not loaded

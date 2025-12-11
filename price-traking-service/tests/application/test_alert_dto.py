@@ -18,7 +18,6 @@ class TestAlertDTO:
             email="user@example.com",
             cryptocurrency="BTC",
             threshold_price=threshold,
-            condition="above",
             is_active=True,
             created_at=datetime.now(UTC)
         )
@@ -26,7 +25,6 @@ class TestAlertDTO:
         assert dto.email == "user@example.com"
         assert dto.cryptocurrency == "BTC"
         assert dto.threshold_price.value == Decimal("50000")
-        assert dto.condition == "above"
         assert dto.is_active is True
 
     def test_alert_dto_immutable(self):
@@ -37,7 +35,6 @@ class TestAlertDTO:
             email="user@example.com",
             cryptocurrency="BTC",
             threshold_price=threshold,
-            condition="above",
             is_active=True,
             created_at=datetime.now(UTC)
         )

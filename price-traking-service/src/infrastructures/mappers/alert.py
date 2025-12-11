@@ -27,7 +27,6 @@ class InfrastructureAlertMapper(SerializationMapperProtocol):
             "email": dto.email,
             "cryptocurrency": dto.cryptocurrency,
             "threshold_price": dto.threshold_price.to_dict(),
-            "condition": dto.condition,
             "is_active": dto.is_active,
             "created_at": dto.created_at.isoformat(),
         }
@@ -41,7 +40,6 @@ class InfrastructureAlertMapper(SerializationMapperProtocol):
             email=data['email'],
             cryptocurrency=data['cryptocurrency'],
             threshold_price=ThresholdValueObject.from_dict(data['threshold_price']),
-            condition=data['condition'],
             is_active=data['is_active'],
             created_at=datetime.fromisoformat(data['created_at']),
         )

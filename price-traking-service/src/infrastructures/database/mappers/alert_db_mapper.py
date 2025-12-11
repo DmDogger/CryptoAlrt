@@ -4,8 +4,8 @@ from decimal import Decimal
 from typing import final
 from uuid import UUID
 
-from src.domain.entities.alert import AlertEntity
-from src.domain.value_objects.threshold import ThresholdValueObject
+from domain.entities.alert import AlertEntity
+from domain.value_objects.threshold import ThresholdValueObject
 from ..models.alert import Alert
 
 
@@ -37,7 +37,6 @@ class AlertDBMapper:
             email=entity.email,
             cryptocurrency_id=cryptocurrency_id,
             threshold_price=entity.threshold_price.value,
-            condition=entity.condition,
             is_active=entity.is_active,
             created_at=entity.created_at,
         )
@@ -62,7 +61,6 @@ class AlertDBMapper:
             email=model.email,
             cryptocurrency=model.cryptocurrency.symbol,
             threshold_price=ThresholdValueObject(value=model.threshold_price),
-            condition=model.condition,
             is_active=model.is_active,
             created_at=model.created_at,
         )

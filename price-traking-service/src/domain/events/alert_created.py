@@ -15,7 +15,6 @@ class AlertCreatedEvent:
     email: str
     cryptocurrency_id: UUID
     threshold_price: Decimal
-    condition: str
     price_change_percent: Decimal
     current_price: Decimal
     timestamp: datetime
@@ -28,7 +27,6 @@ class AlertCreatedEvent:
             "email": self.email,
             "cryptocurrency_id": self.cryptocurrency_id,
             "threshold_price": str(self.threshold_price),
-            "condition": self.condition,
             "price_change_percent": str(self.price_change_percent),
             "current_price": str(self.current_price),
             "timestamp": self.timestamp.isoformat()
@@ -43,7 +41,6 @@ class AlertCreatedEvent:
             email=data["email"],
             cryptocurrency_id=data["cryptocurrency_id"],
             threshold_price=Decimal(data["threshold_price"]),
-            condition=data["condition"],
             price_change_percent=Decimal(data["price_change_percent"]),
             current_price=Decimal(data["current_price"]),
             timestamp=datetime.fromisoformat(data["timestamp"])

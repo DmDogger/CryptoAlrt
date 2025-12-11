@@ -49,7 +49,6 @@ class CreateAlertOnPriceChangeService:
                 email=user_email,
                 cryptocurrency_id=cryptocurrency_id,
                 threshold_price=threshold_price,
-                condition='above' if percent_between > 0 else 'below',
                 price_change_percent=percent_between,
                 current_price=new_price,
                 timestamp=datetime.now(UTC)

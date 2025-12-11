@@ -73,7 +73,6 @@ class TestKafkaEventPublisher:
             email="user@example.com",
             cryptocurrency="BTC",
             threshold_price=ThresholdValueObject(value=Decimal("50000")),
-            condition="above",
             is_active=True,
             created_at=datetime(2023, 1, 1, tzinfo=UTC)
         )
