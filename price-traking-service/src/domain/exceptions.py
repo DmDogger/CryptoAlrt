@@ -20,3 +20,7 @@ class PublishError(Exception):
 @final
 class CryptocurrencyNotFound(Exception):
     """Raised when cryptocurrency not in database. """
+
+@final
+class DatabaseDataAlreadyExists(Exception):
+    """ Raised when this data already exists in database"""

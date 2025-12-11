@@ -18,7 +18,7 @@ class AlertRepositoryProtocol(Protocol):
         ...
 
     @abstractmethod
-    async def save(self, artifact: AlertEntity) -> None:
+    async def save(self, alert: AlertEntity) -> None:
         ...
 
 
@@ -34,5 +34,5 @@ class CryptocurrencyRepositoryProtocol(Protocol):
         ...
 
     @abstractmethod
-    async def save(self, artifact: AlertEntity) -> None:
+    async def save(self, artifact: CryptocurrencyEntity) -> None:
         ...
