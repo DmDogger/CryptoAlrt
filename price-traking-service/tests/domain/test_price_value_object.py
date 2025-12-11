@@ -95,7 +95,9 @@ class TestPriceValueObject:
             timestamp=datetime.now(UTC)
         )
 
-        result = price.calculate_change_price_percent(Decimal("55000"))
+        result = PriceValueObject.calculate_change_price_percent_(
+            old_price=price.price, new_price=Decimal("55000")
+        )
         assert result == Decimal("10")  # (55000 - 50000) / 50000 * 100 = 10
 
     def test_price_calculate_change_price_percent_decrease(self):
@@ -106,7 +108,9 @@ class TestPriceValueObject:
             timestamp=datetime.now(UTC)
         )
 
-        result = price.calculate_change_price_percent(Decimal("45000"))
+        result = PriceValueObject.calculate_change_price_percent_(
+            old_price=price.price, new_price=Decimal("45000")
+        )
         assert result == Decimal("-10")  # (45000 - 50000) / 50000 * 100 = -10
 
     def test_price_calculate_change_price_percent_no_change(self):
@@ -117,7 +121,9 @@ class TestPriceValueObject:
             timestamp=datetime.now(UTC)
         )
 
-        result = price.calculate_change_price_percent(Decimal("50000"))
+        result = PriceValueObject.calculate_change_price_percent_(
+            old_price=price.price, new_price=Decimal("50000")
+        )
         assert result == Decimal("0")
 
     def test_price_calculate_change_price_percent_with_float(self):
@@ -128,7 +134,9 @@ class TestPriceValueObject:
             timestamp=datetime.now(UTC)
         )
 
-        result = price.calculate_change_price_percent(Decimal("52500.0"))
+        result = PriceValueObject.calculate_change_price_percent_(
+            old_price=price.price, new_price=Decimal("52500.0")
+        )
         assert result == Decimal("5")  # (52500 - 50000) / 50000 * 100 = 5
 
     def test_price_calculate_change_price_percent_with_int(self):
@@ -139,8 +147,17 @@ class TestPriceValueObject:
             timestamp=datetime.now(UTC)
         )
 
-        result = price.calculate_change_price_percent(Decimal("60000"))
+        result = PriceValueObject.calculate_change_price_percent_(
+            old_price=price.price, new_price=Decimal("60000")
+        )
         assert result == Decimal("20")  # (60000 - 50000) / 50000 * 100 = 20
+
+    def test_calculate_change_price_percent_static_call(self):
+        """Test that calculate_change_price_percent_ can be called statically without instance."""
+        result = PriceValueObject.calculate_change_price_percent_(
+            old_price=Decimal("100"), new_price=Decimal("120")
+        )
+        assert result == Decimal("20")  # (120 - 100) / 100 * 100 = 20
 
     def test_price_immutable(self):
         """Test that Price is immutable."""

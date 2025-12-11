@@ -13,7 +13,7 @@ class AlertCreatedEvent:
     id: UUID = field(default_factory=uuid4)
     alert_id: UUID
     email: str
-    cryptocurrency: str
+    cryptocurrency_id: UUID
     threshold_price: Decimal
     condition: str
     price_change_percent: Decimal
@@ -26,7 +26,7 @@ class AlertCreatedEvent:
             "id": str(self.id),
             "alert_id": str(self.alert_id),
             "email": self.email,
-            "cryptocurrency": self.cryptocurrency,
+            "cryptocurrency_id": self.cryptocurrency_id,
             "threshold_price": str(self.threshold_price),
             "condition": self.condition,
             "price_change_percent": str(self.price_change_percent),
@@ -41,7 +41,7 @@ class AlertCreatedEvent:
             id=UUID(data.get("id", uuid4())),
             alert_id=UUID(data["alert_id"]),
             email=data["email"],
-            cryptocurrency=data["cryptocurrency"],
+            cryptocurrency_id=data["cryptocurrency_id"],
             threshold_price=Decimal(data["threshold_price"]),
             condition=data["condition"],
             price_change_percent=Decimal(data["price_change_percent"]),

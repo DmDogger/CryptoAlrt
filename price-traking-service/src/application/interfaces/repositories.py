@@ -1,4 +1,5 @@
 from abc import abstractmethod
+from decimal import Decimal
 from typing import Protocol
 from uuid import UUID
 
@@ -27,6 +28,13 @@ class CryptocurrencyRepositoryProtocol(Protocol):
     Protocol for a cryptocurrency repository.
     Defines methods for retrieving and saving cryptocurrency entities.
     """
+
+    @abstractmethod
+    async def get_last_price(
+            self, cryptocurrency_id: str | UUID
+    ) -> Decimal | None:
+        ...
+
     @abstractmethod
     async def get_by_cryptocurrency_id(
         self, cryptocurrency_id: str | UUID
