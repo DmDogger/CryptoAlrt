@@ -1,10 +1,11 @@
 from dataclasses import dataclass
+from decimal import Decimal
 from typing import final
 from uuid import UUID
 
 from structlog import getLogger
 
-from sqlalchemy import select
+from sqlalchemy import select, desc
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -12,7 +13,7 @@ from application.interfaces.repositories import CryptocurrencyRepositoryProtocol
 from domain.entities.cryptocurrency import CryptocurrencyEntity
 from domain.exceptions import RepositoryError
 from infrastructures.database.mappers.cryptocurrency_db_mapper import CryptocurrencyDBMapper
-from infrastructures.database.models.cryptocurrency import Cryptocurrency
+from infrastructures.database.models.cryptocurrency import Cryptocurrency, CryptocurrencyPrice
 
 logger = getLogger(__name__)
 
@@ -71,6 +72,34 @@ class SQLAlchemyCryptocurrencyRepository(CryptocurrencyRepositoryProtocol):
         except SQLAlchemyError as e:
             logger.error(f"Error: {e}, ID: {cryptocurrency_id}")
             raise RepositoryError(f"Occurred error during retrieving cryptocurrency information with ID: {cryptocurrency_id}")
+
+    async def get_last_price(self, cryptocurrency_id: str | UUID) -> Decimal | None:
+        """
+        Get the last known price for a cryptocurrency.
+
+        Args:
+            cryptocurrency_id: The UUID of the cryptocurrency.
+
+        Returns:
+            The last price as Decimal if found, None otherwise.
+
+        Raises:
+            RepositoryError: If a database error occurs.
+        """
+        try:
+            stmt = (
+                select(CryptocurrencyPrice.price)
+                .where(CryptocurrencyPrice.cryptocurrency_id == cryptocurrency_id)
+                .order_by(desc(CryptocurrencyPrice.timestamp))
+                .limit(1)
+            )
+            result = await self.session.scalars(stmt)
+            logger.info(f"Successfully got last price by crypto id: {cryptocurrency_id}")
+            return result.first()
+        except SQLAlchemyError as e:
+            logger.error(f"Unexpected SQLAlchemy Error: {e}, crypto-id: {cryptocurrency_id}")
+            raise RepositoryError(f"Occurred error during retrieving of cryptocurrency price information")
+
 
     async def get_sorted_cryptocurrencies_by_created_at_time(
             self,
