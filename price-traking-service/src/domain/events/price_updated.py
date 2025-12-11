@@ -2,12 +2,14 @@ from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
 from typing import final
+from uuid import UUID
 
 
 @final
 @dataclass(frozen=True, slots=True, kw_only=True)
 class PriceUpdatedEvent:
     """Domain event triggered when a cryptocurrency price is updated."""
+    id: UUID
     cryptocurrency: str
     name: str
     price: Decimal

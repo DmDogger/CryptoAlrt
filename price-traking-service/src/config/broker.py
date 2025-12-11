@@ -43,3 +43,5 @@ class BrokerSettings(BaseSettings):
         env_file = ".env"
         env_file_encoding = "utf-8"
         extra = "ignore"
+
+broker_settings = BrokerSettings()
