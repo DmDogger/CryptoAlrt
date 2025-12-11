@@ -13,11 +13,9 @@ class CreateAlertOnPriceChangeService:
     """
     def __init__(
             self,
-            price_value_object: PriceValueObject,
-            alert_created_event: AlertCreatedEvent
+            price_value_object: PriceValueObject
     ):
         self._price_value_object = price_value_object
-        self._alert_created_event = alert_created_event
 
     def create_alert_on_price_change(
             self,
@@ -45,13 +43,13 @@ class CreateAlertOnPriceChangeService:
             old_price=old_price,
             new_price=new_price,
         )
-        if percent_between > threshold_percent:
+        if abs(percent_between) > threshold_percent:
             return AlertCreatedEvent(
                 alert_id=uuid4(),
                 email=user_email,
-                cryptocurrency=cryptocurrency,
+                cryptocurrency_id=cryptocurrency_id,
                 threshold_price=threshold_price,
-                condition='above',
+                condition='above' if percent_between > 0 else 'below',
                 price_change_percent=percent_between,
                 current_price=new_price,
                 timestamp=datetime.now(UTC)

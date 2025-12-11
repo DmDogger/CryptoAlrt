@@ -67,7 +67,7 @@ class PublishAlertPriceChangedToBrokerUseCase:
                 else:
                     logger.info(f"Event ID {alert_event.alert_id} was successfully sent to broker!")
             else:
-                raise CryptocurrencyNotFound(f"Old price for this cryptocurrency not found")
+                logger.info(f"Old price for this cryptocurrency not found")
         except Exception as e:
             logger.exception("Unexpected error during alert publishing", exc_info=e)
             raise PublishError("Occurred error during publishing event.")
