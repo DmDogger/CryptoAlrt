@@ -51,6 +51,7 @@ class PublishPriceUpdateToBrokerUseCase:
             if not cryptocurrency:
                 logger.error(f"Occurred error during retrieving cryptocurrency from database")
                 raise CryptocurrencyNotFound(f"Cryptocurrency with this ID not found")
+
             event = await PriceUpdateDomainService.create_price_updated_event(
                 cryptocurrency_id=cryptocurrency.id,
                 cryptocurrency_symbol=cryptocurrency.symbol,

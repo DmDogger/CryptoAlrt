@@ -23,7 +23,7 @@ class SQLAlchemyAlertRepository(AlertRepositoryProtocol):
     def __init__(
         self,
         session: AsyncSession,
-        mapper: CryptocurrencyDBMapper,
+        mapper: AlertDBMapper,
     ) -> None:
         """
         Initialize the repository with database session and mapper.

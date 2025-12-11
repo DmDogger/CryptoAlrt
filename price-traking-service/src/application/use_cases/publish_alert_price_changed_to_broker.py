@@ -47,7 +47,7 @@ class PublishAlertPriceChangedToBrokerUseCase:
             cryptocurrency = await self._repository.get_by_cryptocurrency_id(cryptocurrency_id)
 
             if cryptocurrency is None:
-                logger.error(f"Cryptocurrency with ID {cryptocurrency_id} not exist")
+                logger.error(f"[Not found]: Cryptocurrency with ID {cryptocurrency_id} not exist")
                 raise CryptocurrencyNotFound(f"Cryptocurrency with ID {cryptocurrency_id} not found")
 
             if old_price := await self._repository.get_last_price(cryptocurrency.id):
@@ -59,17 +59,17 @@ class PublishAlertPriceChangedToBrokerUseCase:
                     threshold_price=threshold_price,
                     threshold_percent=threshold_percent
                 )
-                if not await self._broker.publish(
+
+                await self._broker.publish(
                     topic=broker_settings.alert_created_topic,
                     event=alert_event
-                ):
-                    raise PublishError(f"Occurred error during publishing. Event ID: {alert_event.alert_id}")
-                else:
-                    logger.info(f"Event ID {alert_event.alert_id} was successfully sent to broker!")
+                )
+                logger.info(f"[Broker]: Successfully sent message into broker.")
             else:
-                logger.info(f"Old price for this cryptocurrency not found")
+                logger.error(f"[Not found]: Old price fot this cryptocurrency not found.")
+
         except Exception as e:
-            logger.exception("Unexpected error during alert publishing", exc_info=e)
+            logger.exception("[Unexpected]: Unexpected error during alert publishing", exc_info=e)
             raise PublishError("Occurred error during publishing event.")
 
 
