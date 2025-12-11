@@ -19,6 +19,9 @@ class ThresholdValueObject:
         """Check if the given price is above the threshold."""
         return price > self.value
 
+    def is_above_in_percent(self, percent: Decimal):
+        return self.value > percent / 100
+
     def is_below(self, price: Decimal) -> bool:
         """Check if the given price is below the threshold."""
         return price < self.value
