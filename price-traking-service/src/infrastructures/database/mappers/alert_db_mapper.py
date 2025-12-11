@@ -51,21 +51,7 @@ class AlertDBMapper:
 
         Returns:
             AlertEntity instance.
-
-        Raises:
-            AttributeError: If model.cryptocurrency relationship is not loaded.
-                Ensure to use joinedload or selectinload when querying.
         """
-
-        # Get cryptocurrency symbol from relationship
-        # This requires the relationship to be loaded (e.g., via joinedload)
-        if model.cryptocurrency is None:
-            raise AttributeError(
-                "Alert.cryptocurrency relationship must be loaded. "
-                "Use joinedload(Alert.cryptocurrency) or selectinload(Alert.cryptocurrency) "
-                "when querying the Alert model."
-            )
-
         return AlertEntity(
             id=model.id,
             email=model.email,

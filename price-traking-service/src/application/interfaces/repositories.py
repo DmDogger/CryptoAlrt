@@ -19,7 +19,7 @@ class AlertRepositoryProtocol(Protocol):
         ...
 
     @abstractmethod
-    async def save(self, alert: AlertEntity) -> None:
+    async def save(self, cryptocurrency_id: UUID, alert: AlertEntity) -> None:
         ...
 
 
