@@ -44,6 +44,47 @@ class SQLAlchemyCryptocurrencyRepository(CryptocurrencyRepositoryProtocol):
         object.__setattr__(self, 'session', session)
         object.__setattr__(self, '_mapper', mapper)
 
+    async def get_cryptocoins_list_by_coingecko_id(
+            self,
+            coingecko_id: str
+    ) -> list[CryptocurrencyEntity]:
+        """Get list of cryptocurrencies by CoinGecko ID.
+        
+        Args:
+            coingecko_id: CoinGecko identifier (e.g., "bitcoin", "ethereum").
+        
+        Returns:
+            List of CryptocurrencyEntity objects, ordered by creation date (newest first).
+            Returns empty list if no cryptocurrencies found.
+        
+        Raises:
+            RepositoryError: If a database error occurs during retrieval.
+        """
+        try:
+            stmt = (
+                select(Cryptocurrency)
+                .where(Cryptocurrency.coingecko_id == coingecko_id)
+                .order_by(desc(Cryptocurrency.created_at))
+            )
+            result = await self.session.scalars(stmt)
+            models = result.all()
+            
+            if not models:
+                logger.info(f"[Not found]: No cryptocurrencies found with coingecko_id: {coingecko_id}")
+                return []
+            
+            logger.info(f"[Success]: Found {len(models)} cryptocurrency(ies) with coingecko_id: {coingecko_id}")
+            return [self._mapper.from_database_model(model) for model in models]
+            
+        except SQLAlchemyError as e:
+            logger.error(f"[SQLAlchemyError]: Error retrieving cryptocurrencies by coingecko_id={coingecko_id}: {e}")
+            raise RepositoryError(
+                f"Error occurred while retrieving cryptocurrencies with coingecko_id: {coingecko_id}"
+            )
+
+
+
+
     async def get_by_cryptocurrency_id(
         self,
         cryptocurrency_id: UUID,

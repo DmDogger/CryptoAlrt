@@ -22,6 +22,7 @@ class Cryptocurrency(Base):
     symbol: Mapped[str] = mapped_column(String(100), nullable=False, unique=True)
     name: Mapped[str] = mapped_column(String(10), nullable=False, unique=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.now())
+    coingecko_id: Mapped[str] = mapped_column(String(20), nullable=False)
 
     alerts: Mapped[list['Alert']] = relationship(
         'Alert',
@@ -52,7 +53,7 @@ class CryptocurrencyPrice(Base):
         ForeignKey('cryptocurrency.id')
     )
     price_usd: Mapped[Decimal] = mapped_column(Numeric(10,2), nullable=False)
-    timestamp: Mapped[datetime] = mapped_column(DateTime, default=func.now())
+    last_updated: Mapped[datetime] = mapped_column(DateTime, default=func.now())
 
     market_cap_usd: Mapped[Decimal | None] = mapped_column(Numeric(30, 2), nullable=True)
     total_volume_24h_usd: Mapped[Decimal | None] = mapped_column(Numeric(30, 2), nullable=True)

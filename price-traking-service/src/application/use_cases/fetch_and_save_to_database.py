@@ -81,7 +81,6 @@ class FetchAndSaveUseCase:
             logger.info(f"[Success]: Price successfully saved for {coingecko_dto.symbol}")
 
         except UnsuccessfullyCoinGeckoAPICall:
-            # Re-raise API errors as-is
             raise
         except Exception as e:
             logger.error(f"[Unexpected error]: Occurred unexpected error: {e}")

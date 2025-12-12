@@ -3,11 +3,11 @@ from uuid import UUID
 
 import structlog
 
-from src.application.interfaces.event_publisher import EventPublisherProtocol
-from src.application.interfaces.repositories import CryptocurrencyRepositoryProtocol
-from src.config.broker import broker_settings
-from src.domain.exceptions import CryptocurrencyNotFound, PublishError
-from src.domain.services.create_alert_on_price_change import CreateAlertOnPriceChangeService
+from application.interfaces.event_publisher import EventPublisherProtocol
+from application.interfaces.repositories import CryptocurrencyRepositoryProtocol
+from config.broker import broker_settings
+from domain.exceptions import CryptocurrencyNotFound, PublishError
+from domain.services.create_alert_on_price_change import CreateAlertOnPriceChangeService
 
 logger = structlog.getLogger(__name__)
 
