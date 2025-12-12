@@ -5,6 +5,7 @@ from uuid import UUID
 
 from src.domain.entities.alert import AlertEntity
 from src.domain.entities.cryptocurrency import CryptocurrencyEntity
+from src.application.dtos.coingecko_object import CoinGeckoDTO
 
 
 class AlertRepositoryProtocol(Protocol):
@@ -42,5 +43,14 @@ class CryptocurrencyRepositoryProtocol(Protocol):
         ...
 
     @abstractmethod
-    async def save(self, artifact: CryptocurrencyEntity) -> None:
+    async def save(self, crypto: CryptocurrencyEntity) -> None:
         ...
+
+    @abstractmethod
+    async def save_price(
+            self,
+            cryptocurrency_id: UUID,
+            price_data: CoinGeckoDTO
+    ) -> None: ...
+
+    async def get_cryptocurrency_by_symbol(self, symbol: str) -> CryptocurrencyEntity: ...

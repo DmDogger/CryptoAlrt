@@ -2,7 +2,7 @@ from datetime import datetime
 from decimal import Decimal
 from uuid import UUID
 
-from domain.events.price_updated import PriceUpdatedEvent
+from src.domain.events.price_updated import PriceUpdatedEvent
 
 
 class PriceUpdateDomainService:

@@ -8,12 +8,12 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy.ext.asyncio import AsyncSession
 from structlog import getLogger
 
-from application.interfaces.repositories import AlertRepositoryProtocol
-from domain.entities.alert import AlertEntity
-from domain.exceptions import RepositoryError
-from infrastructures.database.mappers.alert_db_mapper import AlertDBMapper
-from infrastructures.database.mappers.cryptocurrency_db_mapper import CryptocurrencyDBMapper
-from infrastructures.database.models.alert import Alert
+from src.application.interfaces.repositories import AlertRepositoryProtocol
+from src.domain.entities.alert import AlertEntity
+from src.domain.exceptions import RepositoryError
+from src.infrastructures.database.mappers.alert_db_mapper import AlertDBMapper
+from src.infrastructures.database.mappers.cryptocurrency_db_mapper import CryptocurrencyDBMapper
+from src.infrastructures.database.models.alert import Alert
 
 logger = getLogger(__name__)
 

@@ -3,11 +3,11 @@ from decimal import Decimal
 
 import structlog
 
-from application.interfaces.event_publisher import EventPublisherProtocol
-from application.interfaces.repositories import CryptocurrencyRepositoryProtocol
-from config.broker import broker_settings
-from domain.exceptions import PublishError, CryptocurrencyNotFound
-from domain.services.update_price import PriceUpdateDomainService
+from src.application.interfaces.event_publisher import EventPublisherProtocol
+from src.application.interfaces.repositories import CryptocurrencyRepositoryProtocol
+from src.config.broker import broker_settings
+from src.domain.exceptions import PublishError, CryptocurrencyNotFound
+from src.domain.services.update_price import PriceUpdateDomainService
 
 logger = structlog.getLogger(__name__)
 

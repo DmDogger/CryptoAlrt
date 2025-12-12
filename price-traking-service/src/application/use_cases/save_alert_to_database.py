@@ -3,9 +3,9 @@ from uuid import UUID
 
 import structlog
 
-from application.interfaces.repositories import AlertRepositoryProtocol
-from domain.entities.alert import AlertEntity
-from domain.exceptions import AlertSavingError
+from src.application.interfaces.repositories import AlertRepositoryProtocol
+from src.domain.entities.alert import AlertEntity
+from src.domain.exceptions import AlertSavingError
 
 logger = structlog.getLogger(__name__)
 

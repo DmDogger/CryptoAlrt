@@ -28,3 +28,7 @@ class AlertSavingError(Exception):
 @final
 class UnsuccessfullyCoinGeckoAPICall(Exception):
     """ """
+
+@final
+class UnexpectedError(Exception):
+    """ Raise when occurred unexpected error """

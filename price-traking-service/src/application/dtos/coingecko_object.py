@@ -16,7 +16,7 @@ class CoinGeckoDTO:
     market_cap: Decimal | None
     total_volume: Decimal | None
     high_24h: Decimal | None
-    low_24h: Decimal
+    low_24h: Decimal | None
     price_change_24h: Decimal | None
     price_change_percentage_24h: Decimal | None
     last_updated: datetime

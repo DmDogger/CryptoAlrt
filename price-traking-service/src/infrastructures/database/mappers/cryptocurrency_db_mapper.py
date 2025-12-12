@@ -3,10 +3,9 @@ from datetime import UTC, datetime
 from typing import final
 from uuid import UUID, uuid4
 
-from domain.entities.cryptocurrency import CryptocurrencyEntity
-
-from application.dtos.coingecko_object import CoinGeckoDTO
-from ..models.cryptocurrency import Cryptocurrency, CryptocurrencyPrice
+from src.domain.entities.cryptocurrency import CryptocurrencyEntity
+from src.application.dtos.coingecko_object import CoinGeckoDTO
+from src.infrastructures.database.models.cryptocurrency import Cryptocurrency, CryptocurrencyPrice
 
 
 @final

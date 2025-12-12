@@ -188,84 +188,8 @@ class TestCoinGeckoClient:
                 call_args = mock_httpx_client.get.call_args
                 assert coin_id in call_args.kwargs['params']['ids']
 
-    @pytest.mark.asyncio
-    async def test_fetch_and_save_success(
-        self,
-        coingecko_client,
-        mock_httpx_client,
-        mock_repository,
-        mock_coingecko_response
-    ):
-        """Test successful fetch and save operation."""
-        # Arrange
-        coin_id = "bitcoin"
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = mock_coingecko_response
-        mock_response.raise_for_status = MagicMock()
-        mock_httpx_client.get.return_value = mock_response
-
-        # Act
-        with patch.object(CoinGeckoDTO, 'to_dto') as mock_to_dto:
-            mock_dto = MagicMock(spec=CoinGeckoDTO)
-            mock_to_dto.return_value = mock_dto
-            
-            await coingecko_client.fetch_and_save(coin_id)
-
-            # Assert
-            mock_httpx_client.get.assert_called_once()
-            mock_repository.save.assert_called_once_with(mock_dto)
-
-    @pytest.mark.asyncio
-    async def test_fetch_and_save_fetch_fails(
-        self,
-        coingecko_client,
-        mock_httpx_client,
-        mock_repository
-    ):
-        """Test fetch_and_save doesn't save when fetch fails."""
-        # Arrange
-        coin_id = "bitcoin"
-        mock_httpx_client.get.side_effect = httpx.RequestError(
-            "Network error",
-            request=MagicMock()
-        )
-
-        # Act & Assert
-        with pytest.raises(UnsuccessfullyCoinGeckoAPICall):
-            await coingecko_client.fetch_and_save(coin_id)
-
-        # Repository save should not be called
-        mock_repository.save.assert_not_called()
-
-    @pytest.mark.asyncio
-    async def test_fetch_and_save_save_fails(
-        self,
-        coingecko_client,
-        mock_httpx_client,
-        mock_repository,
-        mock_coingecko_response
-    ):
-        """Test fetch_and_save propagates repository save errors."""
-        # Arrange
-        coin_id = "bitcoin"
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = mock_coingecko_response
-        mock_response.raise_for_status = MagicMock()
-        mock_httpx_client.get.return_value = mock_response
-        
-        # Repository save fails
-        mock_repository.save.side_effect = Exception("Database error")
-
-        # Act & Assert
-        with patch.object(CoinGeckoDTO, 'to_dto') as mock_to_dto:
-            mock_to_dto.return_value = MagicMock(spec=CoinGeckoDTO)
-            
-            with pytest.raises(Exception, match="Database error"):
-                await coingecko_client.fetch_and_save(coin_id)
-
-            mock_repository.save.assert_called_once()
+    # Note: fetch_and_save method was removed from CoinGeckoClient
+    # as the functionality is now handled by FetchAndSaveUseCase
 
     @pytest.mark.asyncio
     async def test_fetch_price_unexpected_exception(
