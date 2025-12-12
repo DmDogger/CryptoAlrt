@@ -1,10 +1,10 @@
 import structlog
 from decimal import Decimal
 
-from application.use_cases.fetch_and_save_to_database import FetchAndSaveUseCase
-from application.use_cases.publish_price_update_to_broker import PublishPriceUpdateToBrokerUseCase
-from domain.entities.cryptocurrency import CryptocurrencyEntity
-from domain.exceptions import (
+from src.application.use_cases.fetch_and_save_to_database import FetchAndSaveUseCase
+from src.application.use_cases.publish_price_update_to_broker import PublishPriceUpdateToBrokerUseCase
+from src.domain.entities.cryptocurrency import CryptocurrencyEntity
+from src.domain.exceptions import (
     UnsuccessfullyCoinGeckoAPICall,
     RepositoryError,
     PublishError,
@@ -76,7 +76,6 @@ class ProcessPriceUpdateUseCase:
                 f"(ID: {crypto_entity.id}) at ${current_price} USD"
             )
 
-            # Step 2: Publish to Kafka
             logger.info(f"[Step 2/2]: Publishing price update event to Kafka")
             await self._publish_price_updated_use_case.execute(
                 cryptocurrency_id=crypto_entity.id,

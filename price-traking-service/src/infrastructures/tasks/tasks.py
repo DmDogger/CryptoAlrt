@@ -62,11 +62,6 @@ def register_tasks(broker: AsyncBroker) -> None:
     Registered tasks:
         - fetch_all_cryptocurrency_prices: Periodic task that runs on cron schedule
           to fetch and save prices for all configured cryptocurrencies.
-    
-    Example:
-        >>> broker = BrokerWrapper(kafka_broker)
-        >>> register_tasks(broker)
-        [TaskIQ]: Tasks registered successfully
     """
     broker.register_task(
         fetch_all_prices_task,
