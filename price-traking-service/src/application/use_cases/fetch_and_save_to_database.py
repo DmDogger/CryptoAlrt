@@ -37,7 +37,7 @@ class FetchAndSaveUseCase:
     async def execute(
             self,
             coin_id: str
-    ) -> None:
+    ) -> CryptocurrencyEntity:
         """Execute the use case to fetch and save cryptocurrency price.
         
         This method:
@@ -74,11 +74,13 @@ class FetchAndSaveUseCase:
                 logger.info(f"[Success]: Created cryptocurrency {crypto_entity.id}")
 
             logger.info(f"[Info]: Preparing to save price to database...")
-            await self._crypto_repository.save_price(
+            crypto_entity = await self._crypto_repository.save_price(
                 cryptocurrency_id=crypto_entity.id,
                 price_data=coingecko_dto
             )
             logger.info(f"[Success]: Price successfully saved for {coingecko_dto.symbol}")
+
+            return crypto_entity, coingecko_dto.current_price
 
         except UnsuccessfullyCoinGeckoAPICall:
             raise

@@ -250,6 +250,8 @@ class SQLAlchemyCryptocurrencyRepository(CryptocurrencyRepositoryProtocol):
             await self.session.commit()
             
             logger.info(f"[Success]: Price saved for cryptocurrency {cryptocurrency_id}")
+            added_obj = await self.session.get(Cryptocurrency, cryptocurrency_id)
+            return self._mapper.from_database_model(added_obj)
 
         except IntegrityError as e:
             await self.session.rollback()
