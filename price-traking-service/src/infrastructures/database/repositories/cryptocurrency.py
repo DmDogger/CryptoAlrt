@@ -9,9 +9,10 @@ from sqlalchemy import select, desc
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from application.dtos.coingecko_object import CoinGeckoDTO
 from application.interfaces.repositories import CryptocurrencyRepositoryProtocol
 from domain.entities.cryptocurrency import CryptocurrencyEntity
-from domain.exceptions import RepositoryError
+from domain.exceptions import RepositoryError, CryptocurrencyNotFound
 from infrastructures.database.mappers.cryptocurrency_db_mapper import CryptocurrencyDBMapper
 from infrastructures.database.models.cryptocurrency import Cryptocurrency, CryptocurrencyPrice
 
@@ -172,4 +173,50 @@ class SQLAlchemyCryptocurrencyRepository(CryptocurrencyRepositoryProtocol):
             await self.session.rollback()
             logger.error(f"SQLAlchemyError: {e}, entity: {cryptocurrency_entity}")
             raise RepositoryError(f"Occurred error during saving cryptocurrency information with ID: {cryptocurrency_entity.id}")
+
+    async def save_price(
+            self,
+            cryptocurrency_id: UUID,
+            price_data: CoinGeckoDTO
+    ) -> None:
+        """Save price for cryptocurrency aggregate.
+        
+        If cryptocurrency doesn't exist, it will be created first.
+        
+        Args:
+            cryptocurrency_id: UUID of cryptocurrency (aggregate root).
+            price_data: Price data from CoinGecko API.
+        
+        Raises:
+            RepositoryError: If save operation fails.
+        """
+        try:
+            crypto = await self.session.get(Cryptocurrency, cryptocurrency_id)
+            if not crypto:
+                logger.error(f"[Error]:Cryptocurrency {cryptocurrency_id} not found...")
+                raise CryptocurrencyNotFound(f"Cryptocurrency {cryptocurrency_id} not found...")
+
+
+            
+            logger.info(f"[Info]: Saving price for cryptocurrency {cryptocurrency_id}")
+            
+            price_model = self._mapper.from_api_response_to_database_model(
+                entity=price_data,
+                cryptocurrency_id=cryptocurrency_id
+            )
+            
+            self.session.add(price_model)
+            await self.session.commit()
+            
+            logger.info(f"[Success]: Price saved for cryptocurrency {cryptocurrency_id}")
+
+        except IntegrityError as e:
+            await self.session.rollback()
+            logger.error(f"[IntegrityError]: {e}, cryptocurrency_id: {cryptocurrency_id}")
+            raise RepositoryError(f"Failed to save price for {cryptocurrency_id}: integrity error")
+
+        except SQLAlchemyError as e:
+            await self.session.rollback()
+            logger.error(f"[SQLAlchemyError]: {e}, cryptocurrency_id: {cryptocurrency_id}")
+            raise RepositoryError(f"Failed to save price for {cryptocurrency_id}: database error")
 

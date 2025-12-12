@@ -45,6 +45,7 @@ class CryptocurrencyPrice(Base):
         PG_UUID(as_uuid=True),
         primary_key=True,
         nullable=False,
+        server_default=func.now()
     )
     cryptocurrency_id: Mapped[uuid.UUID] = mapped_column(
         PG_UUID(as_uuid=True),
