@@ -24,3 +24,7 @@ class CryptocurrencyNotFound(Exception):
 @final
 class AlertSavingError(Exception):
     """ Raised when this data already exists in database"""
+
+@final
+class UnsuccessfullyCoinGeckoAPICall(Exception):
+    """ """
