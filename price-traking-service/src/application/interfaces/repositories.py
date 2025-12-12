@@ -3,8 +3,8 @@ from decimal import Decimal
 from typing import Protocol
 from uuid import UUID
 
-from domain.entities.alert import AlertEntity
-from domain.entities.cryptocurrency import CryptocurrencyEntity
+from src.domain.entities.alert import AlertEntity
+from src.domain.entities.cryptocurrency import CryptocurrencyEntity
 
 
 class AlertRepositoryProtocol(Protocol):

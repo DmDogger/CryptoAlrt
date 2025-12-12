@@ -4,7 +4,7 @@ from typing import Protocol, final
 
 import httpx
 
-from application.dtos.coingecko_object import CoinGeckoDTO
+from src.application.dtos.coingecko_object import CoinGeckoDTO
 
 
 class CoinGeckoClientProtocol(Protocol):

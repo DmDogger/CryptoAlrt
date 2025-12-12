@@ -9,7 +9,7 @@ from application.dtos.coingecko_object import CoinGeckoDTO
 from application.interfaces.coingecko_client import CoinGeckoClientProtocol
 from application.interfaces.repositories import CryptocurrencyRepositoryProtocol
 from config.coingecko import coingecko_settings
-from domain.exceptions import CryptocurrencyNotFound, UnsuccessfullyCoinGeckoAPICall
+from domain.exceptions import UnsuccessfullyCoinGeckoAPICall
 
 logger = structlog.getLogger(__name__)
 
@@ -85,4 +85,20 @@ class CoinGeckoClient(CoinGeckoClientProtocol):
                 f"[Unexpected error]: Occurred unexpected error: {e}"
             )
             raise UnsuccessfullyCoinGeckoAPICall(f"Error occurred during fetching from CoinGecko API: {e}")
+
+    async def fetch_and_save(self, coin_id: str) -> None:
+        """Fetch price from CoinGecko API and save to repository.
+        
+        Combines fetch_price and repository save operations.
+        Propagates exceptions from both operations.
+        
+        Args:
+            coin_id: CoinGecko coin identifier (e.g., "bitcoin", "ethereum").
+        
+        Raises:
+            UnsuccessfullyCoinGeckoAPICall: If API request fails.
+            Exception: If repository save operation fails.
+        """
+        coingecko_dto_model = await self.fetch_price(coin_id)
+        await self.cryptocurrency_repository.save(coingecko_dto_model)
 
