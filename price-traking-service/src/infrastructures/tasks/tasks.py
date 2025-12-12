@@ -4,7 +4,7 @@ from taskiq_faststream import BrokerWrapper
 from faststream.kafka import KafkaBroker
 import structlog
 
-from application.use_cases.fetch_and_save_to_database import FetchAndSaveUseCase
+from application.use_cases.process_price_update import ProcessPriceUpdateUseCase
 from config.broker import broker_settings
 from config.scheduler import scheduler_settings
 from domain.exceptions import UnexpectedError
@@ -17,7 +17,7 @@ taskiq_broker = BrokerWrapper(kafka_broker)
 
 @inject
 async def fetch_all_prices_task(
-    use_case: FromDishka[FetchAndSaveUseCase],
+    use_case: FromDishka[ProcessPriceUpdateUseCase],
     coin_symbols: list[str] = scheduler_settings.cryptocurrencies
 ) -> None:
     """Fetch and save cryptocurrency prices for all configured coins.
@@ -26,7 +26,7 @@ async def fetch_all_prices_task(
     for all cryptocurrencies specified in configuration, then saves them to database.
     
     Args:
-        use_case: FetchAndSaveUseCase injected via Dishka DI.
+        use_case: ProcessPriceUpdateUseCase injected via Dishka DI.
         coin_symbols: List of cryptocurrency symbols to fetch (from config).
     
     Raises:
