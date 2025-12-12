@@ -4,8 +4,8 @@ from decimal import Decimal
 from typing import final
 from uuid import UUID
 
-from domain.entities.alert import AlertEntity
-from domain.value_objects.threshold import ThresholdValueObject
+from src.domain.entities.alert import AlertEntity
+from src.domain.value_objects.threshold import ThresholdValueObject
 from ..models.alert import Alert
 
 
