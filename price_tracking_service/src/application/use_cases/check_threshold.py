@@ -91,6 +91,8 @@ class CheckThresholdUseCase:
                     )
                     
                     trigger_event = ThresholdTriggeredEvent.create(
+                        alert_id=alert.id,
+                        current_price=current_price,
                         cryptocurrency=cryptocurrency,
                         threshold_price=alert.threshold_price.value
                     )

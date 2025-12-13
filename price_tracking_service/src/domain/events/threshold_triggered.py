@@ -22,7 +22,9 @@ class ThresholdTriggeredEvent:
         created_at: Timestamp when the event was created in UTC.
     """
     id: uuid.UUID
+    alert_id: uuid.UUID
     cryptocurrency: str
+    current_price: Decimal
     threshold_price: Decimal
     created_at: datetime
 
@@ -31,18 +33,23 @@ class ThresholdTriggeredEvent:
             cls,
             cryptocurrency: str,
             threshold_price: Decimal,
+            alert_id: uuid.UUID,
+            current_price: Decimal,
     ) -> ThresholdTriggeredEvent:
         """Factory method for creating a new ThresholdTriggeredEvent.
         
         Args:
             cryptocurrency: Symbol of the cryptocurrency (e.g., BTC, ETH).
             threshold_price: The threshold price value that was reached.
+            alert_id: Identification of alert.
             
         Returns:
             New ThresholdTriggeredEvent instance with auto-generated ID and current timestamp.
         """
         return cls(
             id=uuid.uuid4(),
+            current_price=current_price,
+            alert_id=alert_id,
             cryptocurrency=cryptocurrency,
             threshold_price=threshold_price,
             created_at=datetime.now(UTC)
