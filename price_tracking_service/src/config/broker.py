@@ -1,6 +1,6 @@
 from typing import final
 
-from pydantic import Field
+from pydantic import Field, ConfigDict
 from pydantic_settings import BaseSettings
 
 
@@ -43,9 +43,10 @@ class BrokerSettings(BaseSettings):
         alias="KAFKA_PUBLISH_RETRY_BACKOFF"
     )
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+    model_config = ConfigDict(
+        env_file = ".env",
+        env_file_encoding = "utf-8",
         extra = "ignore"
+    )
 
 broker_settings = BrokerSettings()
