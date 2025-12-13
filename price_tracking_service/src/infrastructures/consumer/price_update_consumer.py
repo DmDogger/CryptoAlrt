@@ -5,7 +5,7 @@ from dishka import FromDishka
 
 from application.use_cases.check_threshold import CheckThresholdUseCase
 from config.broker import broker_settings
-from domain.events.threshold_triggered import ThresholdTriggeredEvent
+from domain.events.price_updated import PriceUpdatedEvent
 from domain.exceptions import RepositoryError, PublishError
 from infrastructures.broker.broker import broker
 
@@ -17,7 +17,7 @@ logger = structlog.getLogger(__name__)
     topic=broker_settings.price_updates_topic
 )
 async def consume_price_update_and_check_thresholds(
-        event: ThresholdTriggeredEvent,
+        event: PriceUpdatedEvent,
         use_case: FromDishka[CheckThresholdUseCase]
 ) -> None:
     """
@@ -44,7 +44,7 @@ async def consume_price_update_and_check_thresholds(
     logger.info(
         "[Consumer] Received price update message",
         cryptocurrency=event.cryptocurrency,
-        current_price=str(event.current_price),
+        current_price=str(event.price),
         topic=broker_settings.price_updates_topic
     )
     
@@ -52,18 +52,18 @@ async def consume_price_update_and_check_thresholds(
         logger.debug(
             "[Consumer] Starting threshold check use case execution",
             cryptocurrency=event.cryptocurrency,
-            current_price=str(event.current_price)
+            current_price=str(event.price)
         )
         
         await use_case.execute(
             cryptocurrency=event.cryptocurrency,
-            current_price=event.current_price
+            current_price=event.price
         )
         
         logger.info(
             "[Consumer] Successfully processed price update and checked thresholds",
             cryptocurrency=event.cryptocurrency,
-            current_price=str(event.current_price)
+            current_price=str(event.price)
         )
         
     except RepositoryError as e:
@@ -72,7 +72,7 @@ async def consume_price_update_and_check_thresholds(
             error=str(e),
             error_type=type(e).__name__,
             cryptocurrency=event.cryptocurrency,
-            current_price=str(event.current_price),
+            current_price=str(event.price),
             topic=broker_settings.price_updates_topic,
             exc_info=True
         )
@@ -83,7 +83,7 @@ async def consume_price_update_and_check_thresholds(
             error=str(e),
             error_type=type(e).__name__,
             cryptocurrency=event.cryptocurrency,
-            current_price=str(event.current_price),
+            current_price=str(event.price),
             topic=broker_settings.price_updates_topic,
             exc_info=True
         )
@@ -94,7 +94,7 @@ async def consume_price_update_and_check_thresholds(
             error=str(e),
             error_type=type(e).__name__,
             cryptocurrency=event.cryptocurrency,
-            current_price=str(event.current_price),
+            current_price=str(event.price),
             topic=broker_settings.price_updates_topic,
             exc_info=True
         )
@@ -105,7 +105,7 @@ async def consume_price_update_and_check_thresholds(
             error=str(e),
             error_type=type(e).__name__,
             cryptocurrency=event.cryptocurrency,
-            current_price=str(event.current_price),
+            current_price=str(event.price),
             topic=broker_settings.price_updates_topic,
             exc_info=True
         )
