@@ -52,7 +52,6 @@ class CreateAlertOnPriceChangeService:
                 price_change_percent=percent_between,
                 current_price=new_price,
                 timestamp=datetime.now(UTC)
-
             )
         return None
 

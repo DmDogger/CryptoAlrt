@@ -15,6 +15,8 @@ from src.infrastructures.database.mappers.alert_db_mapper import AlertDBMapper
 from src.infrastructures.database.mappers.cryptocurrency_db_mapper import CryptocurrencyDBMapper
 from src.infrastructures.database.models.alert import Alert
 
+from infrastructures.database.models.cryptocurrency import Cryptocurrency
+
 logger = getLogger(__name__)
 
 @final
@@ -68,7 +70,49 @@ class SQLAlchemyAlertRepository(AlertRepositoryProtocol):
             logger.error(f"[Unexpected error]: {e}")
             raise RepositoryError(f"Unexpected error occurred while retrieving alert with ID: {alert_id}")
 
-    async def get_active_alerts_list(self, email: str) -> list[AlertEntity]:
+    async def get_active_alerts_list_by_name(self, name: str) -> list[AlertEntity]:
+        """Retrieve all active alerts for a specific cryptocurrency name.
+
+        Args:
+            name: Cryptocurrency name to filter alerts (e.g., Bitcoin, Ethereum).
+
+        Returns:
+            List of active AlertEntity objects, empty list if none found.
+
+        Raises:
+            RepositoryError: If a database error occurs during retrieval.
+        """
+        try:
+            logger.info(f"Retrieving active alerts for cryptocurrency name: {name}")
+
+            stmt = (
+                select(Alert)
+                .join(Alert.cryptocurrency)
+                .where(
+                    Cryptocurrency.name == name,
+                    Alert.is_active == True
+                )
+                .order_by(desc(Alert.created_at))
+            )
+            result = await self.session.scalars(stmt)
+            alerts = result.all()
+
+            if not alerts:
+                logger.info(f"No active alerts found for cryptocurrency name: {name}")
+                return []
+
+            logger.info(f"Retrieved {len(alerts)} active alert(s) for cryptocurrency name: {name}")
+            return [self._mapper.from_database_model(alert) for alert in alerts]
+
+        except SQLAlchemyError as e:
+            logger.error(f"[SQLAlchemyError]: Database error retrieving active alerts for cryptocurrency name {name}: {e}")
+            raise RepositoryError(f"Database error occurred while retrieving active alerts for cryptocurrency name: {name}")
+
+        except Exception as e:
+            logger.error(f"[Unexpected error]: Unexpected error retrieving active alerts for cryptocurrency name {name}: {e}")
+            raise RepositoryError(f"Unexpected error occurred while retrieving active alerts for cryptocurrency name: {name}")
+
+    async def get_active_alerts_list_by_email(self, email: str) -> list[AlertEntity]:
         """Retrieve all active alerts for a specific email.
         
         Args:
@@ -105,6 +149,41 @@ class SQLAlchemyAlertRepository(AlertRepositoryProtocol):
         except Exception as e:
             logger.error(f"[Unexpected error]: Unexpected error retrieving active alerts for email {email}: {e}")
             raise RepositoryError(f"Unexpected error occurred while retrieving active alerts for email: {email}")
+
+    async def get_active_alerts_list(self) -> list[AlertEntity]:
+        """Retrieve all active alerts from the database.
+        
+        Returns:
+            List of all active AlertEntity objects, empty list if none found.
+            
+        Raises:
+            RepositoryError: If a database error occurs during retrieval.
+        """
+        try:
+            logger.info("Retrieving all active alerts")
+            stmt = (
+                select(Alert)
+                .where(Alert.is_active == True)
+                .order_by(desc(Alert.created_at))
+            )
+            result = await self.session.scalars(stmt)
+            alerts = result.all()
+
+            if not alerts:
+                logger.info("No active alerts found in the database")
+                return []
+
+            logger.info(f"Retrieved {len(alerts)} active alert(s) from the database")
+            return [self._mapper.from_database_model(alert) for alert in alerts]
+
+        except SQLAlchemyError as e:
+            logger.error(f"[SQLAlchemyError]: Database error retrieving all active alerts: {e}")
+            raise RepositoryError("Database error occurred while retrieving all active alerts")
+        
+        except Exception as e:
+            logger.error(f"[Unexpected error]: Unexpected error retrieving all active alerts: {e}")
+            raise RepositoryError("Unexpected error occurred while retrieving all active alerts")
+
 
     async def save(self, cryptocurrency_id: UUID, alert: AlertEntity) -> None:
         try:

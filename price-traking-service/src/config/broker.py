@@ -30,6 +30,10 @@ class BrokerSettings(BaseSettings):
         default="alert-created",
         alias="KAFKA_ALERT_CREATED_TOPIC"
     )
+    alert_triggered_topic: str = Field(
+        default="alert-triggered",
+        alias="KAFKA_ALERT_TRIGGERED"
+    )
     publish_retries: int = Field(
         default=3,
         alias="KAFKA_PUBLISH_RETRIES"
