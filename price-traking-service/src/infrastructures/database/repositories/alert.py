@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import final
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import select, desc
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from sqlalchemy.orm import joinedload
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -67,6 +67,44 @@ class SQLAlchemyAlertRepository(AlertRepositoryProtocol):
         except Exception as e:
             logger.error(f"[Unexpected error]: {e}")
             raise RepositoryError(f"Unexpected error occurred while retrieving alert with ID: {alert_id}")
+
+    async def get_active_alerts_list(self, email: str) -> list[AlertEntity]:
+        """Retrieve all active alerts for a specific email.
+        
+        Args:
+            email: User's email address to filter alerts.
+            
+        Returns:
+            List of active AlertEntity objects, empty list if none found.
+            
+        Raises:
+            RepositoryError: If a database error occurs during retrieval.
+        """
+        try:
+            logger.info(f"Retrieving active alerts for email: {email}")
+            stmt = (
+                select(Alert)
+                .where(Alert.email == email,
+                       Alert.is_active == True)
+                .order_by(desc(Alert.created_at))
+            )
+            result = await self.session.scalars(stmt)
+            alerts = result.all()
+
+            if not alerts:
+                logger.info(f"No active alerts found for email: {email}")
+                return []
+
+            logger.info(f"Retrieved {len(alerts)} active alert(s) for email: {email}")
+            return [self._mapper.from_database_model(alert) for alert in alerts]
+
+        except SQLAlchemyError as e:
+            logger.error(f"[SQLAlchemyError]: Database error retrieving active alerts for email {email}: {e}")
+            raise RepositoryError(f"Database error occurred while retrieving active alerts for email: {email}")
+        
+        except Exception as e:
+            logger.error(f"[Unexpected error]: Unexpected error retrieving active alerts for email {email}: {e}")
+            raise RepositoryError(f"Unexpected error occurred while retrieving active alerts for email: {email}")
 
     async def save(self, cryptocurrency_id: UUID, alert: AlertEntity) -> None:
         try:
