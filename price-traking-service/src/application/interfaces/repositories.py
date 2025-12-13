@@ -23,6 +23,9 @@ class AlertRepositoryProtocol(Protocol):
     async def save(self, cryptocurrency_id: UUID, alert: AlertEntity) -> None:
         ...
 
+    @abstractmethod
+    async def get_active_alerts_list(self, email: str) -> list[AlertEntity]: ...
+
 
 class CryptocurrencyRepositoryProtocol(Protocol):
     """
