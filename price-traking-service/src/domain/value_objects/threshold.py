@@ -40,8 +40,41 @@ class ThresholdValueObject:
         return cls(value=Decimal(data["value"]))
 
     def __eq__(self, value):
+        """Check equality (==) with Decimal or another ThresholdValueObject."""
         if isinstance(value, (int, float, Decimal)):
             return self.value == value
         if isinstance(value, ThresholdValueObject):
             return self.value == value.value
         return False
+
+    def __lt__(self, value):
+        """Check less than (<) with Decimal or another ThresholdValueObject."""
+        if isinstance(value, (int, float, Decimal)):
+            return self.value < value
+        if isinstance(value, ThresholdValueObject):
+            return self.value < value.value
+        return NotImplemented
+
+    def __le__(self, value):
+        """Check less than or equal (<=) with Decimal or another ThresholdValueObject."""
+        if isinstance(value, (int, float, Decimal)):
+            return self.value <= value
+        if isinstance(value, ThresholdValueObject):
+            return self.value <= value.value
+        return NotImplemented
+
+    def __gt__(self, value):
+        """Check greater than (>) with Decimal or another ThresholdValueObject."""
+        if isinstance(value, (int, float, Decimal)):
+            return self.value > value
+        if isinstance(value, ThresholdValueObject):
+            return self.value > value.value
+        return NotImplemented
+
+    def __ge__(self, value):
+        """Check greater than or equal (>=) with Decimal or another ThresholdValueObject."""
+        if isinstance(value, (int, float, Decimal)):
+            return self.value >= value
+        if isinstance(value, ThresholdValueObject):
+            return self.value >= value.value
+        return NotImplemented
