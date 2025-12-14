@@ -20,11 +20,11 @@ class RedisSettings(BaseSettings):
     """
 
     redis_url: RedisDsn = Field(
-        RedisDsn("redis://:redis_password@redis:6379/0"), alias="REDIS_URL"
+        RedisDsn("redis://localhost:6379/0"), alias="REDIS_URL"
     )
-    redis_password: str = Field("redis_password", alias="REDIS_PASSWORD")
+    redis_password: str = Field("", alias="REDIS_PASSWORD")
     redis_port: int = Field(6379, alias="REDIS_PORT")
-    redis_host: str = Field("redis", alias="REDIS_HOST")
+    redis_host: str = Field("localhost", alias="REDIS_HOST")
     redis_db: int = Field(0, alias="REDIS_DB")
     redis_cache_ttl: int = Field(3600, alias="REDIS_CACHE_TTL")  # 1 hour default TTL
     redis_cache_prefix: str = Field("antiques:", alias="REDIS_CACHE_PREFIX")

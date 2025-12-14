@@ -1,23 +1,14 @@
-"""
-Приложение сочетает FastAPI (HTTP API) и FastStream (асинхронная обработка сообщений).
-
-Запуск:
-- python main.py                    # FastAPI + FastStream (основной режим)
-- python main.py --faststream-only  # Только FastStream (для разработки)
-- fastapi run main.py              # Через FastAPI CLI
-- uvicorn main:fastapi_app         # Через uvicorn напрямую
-"""
-
 import asyncio
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from faststream import FastStream
 from dishka.integrations.fastapi import setup_dishka as setup_dishka_fastapi
 from dishka.integrations.faststream import setup_dishka as setup_dishka_faststream
+from dishka.integrations.taskiq import setup_dishka as setup_dishka_taskiq
 import structlog
 
 from infrastructures.di_container import create_container
-from infrastructures.tasks.tasks import kafka_broker
+from infrastructures.tasks.tasks import kafka_broker, taskiq_broker
 from presentation.api.v1.controllers.alert import router as alert_router
 
 logger = structlog.getLogger(__name__)
@@ -27,6 +18,8 @@ container = create_container()
 faststream_app = FastStream(kafka_broker)
 setup_dishka_faststream(container, faststream_app)
 
+setup_dishka_taskiq(container, taskiq_broker)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -34,8 +27,9 @@ async def lifespan(app: FastAPI):
     faststream_task = asyncio.create_task(faststream_app.run())
     logger.info("FastStream broker started")
 
-
-    logger.info("Task registration skipped - run workers separately")
+    logger.info("Starting TaskIQ scheduler...")
+    await taskiq_broker.startup()
+    logger.info("TaskIQ scheduler started")
 
     yield
 
@@ -46,6 +40,10 @@ async def lifespan(app: FastAPI):
     except asyncio.CancelledError:
         pass
     logger.info("FastStream broker stopped")
+
+    logger.info("Stopping TaskIQ scheduler...")
+    await taskiq_broker.shutdown()
+    logger.info("TaskIQ scheduler stopped")
 
 
 fastapi_app = FastAPI(
@@ -67,14 +65,8 @@ app = fastapi_app
 
 if __name__ == "__main__":
     import uvicorn
-    import sys
 
-    if len(sys.argv) > 1 and sys.argv[1] == "--faststream-only":
-        logger.info("Running FastStream only...")
-        asyncio.run(faststream_app.run())
-    else:
-        logger.info("Running FastAPI with FastStream...")
-        uvicorn.run(
+    uvicorn.run(
             "main:fastapi_app",
             host="0.0.0.0",
             port=8000,

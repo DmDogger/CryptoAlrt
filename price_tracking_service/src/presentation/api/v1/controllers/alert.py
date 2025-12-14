@@ -15,6 +15,6 @@ async def get_alerts_by_email(
         email: str,
         use_case: FromDishka[GetAlertsUseCase]
 ) -> list[AlertEntity]:
-    """Получить алерты по email."""
+    """Get alerts by email."""
     return await use_case.execute(email=email)
 
