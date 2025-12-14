@@ -25,7 +25,7 @@ class GetAlertsUseCase:
         """
         self._repository = repository
 
-    async def get_alerts_list_by_email(self, email: str) -> list[AlertEntity]:
+    async def execute(self, email: str) -> list[AlertEntity]:
         """Retrieve all active alerts for a given email address.
         
         Args:
@@ -45,7 +45,10 @@ class GetAlertsUseCase:
                 logger.warning("Invalid email provided", email=email)
                 raise ValueError("Email must be a non-empty string")
             
-            alerts = await self._repository.get_active_alerts_list(email=email)
+            logger.info(f"Calling repository method with email: {email}")
+            logger.info(f"Repository object: {self._repository}, type: {type(self._repository)}")
+            alerts = await self._repository.get_active_alerts_list_by_email(email=email)
+            logger.info(f"Repository returned {len(alerts)} alerts")
             
             logger.info(
                 "Successfully retrieved alerts", 

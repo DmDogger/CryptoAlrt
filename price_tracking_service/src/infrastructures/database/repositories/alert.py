@@ -8,14 +8,14 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy.ext.asyncio import AsyncSession
 from structlog import getLogger
 
-from src.application.interfaces.repositories import AlertRepositoryProtocol
-from src.domain.entities.alert import AlertEntity
-from src.domain.exceptions import RepositoryError
-from src.infrastructures.database.mappers.alert_db_mapper import AlertDBMapper
-from src.infrastructures.database.mappers.cryptocurrency_db_mapper import CryptocurrencyDBMapper
-from src.infrastructures.database.models.alert import Alert
+from application.interfaces.repositories import AlertRepositoryProtocol
+from domain.entities.alert import AlertEntity
+from domain.exceptions import RepositoryError
+from infrastructures.database.mappers.alert_db_mapper import AlertDBMapper
+from infrastructures.database.mappers.cryptocurrency_db_mapper import CryptocurrencyDBMapper
+from infrastructures.database.models.alert import Alert
 
-from src.infrastructures.database.models.cryptocurrency import Cryptocurrency
+from infrastructures.database.models.cryptocurrency import Cryptocurrency
 
 logger = getLogger(__name__)
 
@@ -70,11 +70,11 @@ class SQLAlchemyAlertRepository(AlertRepositoryProtocol):
             logger.error(f"[Unexpected error]: {e}")
             raise RepositoryError(f"Unexpected error occurred while retrieving alert with ID: {alert_id}")
 
-    async def get_active_alerts_list_by_name(self, name: str) -> list[AlertEntity]:
+    async def get_active_alerts_by_name(self, crypto_name: str) -> list[AlertEntity]:
         """Retrieve all active alerts for a specific cryptocurrency name.
 
         Args:
-            name: Cryptocurrency name to filter alerts (e.g., Bitcoin, Ethereum).
+            crypto_name: Cryptocurrency name to filter alerts (e.g., Bitcoin, Ethereum).
 
         Returns:
             List of active AlertEntity objects, empty list if none found.
@@ -83,13 +83,13 @@ class SQLAlchemyAlertRepository(AlertRepositoryProtocol):
             RepositoryError: If a database error occurs during retrieval.
         """
         try:
-            logger.info(f"Retrieving active alerts for cryptocurrency name: {name}")
+            logger.info(f"Retrieving active alerts for cryptocurrency name: {crypto_name}")
 
             stmt = (
                 select(Alert)
                 .join(Alert.cryptocurrency)
                 .where(
-                    Cryptocurrency.name == name,
+                    Cryptocurrency.name == crypto_name,
                     Alert.is_active == True
                 )
                 .order_by(desc(Alert.created_at))
@@ -98,10 +98,10 @@ class SQLAlchemyAlertRepository(AlertRepositoryProtocol):
             alerts = result.all()
 
             if not alerts:
-                logger.info(f"No active alerts found for cryptocurrency name: {name}")
+                logger.info(f"No active alerts found for cryptocurrency name: {crypto_name}")
                 return []
 
-            logger.info(f"Retrieved {len(alerts)} active alert(s) for cryptocurrency name: {name}")
+            logger.info(f"Retrieved {len(alerts)} active alert(s) for cryptocurrency name: {crypto_name}")
             return [self._mapper.from_database_model(alert) for alert in alerts]
 
         except SQLAlchemyError as e:
@@ -114,26 +114,29 @@ class SQLAlchemyAlertRepository(AlertRepositoryProtocol):
 
     async def get_active_alerts_list_by_email(self, email: str) -> list[AlertEntity]:
         """Retrieve all active alerts for a specific email.
-        
+
         Args:
             email: User's email address to filter alerts.
-            
+
         Returns:
             List of active AlertEntity objects, empty list if none found.
-            
+
         Raises:
             RepositoryError: If a database error occurs during retrieval.
         """
         try:
             logger.info(f"Retrieving active alerts for email: {email}")
+
             stmt = (
                 select(Alert)
                 .where(Alert.email == email,
                        Alert.is_active == True)
                 .order_by(desc(Alert.created_at))
             )
+            logger.info(f"Executing query: {stmt}")
             result = await self.session.scalars(stmt)
             alerts = result.all()
+            logger.info(f"Query executed, found {len(alerts)} alerts")
 
             if not alerts:
                 logger.info(f"No active alerts found for email: {email}")

@@ -9,12 +9,12 @@ from sqlalchemy import select, desc
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.application.dtos.coingecko_object import CoinGeckoDTO
-from src.application.interfaces.repositories import CryptocurrencyRepositoryProtocol
-from src.domain.entities.cryptocurrency import CryptocurrencyEntity
-from src.domain.exceptions import RepositoryError, CryptocurrencyNotFound
-from src.infrastructures.database.mappers.cryptocurrency_db_mapper import CryptocurrencyDBMapper
-from src.infrastructures.database.models.cryptocurrency import Cryptocurrency, CryptocurrencyPrice
+from application.dtos.coingecko_object import CoinGeckoDTO
+from application.interfaces.repositories import CryptocurrencyRepositoryProtocol
+from domain.entities.cryptocurrency import CryptocurrencyEntity
+from domain.exceptions import RepositoryError, CryptocurrencyNotFound
+from infrastructures.database.mappers.cryptocurrency_db_mapper import CryptocurrencyDBMapper
+from infrastructures.database.models.cryptocurrency import Cryptocurrency, CryptocurrencyPrice
 
 logger = getLogger(__name__)
 

@@ -3,11 +3,11 @@ from decimal import Decimal
 import structlog
 from dishka import FromDishka
 
-from src.application.use_cases.check_threshold import CheckThresholdUseCase
-from src.config.broker import broker_settings
-from src.domain.events.price_updated import PriceUpdatedEvent
-from src.domain.exceptions import RepositoryError, PublishError
-from src.infrastructures.broker.broker import broker
+from application.use_cases.check_threshold import CheckThresholdUseCase
+from config.broker import broker_settings
+from domain.events.price_updated import PriceUpdatedEvent
+from domain.exceptions import RepositoryError, PublishError
+from infrastructures.broker.broker import broker
 
 logger = structlog.getLogger(__name__)
 

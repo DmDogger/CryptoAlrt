@@ -1,10 +1,10 @@
 import structlog
 from decimal import Decimal
 
-from src.application.use_cases.fetch_and_save_to_database import FetchAndSaveUseCase
-from src.application.use_cases.publish_price_update_to_broker import PublishPriceUpdateToBrokerUseCase
-from src.domain.entities.cryptocurrency import CryptocurrencyEntity
-from src.domain.exceptions import (
+from application.use_cases.fetch_and_save_to_database import FetchAndSaveUseCase
+from application.use_cases.publish_price_update_to_broker import PublishPriceUpdateToBrokerUseCase
+from domain.entities.cryptocurrency import CryptocurrencyEntity
+from domain.exceptions import (
     UnsuccessfullyCoinGeckoAPICall,
     RepositoryError,
     PublishError,

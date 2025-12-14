@@ -1,9 +1,9 @@
 import structlog
 
-from src.application.interfaces.coingecko_client import CoinGeckoClientProtocol
-from src.application.interfaces.repositories import CryptocurrencyRepositoryProtocol
-from src.domain.entities.cryptocurrency import CryptocurrencyEntity
-from src.domain.exceptions import UnsuccessfullyCoinGeckoAPICall, UnexpectedError
+from application.interfaces.coingecko_client import CoinGeckoClientProtocol
+from application.interfaces.repositories import CryptocurrencyRepositoryProtocol
+from domain.entities.cryptocurrency import CryptocurrencyEntity
+from domain.exceptions import UnsuccessfullyCoinGeckoAPICall, UnexpectedError
 
 logger = structlog.getLogger(__name__)
 

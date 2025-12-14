@@ -2,8 +2,8 @@ from datetime import datetime, UTC
 from decimal import Decimal
 from uuid import uuid4, UUID
 
-from src.domain.events.alert_created import AlertCreatedEvent
-from src.domain.value_objects.price import PriceValueObject
+from domain.events.alert_created import AlertCreatedEvent
+from domain.value_objects.price import PriceValueObject
 
 class CreateAlertOnPriceChangeService:
     """Service for creating alerts on cryptocurrency price changes.

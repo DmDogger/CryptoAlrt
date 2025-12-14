@@ -1,4 +1,3 @@
-from dishka.integrations.taskiq import inject, FromDishka
 from taskiq import AsyncBroker
 from taskiq_faststream import BrokerWrapper
 from faststream.kafka import KafkaBroker
@@ -15,37 +14,38 @@ kafka_broker = KafkaBroker(broker_settings.bootstrap_servers)
 taskiq_broker = BrokerWrapper(kafka_broker)
 
 
-@inject
-async def fetch_all_prices_task(
-    use_case: FromDishka[ProcessPriceUpdateUseCase],
-    coin_symbols: list[str] = scheduler_settings.cryptocurrencies
-) -> None:
+async def fetch_all_prices_task() -> None:
     """Fetch and save cryptocurrency prices for all configured coins.
-    
+
     This task runs on schedule and fetches current prices from CoinGecko API
     for all cryptocurrencies specified in configuration, then saves them to database.
-    
-    Args:
-        use_case: ProcessPriceUpdateUseCase injected via Dishka DI.
-        coin_symbols: List of cryptocurrency symbols to fetch (from config).
-    
+
     Raises:
         Logs UnexpectedError but continues processing remaining coins.
-    
+
     Example:
         Configured coins: ["bitcoin", "ethereum", "cardano"]
         Each coin is fetched and saved independently.
     """
+    from infrastructures.di_container import create_container
+
     logger.info("[Task]: Starting scheduled price fetch")
 
-    for symbol in coin_symbols:
-        try:
-            logger.info(f"[TaskIQ]: Trying to fetch and save this coin (symbol): {symbol} information")
-            await use_case.execute(coin_id=symbol)
-            logger.info(f"[TaskIQ]: Successfully fetched and saved information for {symbol} in database")
+    # Create DI container and get dependencies
+    container = create_container()
+    coin_symbols = scheduler_settings.cryptocurrencies
 
-        except UnexpectedError as e:
-            logger.error(f"[Unexpected error]: Unexpected error during fetching from TaskIQ {e}")
+    async with container() as request_container:
+        use_case = request_container.get(ProcessPriceUpdateUseCase)
+
+        for symbol in coin_symbols:
+            try:
+                logger.info(f"[TaskIQ]: Trying to fetch and save this coin (symbol): {symbol} information")
+                await use_case.execute(coin_id=symbol)
+                logger.info(f"[TaskIQ]: Successfully fetched and saved information for {symbol} in database")
+
+            except UnexpectedError as e:
+                logger.error(f"[Unexpected error]: Unexpected error during fetching from TaskIQ {e}")
 
     logger.info(f"[Task]: All fetching successfully done.")
 

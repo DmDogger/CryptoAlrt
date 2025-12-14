@@ -5,11 +5,11 @@ import httpx
 import stamina
 import structlog
 
-from src.application.dtos.coingecko_object import CoinGeckoDTO
-from src.application.interfaces.coingecko_client import CoinGeckoClientProtocol
-from src.application.interfaces.repositories import CryptocurrencyRepositoryProtocol
-from src.config.coingecko import coingecko_settings
-from src.domain.exceptions import UnsuccessfullyCoinGeckoAPICall
+from application.dtos.coingecko_object import CoinGeckoDTO
+from application.interfaces.coingecko_client import CoinGeckoClientProtocol
+from application.interfaces.repositories import CryptocurrencyRepositoryProtocol
+from config.coingecko import coingecko_settings
+from domain.exceptions import UnsuccessfullyCoinGeckoAPICall
 
 logger = structlog.getLogger(__name__)
 
