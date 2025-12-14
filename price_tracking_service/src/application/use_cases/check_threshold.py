@@ -2,12 +2,12 @@ from decimal import Decimal
 
 import structlog
 
-from application.interfaces.event_publisher import EventPublisherProtocol
-from application.interfaces.repositories import AlertRepositoryProtocol
-from config.broker import broker_settings
-from domain.events.threshold_triggered import ThresholdTriggeredEvent
-from domain.exceptions import PublishError, RepositoryError
-from domain.services.check_threshold import CheckThresholdService
+from src.application.interfaces.event_publisher import EventPublisherProtocol
+from src.application.interfaces.repositories import AlertRepositoryProtocol
+from src.config.broker import broker_settings
+from src.domain.events.threshold_triggered import ThresholdTriggeredEvent
+from src.domain.exceptions import PublishError, RepositoryError
+from src.domain.services.check_threshold import CheckThresholdService
 
 logger = structlog.getLogger(__name__)
 

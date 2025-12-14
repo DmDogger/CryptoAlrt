@@ -3,22 +3,18 @@ from decimal import Decimal
 import structlog
 from dishka import FromDishka
 
-from application.use_cases.check_threshold import CheckThresholdUseCase
-from config.broker import broker_settings
-from domain.events.price_updated import PriceUpdatedEvent
-from domain.exceptions import RepositoryError, PublishError
-from infrastructures.broker.broker import broker
+from src.application.use_cases.check_threshold import CheckThresholdUseCase
+from src.config.broker import broker_settings
+from src.domain.events.price_updated import PriceUpdatedEvent
+from src.domain.exceptions import RepositoryError, PublishError
+from src.infrastructures.broker.broker import broker
 
 logger = structlog.getLogger(__name__)
 
 
-@broker.subscriber(
-    title="consume_price_update_and_check_threshold",
-    topic=broker_settings.price_updates_topic
-)
-async def consume_price_update_and_check_thresholds(
+async def _consume_price_update_and_check_thresholds(
         event: PriceUpdatedEvent,
-        use_case: FromDishka[CheckThresholdUseCase]
+        use_case: CheckThresholdUseCase
 ) -> None:
     """
     Consumer for price update events from the message broker.
@@ -110,4 +106,35 @@ async def consume_price_update_and_check_thresholds(
             exc_info=True
         )
 
+
+@broker.subscriber(
+    title="consume_price_update_and_check_threshold",
+    topic=broker_settings.price_updates_topic
+)
+async def consume_price_update_and_check_thresholds(
+        event: PriceUpdatedEvent,
+        use_case: FromDishka[CheckThresholdUseCase]
+) -> None:
+    """
+    Consumer for price update events from the message broker.
+
+    This function consumes price update messages from the configured topic and
+    triggers the threshold checking use case to determine if any user-defined
+    price alerts should be triggered based on the new cryptocurrency price.
+
+    Args:
+        event: Price update event
+        use_case (FromDishka[CheckThresholdUseCase]): The injected use case for checking thresholds.
+
+    Returns:
+        None
+
+    Raises:
+        Exception: Logs all exceptions but does not re-raise to prevent message reprocessing failures.
+
+    Note:
+        This consumer is registered to listen to the topic defined in broker_settings.price_updates_topic.
+        All errors are caught and logged to ensure the consumer remains stable.
+    """
+    await _consume_price_update_and_check_thresholds(event, use_case)
 

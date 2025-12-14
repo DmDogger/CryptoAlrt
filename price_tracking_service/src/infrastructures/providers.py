@@ -3,6 +3,9 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sess
 import httpx
 
 from src.application.use_cases.fetch_and_save_to_database import FetchAndSaveUseCase
+from src.application.use_cases.check_threshold import CheckThresholdUseCase
+from src.application.interfaces.repositories import AlertRepositoryProtocol
+from src.application.interfaces.event_publisher import EventPublisherProtocol
 from src.infrastructures.http.coingecko_client import CoinGeckoClient
 from src.infrastructures.database.repositories.cryptocurrency import SQLAlchemyCryptocurrencyRepository
 from src.infrastructures.database.mappers.cryptocurrency_db_mapper import CryptocurrencyDBMapper
@@ -88,4 +91,16 @@ class UseCaseProvider(Provider):
         return FetchAndSaveUseCase(
             coingecko_client=coingecko_client,
             crypto_repository=repository
+        )
+    
+    @provide(scope=Scope.REQUEST)
+    def get_check_threshold_use_case(
+        self,
+        alert_repository: AlertRepositoryProtocol,
+        event_publisher: EventPublisherProtocol,
+    ) -> CheckThresholdUseCase:
+        """Use case для проверки триггеров алертов."""
+        return CheckThresholdUseCase(
+            alert_repository=alert_repository,
+            event_publisher=event_publisher
         )

@@ -39,6 +39,8 @@ class CryptocurrencyDBMapper:
             created_at=created_at,
         )
 
+
+
     def from_api_response_to_database_model(
             self,
             entity: CoinGeckoDTO,

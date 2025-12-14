@@ -33,6 +33,8 @@ class AlertRepositoryProtocol(Protocol):
     @abstractmethod
     async def get_active_alerts_list_by_email(self, email: str) -> list[AlertEntity]: ...
 
+    async def update(self, alert: AlertEntity) -> AlertEntity: ...
+
 
 class CryptocurrencyRepositoryProtocol(Protocol):
     """

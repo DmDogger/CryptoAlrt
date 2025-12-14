@@ -32,3 +32,7 @@ class UnsuccessfullyCoinGeckoAPICall(Exception):
 @final
 class UnexpectedError(Exception):
     """ Raise when occurred unexpected error """
+
+@final
+class AlertNotFound(Exception):
+    """ Raise when alert not found """

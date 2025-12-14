@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from domain.entities.alert import AlertEntity
+from src.domain.entities.alert import AlertEntity
 
 
 class CheckThresholdService:

@@ -65,3 +65,13 @@ class AlertDBMapper:
             created_at=model.created_at,
         )
 
+    def to_dict(self, model: AlertEntity) -> dict:
+        return {
+            "id": model.id,
+            "email" : model.email,
+            "cryptocurrency" : model.cryptocurrency,
+            "threshold_price": model.threshold_price.value,
+            "is_active": model.is_active,
+            "created_at": model.created_at,
+        }
+

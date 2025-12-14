@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import final
 from uuid import UUID
 
-from sqlalchemy import select, desc
+from sqlalchemy import select, desc, update
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from sqlalchemy.orm import joinedload
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -15,7 +15,7 @@ from src.infrastructures.database.mappers.alert_db_mapper import AlertDBMapper
 from src.infrastructures.database.mappers.cryptocurrency_db_mapper import CryptocurrencyDBMapper
 from src.infrastructures.database.models.alert import Alert
 
-from infrastructures.database.models.cryptocurrency import Cryptocurrency
+from src.infrastructures.database.models.cryptocurrency import Cryptocurrency
 
 logger = getLogger(__name__)
 
@@ -209,6 +209,33 @@ class SQLAlchemyAlertRepository(AlertRepositoryProtocol):
             logger.error(f"[Unexpected error]: {e}")
             await self.session.rollback()
             raise RepositoryError(f"Unexpected error occurred while saving alert with ID: {alert.id}")
+
+
+    async def update(self, alert: AlertEntity) -> AlertEntity:
+        try:
+            model_dict = self._mapper.to_dict(alert)
+            stmt = (
+                update(Alert)
+                .where(Alert.id == alert.id)
+                .values(model_dict)
+                .returning(Alert)
+            )
+            result = await self.session.execute(stmt)
+            updated_model = result.scalar_one()
+            await self.session.commit()
+            logger.info(f"[Info]: Alert with ID {alert.id} updated successfully")
+            return self._mapper.from_database_model(updated_model)
+
+        except SQLAlchemyError as e:
+            logger.error(f"[SQLAlchemyError]: Database error updating alert with ID {alert.id}: {e}")
+            await self.session.rollback()
+            raise RepositoryError(f"Database error occurred while updating alert with ID: {alert.id}")
+
+        except Exception as e:
+            logger.error(f"[Unexpected error]: {e}")
+            await self.session.rollback()
+            raise RepositoryError(f"Unexpected error occurred while updating alert with ID: {alert.id}")
+
 
 
 
