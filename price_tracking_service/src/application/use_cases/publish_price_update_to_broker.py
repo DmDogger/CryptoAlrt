@@ -61,7 +61,7 @@ class PublishPriceUpdateToBrokerUseCase:
             logger.info(f'Event was created successfully. Event ID: {event.id}')
             await self._broker.publish(
                 topic=broker_settings.price_updates_topic,
-                event=event,
+                event=event.to_dict(),  # ← Конвертируем в dict для JSON сериализации
             )
             logger.info(f"Event was successfully published into topic {broker_settings.price_updates_topic}, Event ID: {event.id}")
 

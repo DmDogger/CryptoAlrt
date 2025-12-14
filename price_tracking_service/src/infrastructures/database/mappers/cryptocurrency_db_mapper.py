@@ -23,6 +23,7 @@ class CryptocurrencyDBMapper:
             id=entity.id,
             symbol=entity.symbol,
             name=entity.name,
+            coingecko_id=entity.coingecko_id,
             created_at=created_at,
         )
 
@@ -36,6 +37,7 @@ class CryptocurrencyDBMapper:
             id=model.id,
             symbol=model.symbol,
             name=model.name,
+            coingecko_id=model.coingecko_id,
             created_at=created_at,
         )
 
@@ -55,11 +57,15 @@ class CryptocurrencyDBMapper:
         Returns:
             CryptocurrencyPrice database model instance.
         """
+        # Конвертируем timezone-aware datetime в naive для PostgreSQL
+        now_utc = datetime.now(UTC)
+        last_updated_naive = now_utc.replace(tzinfo=None)
+
         return CryptocurrencyPrice(
             id=uuid4(),
             cryptocurrency_id=cryptocurrency_id,
             price_usd=entity.current_price,
-            timestamp=datetime.now(UTC),
+            last_updated=last_updated_naive,
             market_cap_usd=entity.market_cap,
             total_volume_24h_usd=entity.total_volume,
             high_24h=entity.high_24h,

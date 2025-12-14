@@ -115,6 +115,24 @@ class SQLAlchemyCryptocurrencyRepository(CryptocurrencyRepositoryProtocol):
             logger.error(f"Error: {e}, ID: {cryptocurrency_id}")
             raise RepositoryError(f"Occurred error during retrieving cryptocurrency information with ID: {cryptocurrency_id}")
 
+    async def get_cryptocurrency_by_coingecko_id(self, coingecko_id: str):
+        try:
+            stmt = (
+                select(Cryptocurrency)
+                .where(Cryptocurrency.coingecko_id == coingecko_id)
+            )
+            res = await self.session.scalars(stmt)
+            result = res.first()
+
+            if result is None:
+                logger.error(f"[Not found]: Not found cryptocurrency with coingecko_id: {coingecko_id}")
+                return None
+            return self._mapper.from_database_model(result)
+
+        except SQLAlchemyError as e:
+            logger.error(f"[SQLAlchemyError]: Occurred error during retrieving from database {e}")
+            raise RepositoryError(f"Database error occurred while retrieving crypto with coingecko_id: {coingecko_id}")
+
     async def get_cryptocurrency_by_symbol(self, symbol: str):
         try:
             stmt = (

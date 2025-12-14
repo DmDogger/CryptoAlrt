@@ -69,6 +69,9 @@ class CryptocurrencyRepositoryProtocol(Protocol):
     async def get_cryptocurrency_by_symbol(self, symbol: str) -> CryptocurrencyEntity | None: ...
 
     @abstractmethod
+    async def get_cryptocurrency_by_coingecko_id(self, coingecko_id: str) -> CryptocurrencyEntity | None: ...
+
+    @abstractmethod
     async def get_cryptocoins_list_by_coingecko_id(
             self,
             coingecko_id: str

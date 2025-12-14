@@ -36,7 +36,7 @@ class AlertDBMapper:
             id=entity.id,
             email=entity.email,
             cryptocurrency_id=cryptocurrency_id,
-            threshold_price=entity.threshold_price.value,
+            threshold_price=entity.threshold_price,
             is_active=entity.is_active,
             created_at=entity.created_at,
         )

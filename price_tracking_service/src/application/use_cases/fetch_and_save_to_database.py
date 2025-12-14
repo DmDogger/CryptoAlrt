@@ -62,13 +62,14 @@ class FetchAndSaveUseCase:
                 logger.error(f"[Error]: Unsuccessfully fetching. Coingecko returned None.")
                 raise UnsuccessfullyCoinGeckoAPICall(f"[Error]: Unsuccessfully fetching. Coingecko returned None.")
 
-            crypto_entity = await self._crypto_repository.get_cryptocurrency_by_symbol(coingecko_dto.symbol)
+            crypto_entity = await self._crypto_repository.get_cryptocurrency_by_symbol(coingecko_dto.symbol.upper())
             
             if crypto_entity is None:
                 logger.info(f"[Info]: Cryptocurrency with symbol {coingecko_dto.symbol} not found, creating new one")
                 crypto_entity = CryptocurrencyEntity(
-                    symbol=coingecko_dto.symbol,
-                    name=coingecko_dto.name
+                    symbol=coingecko_dto.symbol.upper(),
+                    name=coingecko_dto.name,
+                    coingecko_id=coingecko_dto.id
                 )
                 await self._crypto_repository.save(crypto_entity)
                 logger.info(f"[Success]: Created cryptocurrency {crypto_entity.id}")

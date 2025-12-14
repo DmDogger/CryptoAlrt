@@ -4,7 +4,7 @@ from uuid import UUID
 
 from sqlalchemy import select, desc, update
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 from structlog import getLogger
 
@@ -131,6 +131,7 @@ class SQLAlchemyAlertRepository(AlertRepositoryProtocol):
                 select(Alert)
                 .where(Alert.email == email,
                        Alert.is_active == True)
+                .options(selectinload(Alert.cryptocurrency))
                 .order_by(desc(Alert.created_at))
             )
             logger.info(f"Executing query: {stmt}")
@@ -238,6 +239,52 @@ class SQLAlchemyAlertRepository(AlertRepositoryProtocol):
             logger.error(f"[Unexpected error]: {e}")
             await self.session.rollback()
             raise RepositoryError(f"Unexpected error occurred while updating alert with ID: {alert.id}")
+
+    async def get_active_alerts_by_name(self, crypto_name: str) -> list[AlertEntity]:
+        """Retrieve all active alerts for a specific cryptocurrency by name.
+
+        Args:
+            crypto_name: Name of the cryptocurrency (e.g., "Bitcoin", "BTC").
+
+        Returns:
+            List of active AlertEntity objects for the cryptocurrency.
+
+        Raises:
+            RepositoryError: If database error occurs.
+        """
+        try:
+            logger.info(f"Retrieving active alerts for cryptocurrency: {crypto_name}")
+
+            # Join with cryptocurrency table to filter by name and load related data
+            stmt = (
+                select(Alert)
+                .options(selectinload(Alert.cryptocurrency))  # Load cryptocurrency data
+                .join(Cryptocurrency, Alert.cryptocurrency_id == Cryptocurrency.id)
+                .where(
+                    Cryptocurrency.symbol == crypto_name,
+                    Alert.is_active == True
+                )
+            )
+
+            result = await self.session.execute(stmt)
+            alerts = result.scalars().all()
+
+            logger.info(f"Query executed, found {len(alerts)} alerts for {crypto_name}")
+
+            if not alerts:
+                logger.info(f"No active alerts found for cryptocurrency: {crypto_name}")
+                return []
+
+            logger.info(f"Retrieved {len(alerts)} active alert(s) for cryptocurrency: {crypto_name}")
+            return [self._mapper.from_database_model(alert) for alert in alerts]
+
+        except SQLAlchemyError as e:
+            logger.error(f"[SQLAlchemyError]: Database error retrieving active alerts for cryptocurrency {crypto_name}: {e}")
+            raise RepositoryError(f"Database error occurred while retrieving active alerts for cryptocurrency: {crypto_name}")
+
+        except Exception as e:
+            logger.error(f"[Unexpected error]: Unexpected error retrieving active alerts for cryptocurrency {crypto_name}: {e}")
+            raise RepositoryError(f"Unexpected error occurred while retrieving active alerts for cryptocurrency: {crypto_name}")
 
 
 

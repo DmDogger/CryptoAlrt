@@ -9,7 +9,7 @@ from application.dtos.coingecko_object import CoinGeckoDTO
 from application.interfaces.coingecko_client import CoinGeckoClientProtocol
 from application.interfaces.repositories import CryptocurrencyRepositoryProtocol
 from config.coingecko import coingecko_settings
-from domain.exceptions import UnsuccessfullyCoinGeckoAPICall
+from domain.exceptions import UnsuccessfullyCoinGeckoAPICall, CryptocurrencyNotFound
 
 logger = structlog.getLogger(__name__)
 
@@ -50,11 +50,15 @@ class CoinGeckoClient(CoinGeckoClientProtocol):
             CryptocurrencyNotFound: If coin_id doesn't exist in CoinGecko.
         """
         try:
-            url = f"{coingecko_settings.base_url}/simple/price"
+            url = f"{coingecko_settings.base_url}coins/markets"
             params = {
-                **coingecko_settings.params,
+                "vs_currency": "usd",
                 "ids": coin_id,
-                "vs_currencies": "usd"
+                "order": "market_cap_desc",
+                "per_page": 1,
+                "page": 1,
+                "sparkline": "false",
+                "price_change_percentage": "24h"
             }
 
             logger.info(f"[Info]: Preparing to fetch from CoinGecko with url: {url}, coin_id: {coin_id}")
@@ -66,9 +70,13 @@ class CoinGeckoClient(CoinGeckoClientProtocol):
             )
 
             response.raise_for_status()
+            data = response.json()
+            
+            if not data or len(data) == 0:
+                raise CryptocurrencyNotFound(f"Coin '{coin_id}' not found in CoinGecko")
             
             logger.info(f"[Info]: Successfully fetched information from CoinGecko for coin_id: {coin_id}")
-            return CoinGeckoDTO.to_dto(response.json()[coin_id])
+            return CoinGeckoDTO.to_dto(data[0])
 
         except (httpx.HTTPStatusError, httpx.RequestError) as e:
             logger.exception(

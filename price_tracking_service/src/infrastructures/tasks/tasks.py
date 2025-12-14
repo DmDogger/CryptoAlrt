@@ -9,7 +9,8 @@ from config.redis import RedisSettings
 from config.scheduler import scheduler_settings
 from domain.exceptions import UnexpectedError
 from dishka import FromDishka
-from dishka.integrations.taskiq import inject
+from dishka.integrations.taskiq import inject, setup_dishka
+from infrastructures.di_container import create_container
 
 logger = structlog.getLogger(__name__)
 
@@ -29,6 +30,18 @@ taskiq_broker = ListQueueBroker(
         result_ex_time=3600,  # TTL результатов: 1 час
     )
 )
+
+# Настраиваем Dishka для TaskIQ worker
+container = create_container()
+setup_dishka(container, taskiq_broker)
+
+async def startup_kafka_broker():
+    """Запускаем Kafka broker для публикации событий."""
+    await kafka_broker.start()
+
+async def shutdown_kafka_broker():
+    """Останавливаем Kafka broker."""
+    await kafka_broker.close()
 
 
 @taskiq_broker.task(
@@ -54,6 +67,8 @@ async def fetch_all_prices_task(
         Configured coins: ["bitcoin", "ethereum", "cardano"]
         Each coin is fetched and saved independently.
     """
+    await startup_kafka_broker()
+
     logger.info("[Task]: Starting scheduled price fetch")
 
     coin_symbols = scheduler_settings.cryptocurrencies
@@ -70,6 +85,14 @@ async def fetch_all_prices_task(
     logger.info(f"[Task]: All fetching successfully done.")
 
 
+    await shutdown_kafka_broker()
 
 
+from taskiq.scheduler.scheduler import TaskiqScheduler
+from taskiq.schedule_sources import LabelScheduleSource
+
+scheduler = TaskiqScheduler(
+    broker=taskiq_broker,
+    sources=[LabelScheduleSource(taskiq_broker)]
+)
 

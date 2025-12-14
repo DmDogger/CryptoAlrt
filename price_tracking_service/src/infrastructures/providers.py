@@ -2,11 +2,15 @@ from dishka import Provider, Scope, provide
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker, AsyncEngine
 from typing import AsyncIterable, Iterable
 import httpx
+from faststream.kafka import KafkaBroker
 
 from application.use_cases.fetch_and_save_to_database import FetchAndSaveUseCase
 from application.use_cases.check_threshold import CheckThresholdUseCase
 from application.use_cases.get_alerts_list_by_email import GetAlertsUseCase
-from application.interfaces.repositories import AlertRepositoryProtocol
+from application.use_cases.save_alert_to_database import SaveAlertToDBUseCase
+from application.use_cases.publish_price_update_to_broker import PublishPriceUpdateToBrokerUseCase
+from application.use_cases.process_price_update import ProcessPriceUpdateUseCase
+from application.interfaces.repositories import AlertRepositoryProtocol, CryptocurrencyRepositoryProtocol
 from application.interfaces.event_publisher import EventPublisherProtocol
 from infrastructures.http.coingecko_client import CoinGeckoClient
 from infrastructures.database.repositories.cryptocurrency import SQLAlchemyCryptocurrencyRepository
@@ -14,6 +18,7 @@ from infrastructures.database.repositories.alert import SQLAlchemyAlertRepositor
 from infrastructures.database.mappers.cryptocurrency_db_mapper import CryptocurrencyDBMapper
 from infrastructures.database.mappers.alert_db_mapper import AlertDBMapper
 from infrastructures.broker.publisher import KafkaEventPublisher
+from presentation.api.v1.mappers.to_response import AlertPresentationMapper
 from config.database import db_settings
 
 
@@ -59,11 +64,11 @@ class InfrastructureProvider(Provider):
         return CryptocurrencyDBMapper()
     
     @provide(scope=Scope.REQUEST)
-    def get_repository(
+    def get_cryptocurrency_repository(
         self,
         session: AsyncSession,
         mapper: CryptocurrencyDBMapper
-    ) -> SQLAlchemyCryptocurrencyRepository:
+    ) -> CryptocurrencyRepositoryProtocol:
         """Repository для криптовалют."""
         return SQLAlchemyCryptocurrencyRepository(
             session=session,
@@ -85,7 +90,7 @@ class InfrastructureProvider(Provider):
     def get_coingecko_client(
         self,
         http_client: httpx.AsyncClient,
-        repository: SQLAlchemyCryptocurrencyRepository
+        repository: CryptocurrencyRepositoryProtocol
     ) -> CoinGeckoClient:
         """CoinGecko API клиент."""
         return CoinGeckoClient(
@@ -93,10 +98,21 @@ class InfrastructureProvider(Provider):
             cryptocurrency_repository=repository
         )
 
+    @provide(scope=Scope.APP)
+    def get_kafka_broker(self) -> KafkaBroker:
+        """Kafka broker для FastStream."""
+        from infrastructures.tasks.tasks import kafka_broker
+        return kafka_broker
+
     @provide(scope=Scope.REQUEST)
-    def get_event_publisher(self) -> EventPublisherProtocol:
+    def get_event_publisher(self, kafka_broker: KafkaBroker) -> EventPublisherProtocol:
         """Event publisher для Kafka."""
-        return KafkaEventPublisher()
+        return KafkaEventPublisher(broker=kafka_broker)
+
+    @provide(scope=Scope.REQUEST)
+    def get_alert_presentation_mapper(self) -> AlertPresentationMapper:
+        """Mapper для преобразования алертов."""
+        return AlertPresentationMapper()
 
 
 class UseCaseProvider(Provider):
@@ -106,7 +122,7 @@ class UseCaseProvider(Provider):
     def get_fetch_and_save_use_case(
         self,
         coingecko_client: CoinGeckoClient,
-        repository: SQLAlchemyCryptocurrencyRepository
+        repository: CryptocurrencyRepositoryProtocol
     ) -> FetchAndSaveUseCase:
         """Use case для получения и сохранения цен."""
         return FetchAndSaveUseCase(
@@ -134,4 +150,44 @@ class UseCaseProvider(Provider):
         """Use case для получения алертов по email."""
         return GetAlertsUseCase(
             repository=alert_repository
+        )
+
+    @provide(scope=Scope.REQUEST)
+    def get_save_alert_use_case(
+        self,
+        alert_repository: AlertRepositoryProtocol,
+        cryptocurrency_repository: CryptocurrencyRepositoryProtocol,
+        mapper: AlertPresentationMapper
+    ) -> SaveAlertToDBUseCase:
+        """Use case для сохранения алерта в базу данных."""
+        return SaveAlertToDBUseCase(
+            alert_repository=alert_repository,
+            cryptocurrency_repository=cryptocurrency_repository,
+            mapper=mapper
+        )
+
+    @provide(scope=Scope.REQUEST)
+    def get_publish_price_update_use_case(
+        self,
+        event_publisher: EventPublisherProtocol,
+        cryptocurrency_repository: CryptocurrencyRepositoryProtocol
+    ) -> PublishPriceUpdateToBrokerUseCase:
+        """Use case для публикации обновлений цен в брокер."""
+        return PublishPriceUpdateToBrokerUseCase(
+            broker=event_publisher,
+            repository=cryptocurrency_repository
+        )
+
+    @provide(scope=Scope.REQUEST)
+    def get_process_price_update_use_case(
+        self,
+        fetch_and_save_use_case: FetchAndSaveUseCase,
+        publish_price_update_use_case: PublishPriceUpdateToBrokerUseCase,
+        check_threshold_use_case: CheckThresholdUseCase
+    ) -> ProcessPriceUpdateUseCase:
+        """Use case для полного процесса обновления цен."""
+        return ProcessPriceUpdateUseCase(
+            fetch_and_save_use_case=fetch_and_save_use_case,
+            publish_price_updated_use_case=publish_price_update_use_case,
+            check_threshold_use_case=check_threshold_use_case
         )

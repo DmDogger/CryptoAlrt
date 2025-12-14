@@ -14,6 +14,7 @@ class CryptocurrencyEntity:
     id: UUID = field(default_factory=uuid4)
     symbol: str
     name: str
+    coingecko_id: str
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     def __post_init__(self) -> None:

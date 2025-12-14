@@ -4,7 +4,6 @@ from fastapi import FastAPI
 from faststream import FastStream
 from dishka.integrations.fastapi import setup_dishka as setup_dishka_fastapi
 from dishka.integrations.faststream import setup_dishka as setup_dishka_faststream
-from dishka.integrations.taskiq import setup_dishka as setup_dishka_taskiq
 import structlog
 
 from infrastructures.di_container import create_container
@@ -18,8 +17,6 @@ container = create_container()
 faststream_app = FastStream(kafka_broker)
 setup_dishka_faststream(container, faststream_app)
 
-setup_dishka_taskiq(container, taskiq_broker)
-
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -27,9 +24,9 @@ async def lifespan(app: FastAPI):
     faststream_task = asyncio.create_task(faststream_app.run())
     logger.info("FastStream broker started")
 
-    logger.info("Starting TaskIQ scheduler...")
+    logger.info("Starting TaskIQ broker...")
     await taskiq_broker.startup()
-    logger.info("TaskIQ scheduler started")
+    logger.info("TaskIQ broker started")
 
     yield
 

@@ -16,6 +16,7 @@ class AlertCreateRequest(BaseModel):
         ge=0,
         description="Threshold price"
     )
+    is_active: bool = Field(default=True)
 
 class AlertUpdateRequest(BaseModel):
     email: EmailStr | None = None

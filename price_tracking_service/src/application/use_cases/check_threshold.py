@@ -60,7 +60,7 @@ class CheckThresholdUseCase:
                 current_price=str(current_price)
             )
             
-            alerts = await self._alert_repository.get_active_alerts_list_by_name(cryptocurrency)
+            alerts = await self._alert_repository.get_active_alerts_by_name(crypto_name=cryptocurrency)
             
             if not alerts:
                 logger.info(

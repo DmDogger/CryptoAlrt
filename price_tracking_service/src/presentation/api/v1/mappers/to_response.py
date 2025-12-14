@@ -1,8 +1,10 @@
 from dataclasses import dataclass
+from datetime import datetime, UTC
 from typing import final
+from uuid import uuid4
 
 from domain.entities.alert import AlertEntity
-from presentation.api.v1.schemas.alert import AlertResponse
+from presentation.api.v1.schemas.alert import AlertResponse, AlertCreateRequest
 
 
 @final
@@ -16,7 +18,7 @@ class AlertPresentationMapper:
     """
     def from_pydantic_to_entity(
             self,
-            pydantic_model: AlertResponse,
+            pydantic_model: AlertCreateRequest,
     ) -> AlertEntity:
         """
         Convert a Pydantic API model to a domain entity.
@@ -28,12 +30,12 @@ class AlertPresentationMapper:
             AlertEntity: The corresponding domain entity.
         """
         return AlertEntity(
-            id=pydantic_model.id,
+            id=uuid4(),
             email=pydantic_model.email,
-            cryptocurrency=pydantic_model.cryptocurrency,
+            cryptocurrency=pydantic_model.cryptocurrency_slug,
             threshold_price=pydantic_model.threshold_price,
             is_active=pydantic_model.is_active,
-            created_at=pydantic_model.created_at,
+            created_at=datetime.now(UTC),
         )
 
     def from_entity_to_pydantic(

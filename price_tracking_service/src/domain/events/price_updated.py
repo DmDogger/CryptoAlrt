@@ -17,12 +17,14 @@ class PriceUpdatedEvent:
 
     def to_dict(self) -> dict:
         """Serialize the event to a dictionary for external systems (e.g., Kafka)."""
+        # Конвертируем timezone-aware datetime в naive для JSON
+        timestamp_naive = self.timestamp.replace(tzinfo=None) if self.timestamp.tzinfo else self.timestamp
         return {
             "id": str(self.id),
             "cryptocurrency": self.cryptocurrency,
             "name": self.name,
             "price": str(self.price),
-            "timestamp": self.timestamp.isoformat()
+            "timestamp": timestamp_naive.isoformat()
         }
 
     @classmethod
