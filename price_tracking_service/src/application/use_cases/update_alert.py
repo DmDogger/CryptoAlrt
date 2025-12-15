@@ -4,8 +4,11 @@ from decimal import Decimal
 import structlog
 from sqlalchemy.exc import SQLAlchemyError
 
+from application.interfaces.event_publisher import EventPublisherProtocol
 from application.interfaces.repositories import AlertRepositoryProtocol
+from config.broker import broker_settings
 from domain.entities.alert import AlertEntity
+from domain.events.alert_updated import AlertUpdatedEvent
 from domain.exceptions import RepositoryError, DomainValidationError, AlertNotFound
 
 logger = structlog.getLogger(__name__)
@@ -24,6 +27,9 @@ class UpdateAlertUseCase:
             self,
             repository: AlertRepositoryProtocol,
             entity: AlertEntity,
+            broker: EventPublisherProtocol,
+            alert_event_creator: AlertUpdatedEvent,
+
     ):
         """
         Initialize the UpdateAlertUseCase.
@@ -33,6 +39,8 @@ class UpdateAlertUseCase:
         """
         self._repository = repository
         self._entity = entity
+        self._broker = broker
+        self._alert_creator = alert_event_creator
 
     async def execute(
             self,
@@ -66,9 +74,24 @@ class UpdateAlertUseCase:
         """
         try:
             alert = await self._repository.get_alert_by_id(alert_id)
+
             if not alert:
-                logger.error(f"error alert not found")
-                raise AlertNotFound(f"")
+                logger.error(
+                    "Alert not found during update",
+                    alert_id=str(alert_id)
+                )
+                raise AlertNotFound(f"Alert with ID {alert_id} not found")
+
+            old_email = alert.email
+            old_crypto_symbol = alert.cryptocurrency
+            old_threshold_price = alert.threshold_price.value
+            logger.info(
+                "Found existing alert values",
+                alert_id=str(alert_id),
+                old_email=old_email,
+                old_crypto_symbol=old_crypto_symbol,
+                old_threshold_price=str(old_threshold_price),
+            )
 
             logger.info(
                 "Starting alert update operation",
@@ -79,17 +102,70 @@ class UpdateAlertUseCase:
                 is_active=alert.is_active
             )
 
+            events: list[AlertUpdatedEvent] = []
+
             if cryptocurrency:
                 alert = alert.change_cryptocurrency(cryptocurrency)
+                logger.info(f"Changing cryptocurrency for {alert.email}")
+                event = self._alert_creator.on_crypto_change(
+                    alert_id=alert.id,
+                    email=alert.email,
+                    cryptocurrency_symbol_old=old_crypto_symbol,
+                    cryptocurrency_symbol_new=alert.cryptocurrency,
+                    threshold_price=alert.threshold_price.value,
+                    created_at=alert.created_at
+                )
+                logger.info("Created crypto change event", event_type=event.event_type)
+                events.append(event)
+
             if email:
+                logger.info(f"Changing email from {old_email} to {email}")
                 alert = alert.change_email(email)
+                event = self._alert_creator.on_email_change(
+                    alert_id=alert.id,
+                    email=old_email,
+                    new_email=email,
+                    cryptocurrency_symbol=alert.cryptocurrency,
+                    threshold_price=alert.threshold_price.value,
+                    created_at=alert.created_at
+                )
+                events.append(event)
+
             if threshold_price:
+                logger.info(
+                    "Changing threshold price",
+                    old_threshold=str(old_threshold_price),
+                    new_threshold=str(threshold_price)
+                )
                 alert = alert.update_threshold(threshold_price)
+                event = self._alert_creator.on_threshold_price_change(
+                    alert_id=alert.id,
+                    email=alert.email,
+                    cryptocurrency_symbol=alert.cryptocurrency,
+                    old_threshold_price=old_threshold_price,
+                    new_threshold_price=threshold_price,
+                    created_at=alert.created_at
+                )
+                events.append(event)
+
             if is_active is False:
+                logger.info("Deactivating alert", alert_id=str(alert_id))
                 alert = alert.deactivate()
 
-
             updated_entity = await self._repository.update(alert)
+
+            logger.info(f"Created {len(events)} event(s) to publish", alert_id=str(alert_id))
+            for event in events:
+                logger.info(
+                    "Publishing alert update event",
+                    event_id=str(event.event_id),
+                    topic=broker_settings.alert_updated_topic
+                )
+                await self._broker.publish(
+                    topic=broker_settings.alert_updated_topic,
+                    event=event
+                )
+                logger.info("Publication sent successfully", event_id=str(event.event_id))
 
             logger.info(f"[Info]: Alert ID: {alert_id} updated successfully")
 
