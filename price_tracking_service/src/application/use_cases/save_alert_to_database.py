@@ -4,8 +4,6 @@ from uuid import UUID
 import structlog
 
 from application.interfaces.repositories import AlertRepositoryProtocol, CryptocurrencyRepositoryProtocol
-from domain.entities.alert import AlertEntity
-from domain.entities.cryptocurrency import CryptocurrencyEntity
 from domain.exceptions import AlertSavingError, CryptocurrencyNotFound
 from presentation.api.v1.mappers.to_response import AlertPresentationMapper
 from presentation.api.v1.schemas.alert import AlertCreateRequest

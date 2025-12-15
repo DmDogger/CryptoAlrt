@@ -38,6 +38,7 @@ class AlertResponse(BaseModel):
     email: EmailStr
     cryptocurrency: str
     threshold_price: Decimal
+    is_triggered: bool
     is_active: bool
     created_at: datetime
 

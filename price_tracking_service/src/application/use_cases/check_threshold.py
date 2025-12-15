@@ -101,6 +101,16 @@ class CheckThresholdUseCase:
                         topic=broker_settings.alert_triggered_topic,
                         event=trigger_event
                     )
+
+                    logger.info(
+                        f"Sent trigger to broker, trying to mark as triggered and save",
+                        alert_id=alert.id
+                    )
+                    triggered_alert = alert.mark_as_triggered()
+                    await self._alert_repository.update(triggered_alert)
+                    logger.info(
+                        f"Successfully saved alert as triggered (ID: {triggered_alert.id}"
+                    )
                     
                     triggered_count += 1
                     

@@ -26,6 +26,7 @@ class Alert(Base):
         nullable=False
     )
     threshold_price: Mapped[Decimal] = mapped_column(Numeric(precision=10, scale=2), nullable=False)
+    is_triggered: Mapped[bool] = mapped_column(Boolean, nullable=True, default=False)
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 

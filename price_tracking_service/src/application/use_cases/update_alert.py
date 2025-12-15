@@ -129,6 +129,8 @@ class UpdateAlertUseCase:
                     new_threshold_price=model.threshold_price,
                     created_at=model.created_at
                 )
+                logger.info("Changed threshold price, resetting trigger")
+                model = model.reset_trigger()
                 events.append(event)
 
             updated_entity = await self._repository.update(model)

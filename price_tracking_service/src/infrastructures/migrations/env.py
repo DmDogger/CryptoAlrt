@@ -18,7 +18,8 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 import sys
 import os
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
+# Add src directory to path (alembic.ini prepend_sys_path = . points to price_tracking_service/)
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 # Импортируем все модели, чтобы они зарегистрировались в Base.metadata
 from infrastructures.database.models import alert, cryptocurrency  # noqa: F401

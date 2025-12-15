@@ -92,7 +92,8 @@ class SQLAlchemyAlertRepository(AlertRepositoryProtocol):
                 .join(Alert.cryptocurrency)
                 .where(
                     Cryptocurrency.name == crypto_name,
-                    Alert.is_active == True
+                    Alert.is_active == True,
+                    Alert.is_triggered == False
                 )
                 .order_by(desc(Alert.created_at))
             )
@@ -132,7 +133,8 @@ class SQLAlchemyAlertRepository(AlertRepositoryProtocol):
             stmt = (
                 select(Alert)
                 .where(Alert.email == email,
-                       Alert.is_active == True)
+                       Alert.is_active == True,
+                       Alert.is_triggered == False)
                 .options(selectinload(Alert.cryptocurrency))
                 .order_by(desc(Alert.created_at))
             )
@@ -169,7 +171,9 @@ class SQLAlchemyAlertRepository(AlertRepositoryProtocol):
             logger.info("Retrieving all active alerts")
             stmt = (
                 select(Alert)
-                .where(Alert.is_active == True)
+                .where(Alert.is_active == True,
+                       Alert.is_triggered == False
+                       )
                 .order_by(desc(Alert.created_at))
             )
             result = await self.session.scalars(stmt)
@@ -265,7 +269,8 @@ class SQLAlchemyAlertRepository(AlertRepositoryProtocol):
                 .join(Cryptocurrency, Alert.cryptocurrency_id == Cryptocurrency.id)
                 .where(
                     Cryptocurrency.symbol == crypto_name,
-                    Alert.is_active == True
+                    Alert.is_active == True,
+                    Alert.is_triggered == False
                 )
             )
 

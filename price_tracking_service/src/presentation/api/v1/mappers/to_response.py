@@ -41,6 +41,11 @@ class AlertPresentationMapper:
                 if pydantic_model.is_active is not None
                 else existing.is_active
             ),
+            is_triggered=(
+                False
+                if pydantic_model.threshold_price is not None
+                else existing.is_triggered
+            ),
             created_at=existing.created_at,
         )
     def from_pydantic_to_entity(
@@ -62,6 +67,7 @@ class AlertPresentationMapper:
             cryptocurrency=pydantic_model.cryptocurrency_slug,
             threshold_price=pydantic_model.threshold_price,
             is_active=pydantic_model.is_active,
+            is_triggered=False,
             created_at=datetime.now(UTC),
         )
 

@@ -37,6 +37,7 @@ class AlertDBMapper:
             email=entity.email,
             cryptocurrency_id=cryptocurrency_id,
             threshold_price=entity.threshold_price,
+            is_triggered=entity.is_triggered,
             is_active=entity.is_active,
             created_at=entity.created_at,
         )
@@ -61,6 +62,7 @@ class AlertDBMapper:
             email=model.email,
             cryptocurrency=model.cryptocurrency.symbol,
             threshold_price=ThresholdValueObject(value=model.threshold_price),
+            is_triggered=model.is_triggered,
             is_active=model.is_active,
             created_at=model.created_at,
         )
@@ -75,6 +77,7 @@ class AlertDBMapper:
             "id": model.id,
             "email" : model.email,
             "threshold_price": model.threshold_price.value,
+            "is_triggered": model.is_triggered,
             "is_active": model.is_active,
             "created_at": model.created_at,
         }

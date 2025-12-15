@@ -31,6 +31,7 @@ class AlertEntity:
     email: str
     cryptocurrency: str
     threshold_price: ThresholdValueObject
+    is_triggered: bool
     is_active: bool
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
@@ -55,6 +56,7 @@ class AlertEntity:
         cryptocurrency: str,
         threshold_price: Decimal,
         is_active: bool = True,
+        is_triggered: bool = False,
     ) -> "AlertEntity":
         """Factory method for creating a new AlertEntity instance.
 
@@ -63,6 +65,7 @@ class AlertEntity:
             cryptocurrency: Cryptocurrency symbol (e.g., BTC, ETH).
             threshold_price: Threshold price value as Decimal.
             is_active: Alert activity flag (default is True).
+            is_triggered: Alert trigger flag (default is False).
 
         Returns:
             New AlertEntity instance with auto-generated ID
@@ -76,9 +79,45 @@ class AlertEntity:
             email=email,
             cryptocurrency=cryptocurrency,
             threshold_price=ThresholdValueObject(value=threshold_price),
+            is_triggered=is_triggered,
             is_active=is_active,
             created_at=datetime.now(UTC),
         )
+
+    def mark_as_triggered(self) -> AlertEntity:
+        """Mark alert as triggered when threshold price is reached.
+        
+        Returns:
+            New AlertEntity instance with is_triggered flag set to True.
+        """
+        return AlertEntity(
+            id=self.id,
+            email=self.email,
+            cryptocurrency=self.cryptocurrency,
+            threshold_price=self.threshold_price,
+            is_triggered=True,
+            is_active=self.is_active,
+            created_at=self.created_at,
+        )
+
+    def reset_trigger(self) -> AlertEntity:
+        """Reset alert trigger status back to not triggered.
+        
+        Used to prepare alert for monitoring again after it has been triggered.
+        
+        Returns:
+            New AlertEntity instance with is_triggered flag set to False.
+        """
+        return AlertEntity(
+            id=self.id,
+            email=self.email,
+            cryptocurrency=self.cryptocurrency,
+            threshold_price=self.threshold_price,
+            is_triggered=False,
+            is_active=self.is_active,
+            created_at=self.created_at
+        )
+
 
     def update_threshold(
             self,
@@ -104,6 +143,7 @@ class AlertEntity:
                 cryptocurrency=self.cryptocurrency,
                 threshold_price=ThresholdValueObject(value=threshold_price),
                 is_active=self.is_active,
+                is_triggered=False,
                 created_at=self.created_at
             )
         return self
@@ -119,6 +159,7 @@ class AlertEntity:
                 email=self.email,
                 cryptocurrency=self.cryptocurrency,
                 threshold_price=self.threshold_price,
+                is_triggered=False,
                 is_active=False,
                 created_at=self.created_at
         )
@@ -140,6 +181,7 @@ class AlertEntity:
                 email=new_email,
                 cryptocurrency=self.cryptocurrency,
                 threshold_price=self.threshold_price,
+                is_triggered=self.is_triggered,
                 is_active=self.is_active,
                 created_at=self.created_at
         )
@@ -161,6 +203,7 @@ class AlertEntity:
                 email=self.email,
                 cryptocurrency=new_cryptocurrency,
                 threshold_price=self.threshold_price,
+                is_triggered=self.is_triggered,
                 is_active=self.is_active,
                 created_at=self.created_at
         )
