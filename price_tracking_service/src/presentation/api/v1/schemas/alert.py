@@ -24,6 +24,10 @@ class AlertUpdateRequest(BaseModel):
     threshold_price: Decimal | None = None
     is_active: bool | None = None
 
+class AlertDeleteRequest(BaseModel):
+    email: str
+    id: uuid.UUID
+
 
 class AlertResponse(BaseModel):
     id: uuid.UUID

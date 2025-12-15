@@ -37,7 +37,6 @@ class SaveAlertToDBUseCase:
             AlertSavingError: If saving fails.
         """
         try:
-            # Найти криптовалюту по coingecko_id (он же slug из API)
             cryptocurrency = await self._cryptocurrency_repository.get_cryptocurrency_by_coingecko_id(
                 alert_pydantic.cryptocurrency_slug
             )

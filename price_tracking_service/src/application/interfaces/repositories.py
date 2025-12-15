@@ -35,6 +35,11 @@ class AlertRepositoryProtocol(Protocol):
 
     async def update(self, alert: AlertEntity) -> AlertEntity: ...
 
+    async def delete_alert_by_id(self, email: str, alert_id: UUID):
+        """Delete alert by its id ensuring it belongs to the provided email."""
+        ...
+
+
 
 class CryptocurrencyRepositoryProtocol(Protocol):
     """

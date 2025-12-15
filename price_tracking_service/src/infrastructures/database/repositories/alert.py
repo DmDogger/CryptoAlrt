@@ -1,8 +1,9 @@
+import uuid
 from dataclasses import dataclass
 from typing import final
 from uuid import UUID
 
-from sqlalchemy import select, desc, update
+from sqlalchemy import select, desc, update, delete
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from sqlalchemy.orm import joinedload, selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -285,6 +286,35 @@ class SQLAlchemyAlertRepository(AlertRepositoryProtocol):
         except Exception as e:
             logger.error(f"[Unexpected error]: Unexpected error retrieving active alerts for cryptocurrency {crypto_name}: {e}")
             raise RepositoryError(f"Unexpected error occurred while retrieving active alerts for cryptocurrency: {crypto_name}")
+
+    async def delete_alert_by_id(self, email: str, alert_id: uuid.UUID):
+        """Delete alert by id scoped to a user email."""
+        try:
+
+            logger.info(f"Starting to delete alert for {email} with alert id: {alert_id}...")
+            stmt = (
+                delete(Alert)
+                .where(Alert.email == email,
+                       Alert.id == alert_id)
+            )
+            await self.session.execute(stmt)
+            await self.session.commit()
+            logger.info(f"Succeed deleting alert for {email}")
+
+        except SQLAlchemyError as e:
+            await self.session.rollback()
+            logger.error(
+                f"[SQLAlchemyError]: Database error during deleting alert with for {email} with alert id: {alert_id}: {e}")
+            raise RepositoryError(
+                f"Database error during deleting alert with for {email} with alert id: {alert_id}: {e}")
+
+        except Exception as e:
+            logger.error(
+                f"[Unexpected error]: Unexpected error during deleting alert with for {email} with alert id: {alert_id}: {e}")
+            raise RepositoryError(
+                f"Unexpected Database error during deleting alert with for {email} with alert id: {alert_id}: {e}")
+
+
 
 
 

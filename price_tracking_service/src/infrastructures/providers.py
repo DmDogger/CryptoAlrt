@@ -1,9 +1,12 @@
+import uuid
+
 from dishka import Provider, Scope, provide
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker, AsyncEngine
 from typing import AsyncIterable, Iterable
 import httpx
 from faststream.kafka import KafkaBroker
 
+from application.use_cases.delete_alert import DeleteAlertUseCase
 from application.use_cases.fetch_and_save_to_database import FetchAndSaveUseCase
 from application.use_cases.check_threshold import CheckThresholdUseCase
 from application.use_cases.get_alerts_list_by_email import GetAlertsUseCase
@@ -176,6 +179,16 @@ class UseCaseProvider(Provider):
         return PublishPriceUpdateToBrokerUseCase(
             broker=event_publisher,
             repository=cryptocurrency_repository
+        )
+
+    @provide(scope=Scope.REQUEST)
+    def get_delete_alert_use_case(
+            self,
+            alert_repository: AlertRepositoryProtocol
+    ) -> DeleteAlertUseCase:
+        """ UseCase для удаления алерта из БД """
+        return DeleteAlertUseCase(
+            repository=alert_repository
         )
 
     @provide(scope=Scope.REQUEST)

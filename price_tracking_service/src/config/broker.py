@@ -30,6 +30,17 @@ class BrokerSettings(BaseSettings):
         default="alert-created",
         alias="KAFKA_ALERT_CREATED_TOPIC"
     )
+
+    alert_deleted_topic: str = Field(
+        default="alert-deleted",
+        alias="KAFKA_ALERT_DELETED_TOPIC"
+    )
+
+    alert_updated_topic: str = Field(
+        default="alert-deleted",
+        alias="KAFKA_ALERT_DELETED_TOPIC"
+    )
+
     alert_triggered_topic: str = Field(
         default="alert-triggered",
         alias="KAFKA_ALERT_TRIGGERED"
