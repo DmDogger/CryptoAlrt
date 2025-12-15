@@ -4,7 +4,8 @@ from typing import final
 from uuid import uuid4
 
 from domain.entities.alert import AlertEntity
-from presentation.api.v1.schemas.alert import AlertResponse, AlertCreateRequest
+from domain.value_objects.threshold import ThresholdValueObject
+from presentation.api.v1.schemas.alert import AlertResponse, AlertCreateRequest, AlertUpdateRequest
 
 
 @final
@@ -16,6 +17,32 @@ class AlertPresentationMapper:
     Provides methods for converting between Pydantic API models (AlertResponse)
     and domain entities (AlertEntity).
     """
+
+    def merge_update_from_pydantic_to_entity(
+            self,
+            existing: AlertEntity,
+            pydantic_model: AlertUpdateRequest,
+    ) -> AlertEntity:
+        """Merge partial update data into existing alert entity.
+        
+        Note: Cryptocurrency is never updated - it remains from the existing entity.
+        """
+        return AlertEntity(
+            id=existing.id,
+            email=pydantic_model.email or existing.email,
+            cryptocurrency=existing.cryptocurrency,
+            threshold_price=(
+                ThresholdValueObject(value=pydantic_model.threshold_price)
+                if pydantic_model.threshold_price is not None
+                else existing.threshold_price
+            ),
+            is_active=(
+                pydantic_model.is_active
+                if pydantic_model.is_active is not None
+                else existing.is_active
+            ),
+            created_at=existing.created_at,
+        )
     def from_pydantic_to_entity(
             self,
             pydantic_model: AlertCreateRequest,

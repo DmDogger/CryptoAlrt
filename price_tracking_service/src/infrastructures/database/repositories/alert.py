@@ -20,6 +20,7 @@ from infrastructures.database.models.cryptocurrency import Cryptocurrency
 
 logger = getLogger(__name__)
 
+
 @final
 @dataclass(frozen=True, slots=True, kw_only=True)
 class SQLAlchemyAlertRepository(AlertRepositoryProtocol):
@@ -222,6 +223,7 @@ class SQLAlchemyAlertRepository(AlertRepositoryProtocol):
             stmt = (
                 update(Alert)
                 .where(Alert.id == alert.id)
+                .options(selectinload(Alert.cryptocurrency))
                 .values(model_dict)
                 .returning(Alert)
             )

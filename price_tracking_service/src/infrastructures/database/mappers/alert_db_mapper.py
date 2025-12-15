@@ -66,10 +66,14 @@ class AlertDBMapper:
         )
 
     def to_dict(self, model: AlertEntity) -> dict:
+        """Convert AlertEntity to dict for database update.
+        
+        Note: cryptocurrency field is excluded as it's a foreign key (cryptocurrency_id)
+        and should not be updated directly through this mapper.
+        """
         return {
             "id": model.id,
             "email" : model.email,
-            "cryptocurrency" : model.cryptocurrency,
             "threshold_price": model.threshold_price.value,
             "is_active": model.is_active,
             "created_at": model.created_at,

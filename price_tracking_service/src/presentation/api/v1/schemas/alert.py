@@ -19,8 +19,12 @@ class AlertCreateRequest(BaseModel):
     is_active: bool = Field(default=True)
 
 class AlertUpdateRequest(BaseModel):
+    """Request model for updating an alert.
+    
+    Note: Cryptocurrency cannot be updated. To change the cryptocurrency,
+    delete the alert and create a new one.
+    """
     email: EmailStr | None = None
-    cryptocurrency_slug: str | None = None
     threshold_price: Decimal | None = None
     is_active: bool | None = None
 

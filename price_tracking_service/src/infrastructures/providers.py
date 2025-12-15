@@ -1,4 +1,5 @@
 import uuid
+from decimal import Decimal
 
 from dishka import Provider, Scope, provide
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker, AsyncEngine
@@ -15,6 +16,9 @@ from application.use_cases.publish_price_update_to_broker import PublishPriceUpd
 from application.use_cases.process_price_update import ProcessPriceUpdateUseCase
 from application.interfaces.repositories import AlertRepositoryProtocol, CryptocurrencyRepositoryProtocol
 from application.interfaces.event_publisher import EventPublisherProtocol
+from application.use_cases.update_alert import UpdateAlertUseCase
+from domain.entities.alert import AlertEntity
+from domain.events.alert_updated import AlertUpdatedEvent
 from infrastructures.http.coingecko_client import CoinGeckoClient
 from infrastructures.database.repositories.cryptocurrency import SQLAlchemyCryptocurrencyRepository
 from infrastructures.database.repositories.alert import SQLAlchemyAlertRepository
@@ -204,3 +208,18 @@ class UseCaseProvider(Provider):
             publish_price_updated_use_case=publish_price_update_use_case,
             check_threshold_use_case=check_threshold_use_case
         )
+
+    @provide(scope=Scope.REQUEST)
+    def get_update_alert_use_case(
+            self,
+            repository: AlertRepositoryProtocol,
+            broker: EventPublisherProtocol,
+            mapper: AlertPresentationMapper,
+    ) -> UpdateAlertUseCase:
+        """Use case для обновления алерта."""
+        return UpdateAlertUseCase(
+            repository=repository,
+            broker=broker,
+            mapper=mapper,
+        )
+

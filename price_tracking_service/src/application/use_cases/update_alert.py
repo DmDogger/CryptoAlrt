@@ -10,67 +10,61 @@ from config.broker import broker_settings
 from domain.entities.alert import AlertEntity
 from domain.events.alert_updated import AlertUpdatedEvent
 from domain.exceptions import RepositoryError, DomainValidationError, AlertNotFound
+from presentation.api.v1.mappers.to_response import AlertPresentationMapper
+from presentation.api.v1.schemas.alert import AlertUpdateRequest
 
 logger = structlog.getLogger(__name__)
 
 
 class UpdateAlertUseCase:
-    """
-    Use case for updating specific fields of an existing alert in the system.
-
-    This use case handles partial updates of alert entities by accepting individual
-    fields to update. It retrieves the existing alert, applies the requested changes
-    using domain entity methods, and persists the updated alert.
+    """Use case for updating alert fields (email, threshold_price, is_active).
+    
+    Handles partial updates of existing alerts. Retrieves alert by ID, merges 
+    changes from request into entity, persists updates, and publishes events 
+    for each changed field to Kafka.
+    
+    Note: Cryptocurrency cannot be updated - requires alert deletion and recreation.
     """
 
     def __init__(
             self,
             repository: AlertRepositoryProtocol,
-            entity: AlertEntity,
             broker: EventPublisherProtocol,
-            alert_event_creator: AlertUpdatedEvent,
-
+            mapper: AlertPresentationMapper,
     ):
         """
         Initialize the UpdateAlertUseCase.
 
         Args:
             repository: The alert repository implementation for data persistence.
+            broker: Event publisher for Kafka.
+            mapper: Mapper for converting between presentation and domain layers.
         """
         self._repository = repository
-        self._entity = entity
         self._broker = broker
-        self._alert_creator = alert_event_creator
+        self._mapper = mapper
 
     async def execute(
             self,
-            cryptocurrency: str | None,
-            email: str | None,
-            threshold_price: Decimal | None,
-            is_active: bool | None,
+            alert_to_update: AlertUpdateRequest,
             alert_id: uuid.UUID,
     ) -> AlertEntity:
-        """
-        Execute the alert update operation with partial field updates.
-
-        Retrieves the existing alert by ID, applies only the specified field changes
-        using domain entity methods, and persists the updated alert. Only non-None
-        values trigger updates, and changes are validated through domain logic.
+        """Update alert with provided fields and publish change events.
+        
+        Merges non-None fields from request into existing alert, saves to database,
+        and publishes AlertUpdatedEvent for each changed field to Kafka.
 
         Args:
-            cryptocurrency: New cryptocurrency name to set (optional).
-            email: New email address to set (optional).
-            threshold_price: New threshold price to set (optional).
-            is_active: New active status to set (optional).
-            alert_id: The UUID of the alert to update.
+            alert_to_update: Partial update data (email, threshold_price, is_active).
+            alert_id: UUID of alert to update.
 
         Returns:
-            AlertEntity: The updated alert entity from the database.
+            Updated AlertEntity with all fields populated.
 
         Raises:
-            AlertNotFound: If the alert with the given ID doesn't exist.
-            RepositoryError: If a database operation fails.
-            DomainValidationError: If domain business logic validation fails.
+            AlertNotFound: Alert with given ID not found.
+            RepositoryError: Database operation failed.
+            DomainValidationError: Domain validation failed (e.g., invalid email).
         """
         try:
             alert = await self._repository.get_alert_by_id(alert_id)
@@ -81,6 +75,11 @@ class UpdateAlertUseCase:
                     alert_id=str(alert_id)
                 )
                 raise AlertNotFound(f"Alert with ID {alert_id} not found")
+
+            model = self._mapper.merge_update_from_pydantic_to_entity(
+                existing=alert,
+                pydantic_model=alert_to_update
+            )
 
             old_email = alert.email
             old_crypto_symbol = alert.cryptocurrency
@@ -104,55 +103,35 @@ class UpdateAlertUseCase:
 
             events: list[AlertUpdatedEvent] = []
 
-            if cryptocurrency:
-                alert = alert.change_cryptocurrency(cryptocurrency)
-                logger.info(f"Changing cryptocurrency for {alert.email}")
-                event = self._alert_creator.on_crypto_change(
-                    alert_id=alert.id,
-                    email=alert.email,
-                    cryptocurrency_symbol_old=old_crypto_symbol,
-                    cryptocurrency_symbol_new=alert.cryptocurrency,
-                    threshold_price=alert.threshold_price.value,
-                    created_at=alert.created_at
-                )
-                logger.info("Created crypto change event", event_type=event.event_type)
-                events.append(event)
-
-            if email:
-                logger.info(f"Changing email from {old_email} to {email}")
-                alert = alert.change_email(email)
-                event = self._alert_creator.on_email_change(
-                    alert_id=alert.id,
+            if model.email:
+                logger.info("Changing email", old=old_email, new=model.email)
+                event = AlertUpdatedEvent.on_email_change(
+                    alert_id=model.id,
                     email=old_email,
-                    new_email=email,
-                    cryptocurrency_symbol=alert.cryptocurrency,
-                    threshold_price=alert.threshold_price.value,
-                    created_at=alert.created_at
+                    new_email=model.email,
+                    cryptocurrency_symbol=model.cryptocurrency,
+                    threshold_price=model.threshold_price,
+                    created_at=model.created_at
                 )
                 events.append(event)
 
-            if threshold_price:
+            if model.threshold_price:
                 logger.info(
                     "Changing threshold price",
                     old_threshold=str(old_threshold_price),
-                    new_threshold=str(threshold_price)
+                    new_threshold=str(model.threshold_price)
                 )
-                alert = alert.update_threshold(threshold_price)
-                event = self._alert_creator.on_threshold_price_change(
-                    alert_id=alert.id,
-                    email=alert.email,
-                    cryptocurrency_symbol=alert.cryptocurrency,
+                event = AlertUpdatedEvent.on_threshold_price_change(
+                    alert_id=model.id,
+                    email=model.email,
+                    cryptocurrency_symbol=model.cryptocurrency,
                     old_threshold_price=old_threshold_price,
-                    new_threshold_price=threshold_price,
-                    created_at=alert.created_at
+                    new_threshold_price=model.threshold_price,
+                    created_at=model.created_at
                 )
                 events.append(event)
 
-            if is_active is False:
-                logger.info("Deactivating alert", alert_id=str(alert_id))
-                alert = alert.deactivate()
-
-            updated_entity = await self._repository.update(alert)
+            updated_entity = await self._repository.update(model)
 
             logger.info(f"Created {len(events)} event(s) to publish", alert_id=str(alert_id))
             for event in events:
