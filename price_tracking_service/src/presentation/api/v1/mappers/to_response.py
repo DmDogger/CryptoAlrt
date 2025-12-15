@@ -89,6 +89,7 @@ class AlertPresentationMapper:
             email=entity.email,
             cryptocurrency=entity.cryptocurrency,
             threshold_price=entity.threshold_price.value,
+            is_triggered=entity.is_triggered,
             is_active=entity.is_active,
             created_at=entity.created_at,
         )
