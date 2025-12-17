@@ -47,7 +47,7 @@ class NotificationEntity:
     def create(
             cls,
             channel: ChannelEnum,
-            message: str,
+            message: MessageValueObject,
             recipient: str,
             source: str,
     ):
