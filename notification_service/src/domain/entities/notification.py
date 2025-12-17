@@ -6,6 +6,7 @@ from typing import final
 from ..enums.channel import ChannelEnum
 from ..enums.status import StatusEnum
 from ..exceptions import DomainValidationError
+from ..value_objects.message import MessageValueObject
 
 
 @final
@@ -22,11 +23,11 @@ class NotificationEntity:
     """
     id: uuid.UUID
     channel: ChannelEnum
-    message: str # в будущем VO
+    message: MessageValueObject
     recipient: str # в будущем VO
     source: str # в будущем VO
     status: StatusEnum
-    sent_at: datetime
+    sent_at: datetime | None
     created_at: datetime
 
 
@@ -35,7 +36,7 @@ class NotificationEntity:
             raise DomainValidationError("Status must be a value from StatusEnum")
         if not isinstance(self.channel, ChannelEnum):
             raise DomainValidationError("Channel must be a value from ChannelEnum")
-        if len(self.message) <= 0 or len(self.message) > 100:
+        if len(self.message.text) <= 0 or len(self.message.text) > 100:
             raise DomainValidationError("Message length must be between 1 and 100 characters")
         if len(self.recipient) <= 0 or len(self.recipient) > 100:
             raise DomainValidationError("Recipient length must be between 1 and 100 characters")

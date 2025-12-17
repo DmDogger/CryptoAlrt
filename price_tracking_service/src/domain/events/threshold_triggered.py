@@ -17,11 +17,15 @@ class ThresholdTriggeredEvent:
     
     Attributes:
         id: Unique identifier of the event.
+        email: Email address of the alert owner.
+        alert_id: Unique identifier of the alert that triggered the event.
         cryptocurrency: Symbol of the cryptocurrency that triggered the event.
+        current_price: Current price of the cryptocurrency when threshold was triggered.
         threshold_price: The threshold price value that was reached.
         created_at: Timestamp when the event was created in UTC.
     """
     id: uuid.UUID
+    email: str
     alert_id: uuid.UUID
     cryptocurrency: str
     current_price: Decimal
@@ -31,6 +35,7 @@ class ThresholdTriggeredEvent:
     @classmethod
     def create(
             cls,
+            email: str,
             cryptocurrency: str,
             threshold_price: Decimal,
             alert_id: uuid.UUID,
@@ -39,15 +44,18 @@ class ThresholdTriggeredEvent:
         """Factory method for creating a new ThresholdTriggeredEvent.
         
         Args:
+            email: Email address of the alert owner.
             cryptocurrency: Symbol of the cryptocurrency (e.g., BTC, ETH).
             threshold_price: The threshold price value that was reached.
             alert_id: Identification of alert.
+            current_price: Current price of the cryptocurrency when threshold was triggered.
             
         Returns:
             New ThresholdTriggeredEvent instance with auto-generated ID and current timestamp.
         """
         return cls(
             id=uuid.uuid4(),
+            email=email,
             current_price=current_price,
             alert_id=alert_id,
             cryptocurrency=cryptocurrency,
@@ -63,7 +71,10 @@ class ThresholdTriggeredEvent:
         """
         return {
             "id": str(self.id),
+            "email": self.email,
+            "alert_id": str(self.alert_id),
             "cryptocurrency": self.cryptocurrency,
+            "current_price": str(self.current_price),
             "threshold_price": str(self.threshold_price),
             "created_at": self.created_at.isoformat()
         }
@@ -80,7 +91,10 @@ class ThresholdTriggeredEvent:
         """
         return cls(
             id=uuid.UUID(data.get("id", uuid.uuid4())),
+            email=data["email"],
+            alert_id=uuid.UUID(data["alert_id"]),
             cryptocurrency=data["cryptocurrency"],
+            current_price=Decimal(data["current_price"]),
             threshold_price=Decimal(data["threshold_price"]),
             created_at=datetime.fromisoformat(data["created_at"])
         )
