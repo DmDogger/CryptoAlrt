@@ -10,6 +10,7 @@ from structlog import getLogger
 from application.interfaces.repositories import NotificationRepositoryProtocol
 from domain.entities.notification import NotificationEntity
 from domain.exceptions import RepositoryError
+from ..mappers.notification_db_mapper import NotificationDBMapper
 from ..models.notification import Notification
 
 logger = getLogger(__name__)
@@ -24,12 +25,12 @@ class SQLAlchemyNotificationRepository(NotificationRepositoryProtocol):
     Mapping logic is delegated to AlertDBMapper following SRP.
     """
     session: AsyncSession
-    _mapper: #TODO: сделаем маппер
+    _mapper: NotificationDBMapper
 
     def __init__(
         self,
         session: AsyncSession,
-        mapper,
+        mapper: NotificationDBMapper,
     ) -> None:
         """
         Initialize the repository with database session and mapper.
@@ -52,15 +53,15 @@ class SQLAlchemyNotificationRepository(NotificationRepositoryProtocol):
             res = await self.session.scalars(stmt)
             result = res.first()
             if result is None:
-                logger.error(f"[Error]: Alert with ID {alert_id} not found.")
+                logger.error(f"Notification #ID: {notification_id} not found")
                 return None
 
-            logger.info(f"[Info]: Retrieved alert with ID {alert_id}")
+            logger.info(f"Retrieved notification #ID {notification_id}")
             return self._mapper.from_database_model(result)
 
         except SQLAlchemyError as e:
-            logger.error(f"[SQLAlchemyError]: Unexpected error retrieving alert with ID {alert_id}: {e}")
-            raise RepositoryError(f"Database error occurred while retrieving alert with ID: {alert_id}")
+            logger.error(f"SQLAlchemy error during retrieving notification with ID {notification_id}: {e}")
+            raise RepositoryError(f"Database error occurred while retrieving notification with ID: {notification_id}")
         except Exception as e:
             logger.error(f"[Unexpected error]: {e}")
-            raise RepositoryError(f"Unexpected error occurred while retrieving alert with ID: {alert_id}")
+            raise RepositoryError(f"Unexpected error occurred while retrieving notification with ID: {notification_id}")
