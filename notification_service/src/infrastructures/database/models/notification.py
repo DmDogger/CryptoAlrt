@@ -5,9 +5,9 @@ from sqlalchemy import Enum as SQLAlchemyEnum, String, DateTime, func
 from sqlalchemy.dialects.postgresql.base import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
-from domain.enums.status import StatusEnum
-from .channel import ChannelEnum
-from .base import Base
+from ...domain.enums.status import StatusEnum
+from ...channel import ChannelEnum
+from ...base import Base
 
 
 class Notification(Base):
