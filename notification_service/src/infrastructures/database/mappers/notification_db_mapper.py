@@ -41,14 +41,14 @@ class NotificationDBMapper:
     def to_database_model(dto: NotificationEntity) -> Notification:
         return Notification(
             id=dto.id,
-            channel=dto.channel.value,   # ← enum → str
-            message=dto.message.text,    # ← VO → str
+            channel=dto.channel.value,
+            message=dto.message.text,
             recipient=dto.recipient,
             source=dto.source,
-            idempotency_key=dto.idempotency_key,  # ← Добавь
-            status=dto.status.value,     # ← enum → str
-            attempts=dto.attempts,       # ← Добавь
-            last_error=dto.last_error,   # ← Добавь
+            idempotency_key=dto.idempotency_key,
+            status=dto.status.value,
+            attempts=dto.attempts,
+            last_error=dto.last_error,
             sent_at=dto.sent_at,
             created_at=dto.created_at,
         )
