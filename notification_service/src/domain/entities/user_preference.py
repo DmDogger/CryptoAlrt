@@ -24,6 +24,34 @@ class UserPreferenceEntity:
     telegram_id: int | None = None
     telegram_enabled: bool = field(default=False)
 
+    @classmethod
+    def create(
+            cls,
+            email: str,
+            email_enabled: bool = True,
+            telegram_id: int | None = None,
+            telegram_enabled: bool | None = None,
+    ) -> "UserPreferenceEntity":
+        """Create a new user preference entity.
+        
+        Args:
+            email: User's email address.
+            email_enabled: Whether email notifications are enabled (default: True).
+            telegram_id: User's Telegram ID if available (default: None).
+            telegram_enabled: Whether Telegram notifications are enabled.
+                If None, defaults to False (default: None).
+            
+        Returns:
+            UserPreferenceEntity: A new instance with generated UUID and specified preferences.
+        """
+        return cls(
+            id=uuid.uuid4(),
+            email=email,
+            email_enabled=email_enabled,
+            telegram_enabled=telegram_enabled if telegram_enabled is not None else False,
+            telegram_id=telegram_id,
+        )
+
     def set_email_enabled(self) -> "UserPreferenceEntity":
         """Enable email notifications.
         
