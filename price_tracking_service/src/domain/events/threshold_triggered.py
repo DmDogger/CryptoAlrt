@@ -26,6 +26,7 @@ class ThresholdTriggeredEvent:
     """
     id: uuid.UUID
     email: str
+    telegram_id: int | None
     alert_id: uuid.UUID
     cryptocurrency: str
     current_price: Decimal
@@ -36,6 +37,7 @@ class ThresholdTriggeredEvent:
     def create(
             cls,
             email: str,
+            telegram_id: int | None,
             cryptocurrency: str,
             threshold_price: Decimal,
             alert_id: uuid.UUID,
@@ -56,6 +58,7 @@ class ThresholdTriggeredEvent:
         return cls(
             id=uuid.uuid4(),
             email=email,
+            telegram_id=telegram_id,
             current_price=current_price,
             alert_id=alert_id,
             cryptocurrency=cryptocurrency,
@@ -72,6 +75,7 @@ class ThresholdTriggeredEvent:
         return {
             "id": str(self.id),
             "email": self.email,
+            "telegram_id": self.telegram_id,
             "alert_id": str(self.alert_id),
             "cryptocurrency": self.cryptocurrency,
             "current_price": str(self.current_price),
@@ -92,6 +96,7 @@ class ThresholdTriggeredEvent:
         return cls(
             id=uuid.UUID(data.get("id", uuid.uuid4())),
             email=data["email"],
+            telegram_id=data.get("telegram_id"),
             alert_id=uuid.UUID(data["alert_id"]),
             cryptocurrency=data["cryptocurrency"],
             current_price=Decimal(data["current_price"]),

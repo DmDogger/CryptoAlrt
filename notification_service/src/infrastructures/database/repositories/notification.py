@@ -118,7 +118,8 @@ class SQLAlchemyNotificationRepository(NotificationRepositoryProtocol):
                 "Notification saved successfully",
                 notification_id=str(entity.id)
             )
-            return entity
+            result = await self.session.get(Notification, entity.id)
+            return self._mapper.from_database_model(result)
 
         except IntegrityError as e:
             await self.session.rollback()
@@ -260,3 +261,58 @@ class SQLAlchemyNotificationRepository(NotificationRepositoryProtocol):
             )
             raise RepositoryError(f"Unexpected error occurred while retrieving notifications with status: {status.value}")
 
+
+    async def get_by_idempotency_key(self, idempotency_key: str) -> NotificationEntity | None:
+        """
+        Get notification by its idempotency key.
+
+        Args:
+            idempotency_key: Idempotency key to search for.
+
+        Returns:
+            NotificationEntity if found, None otherwise.
+        """
+        try:
+            logger.info(
+                "Retrieving notification by idempotency key",
+                idempotency_key=idempotency_key
+            )
+
+            stmt = (
+                select(Notification)
+                .where(Notification.idempotency_key == idempotency_key)
+            )
+            res = await self.session.scalars(stmt)
+            result = res.first()
+
+            if result is None:
+                logger.warning(
+                    "Notification not found by idempotency key",
+                    idempotency_key=idempotency_key
+                )
+                return None
+
+            logger.info(
+                "Notification retrieved successfully by idempotency key",
+                notification_id=str(result.id),
+                idempotency_key=idempotency_key,
+                status=result.status.value
+            )
+            return self._mapper.from_database_model(result)
+
+        except SQLAlchemyError as e:
+            logger.error(
+                "SQLAlchemy error during notification retrieval by idempotency key",
+                idempotency_key=idempotency_key,
+                error=str(e),
+                exc_info=True
+            )
+            raise RepositoryError(f"Database error occurred while retrieving notification with idempotency key: {idempotency_key}")
+        except Exception as e:
+            logger.error(
+                "Unexpected error during notification retrieval by idempotency key",
+                idempotency_key=idempotency_key,
+                error=str(e),
+                exc_info=True
+            )
+            raise RepositoryError(f"Unexpected error occurred while retrieving notification with idempotency key: {idempotency_key}")

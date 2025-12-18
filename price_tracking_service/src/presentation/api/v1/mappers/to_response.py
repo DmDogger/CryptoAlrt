@@ -30,6 +30,7 @@ class AlertPresentationMapper:
         return AlertEntity(
             id=existing.id,
             email=pydantic_model.email or existing.email,
+            telegram_id=pydantic_model.telegram_id if pydantic_model.telegram_id is not None else existing.telegram_id,
             cryptocurrency=existing.cryptocurrency,
             threshold_price=(
                 ThresholdValueObject(value=pydantic_model.threshold_price)
@@ -64,6 +65,7 @@ class AlertPresentationMapper:
         return AlertEntity(
             id=uuid4(),
             email=pydantic_model.email,
+            telegram_id=pydantic_model.telegram_id,
             cryptocurrency=pydantic_model.cryptocurrency_slug,
             threshold_price=pydantic_model.threshold_price,
             is_active=pydantic_model.is_active,
@@ -87,6 +89,7 @@ class AlertPresentationMapper:
         return AlertResponse(
             id=entity.id,
             email=entity.email,
+            telegram_id=entity.telegram_id,
             cryptocurrency=entity.cryptocurrency,
             threshold_price=entity.threshold_price.value,
             is_triggered=entity.is_triggered,

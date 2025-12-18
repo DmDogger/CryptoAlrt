@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 from decimal import Decimal
 
-from sqlalchemy import UUID as PG_UUID, String, DateTime, func, Boolean, Numeric, ForeignKey
+from sqlalchemy import UUID as PG_UUID, String, DateTime, func, Boolean, Numeric, ForeignKey, BigInteger
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
@@ -20,6 +20,7 @@ class Alert(Base):
         default=uuid.uuid4
     )
     email: Mapped[str] = mapped_column(String(100), nullable=False)
+    telegram_id: Mapped[int] = mapped_column(BigInteger, nullable=True)
     cryptocurrency_id: Mapped[uuid.UUID] = mapped_column(
         PG_UUID(as_uuid=True),
         ForeignKey('cryptocurrency.id'),

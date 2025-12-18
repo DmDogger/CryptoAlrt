@@ -21,7 +21,6 @@ class Notification(Base):
     idempotency_key: Mapped[str] = mapped_column(String(100), nullable=False, unique=True)
     message: Mapped[str] = mapped_column(String(500), nullable=False)
     recipient: Mapped[str] = mapped_column(String(100), nullable=False)
-    source: Mapped[str] = mapped_column(String(50), nullable=False)
     status: Mapped[StatusEnum] = mapped_column(SQLAlchemyEnum(StatusEnum), nullable=False)
     sent_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())

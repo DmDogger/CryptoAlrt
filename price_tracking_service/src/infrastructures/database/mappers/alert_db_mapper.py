@@ -35,6 +35,7 @@ class AlertDBMapper:
         return Alert(
             id=entity.id,
             email=entity.email,
+            telegram_id=entity.telegram_id,
             cryptocurrency_id=cryptocurrency_id,
             threshold_price=entity.threshold_price,
             is_triggered=entity.is_triggered,
@@ -60,6 +61,7 @@ class AlertDBMapper:
         return AlertEntity(
             id=model.id,
             email=model.email,
+            telegram_id=model.telegram_id,
             cryptocurrency=model.cryptocurrency.symbol,
             threshold_price=ThresholdValueObject(value=model.threshold_price),
             is_triggered=model.is_triggered,
@@ -76,6 +78,7 @@ class AlertDBMapper:
         return {
             "id": model.id,
             "email" : model.email,
+            "telegram_id": model.telegram_id,
             "threshold_price": model.threshold_price.value,
             "is_triggered": model.is_triggered,
             "is_active": model.is_active,

@@ -29,6 +29,7 @@ class AlertEntity:
     """
     id: UUID
     email: str
+    telegram_id: int | None
     cryptocurrency: str
     threshold_price: ThresholdValueObject
     is_triggered: bool
@@ -53,6 +54,7 @@ class AlertEntity:
     def create(
         cls,
         email: str,
+        telegram_id: int | None,
         cryptocurrency: str,
         threshold_price: Decimal,
         is_active: bool = True,
@@ -62,6 +64,7 @@ class AlertEntity:
 
         Args:
             email: User's email for sending notifications.
+            telegram_id: User's Telegram ID if available.
             cryptocurrency: Cryptocurrency symbol (e.g., BTC, ETH).
             threshold_price: Threshold price value as Decimal.
             is_active: Alert activity flag (default is True).
@@ -70,13 +73,14 @@ class AlertEntity:
         Returns:
             New AlertEntity instance with auto-generated ID
             and current creation date.
-            
+
         Raises:
             DomainValidationError: If invalid data is provided.
         """
         return cls(
             id=uuid4(),
             email=email,
+            telegram_id=telegram_id,
             cryptocurrency=cryptocurrency,
             threshold_price=ThresholdValueObject(value=threshold_price),
             is_triggered=is_triggered,
@@ -93,6 +97,7 @@ class AlertEntity:
         return AlertEntity(
             id=self.id,
             email=self.email,
+            telegram_id=self.telegram_id,
             cryptocurrency=self.cryptocurrency,
             threshold_price=self.threshold_price,
             is_triggered=True,
@@ -111,6 +116,7 @@ class AlertEntity:
         return AlertEntity(
             id=self.id,
             email=self.email,
+            telegram_id=self.telegram_id,
             cryptocurrency=self.cryptocurrency,
             threshold_price=self.threshold_price,
             is_triggered=False,
@@ -140,6 +146,7 @@ class AlertEntity:
             return AlertEntity(
                 id=self.id,
                 email=self.email,
+                telegram_id=self.telegram_id,
                 cryptocurrency=self.cryptocurrency,
                 threshold_price=ThresholdValueObject(value=threshold_price),
                 is_active=self.is_active,
@@ -157,6 +164,7 @@ class AlertEntity:
         return AlertEntity(
                 id=self.id,
                 email=self.email,
+                telegram_id=self.telegram_id,
                 cryptocurrency=self.cryptocurrency,
                 threshold_price=self.threshold_price,
                 is_triggered=False,
@@ -179,6 +187,7 @@ class AlertEntity:
         return AlertEntity(
                 id=self.id,
                 email=new_email,
+                telegram_id=self.telegram_id,
                 cryptocurrency=self.cryptocurrency,
                 threshold_price=self.threshold_price,
                 is_triggered=self.is_triggered,
@@ -201,6 +210,7 @@ class AlertEntity:
         return AlertEntity(
                 id=self.id,
                 email=self.email,
+                telegram_id=self.telegram_id,
                 cryptocurrency=new_cryptocurrency,
                 threshold_price=self.threshold_price,
                 is_triggered=self.is_triggered,

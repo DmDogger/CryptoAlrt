@@ -92,6 +92,7 @@ class CheckThresholdUseCase:
                     
                     trigger_event = ThresholdTriggeredEvent.create(
                         email=alert.email,
+                        telegram_id=alert.telegram_id,
                         alert_id=alert.id,
                         current_price=current_price,
                         cryptocurrency=cryptocurrency,

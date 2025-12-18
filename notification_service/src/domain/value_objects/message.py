@@ -5,7 +5,7 @@ from ..exceptions import DomainValidationError
 
 
 @final
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True, slots=True, kw_only=True)
 class MessageValueObject:
     """Value object representing a notification message.
     
