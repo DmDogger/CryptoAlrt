@@ -1,15 +1,17 @@
 from domain.enums.channel import ChannelEnum
-
-from ...domain.enums.status import StatusEnum
-from ...domain.entities.notification import NotificationEntity
-from ...domain.value_objects.message import MessageValueObject
-from ...domain.value_objects.idempotency_key import IdempotencyKeyVO
-from ...infrastructures.database.models.notification import Notification
+from domain.enums.status import StatusEnum
+from domain.entities.notification import NotificationEntity
+from domain.value_objects.message import MessageValueObject
+from domain.value_objects.idempotency_key import IdempotencyKeyVO
+from infrastructures.database.models.notification import Notification
 
 
 class NotificationDBMapper:
     @staticmethod
     def to_dict(dto: NotificationEntity) -> dict:
+        created_at = dto.created_at.replace(tzinfo=None) if dto.created_at and dto.created_at.tzinfo else dto.created_at
+        sent_at = dto.sent_at.replace(tzinfo=None) if dto.sent_at and dto.sent_at.tzinfo else dto.sent_at
+        
         return {
             "id": str(dto.id),
             "channel": dto.channel.value,
@@ -17,8 +19,8 @@ class NotificationDBMapper:
             "recipient": dto.recipient,
             "idempotency_key": dto.idempotency_key.key,
             "status": dto.status.value,
-            "sent_at": dto.sent_at,
-            "created_at": dto.created_at,
+            "sent_at": sent_at,
+            "created_at": created_at,
         }
 
     @staticmethod
@@ -36,6 +38,9 @@ class NotificationDBMapper:
 
     @staticmethod
     def to_database_model(dto: NotificationEntity) -> Notification:
+        created_at = dto.created_at.replace(tzinfo=None) if dto.created_at and dto.created_at.tzinfo else dto.created_at
+        sent_at = dto.sent_at.replace(tzinfo=None) if dto.sent_at and dto.sent_at.tzinfo else dto.sent_at
+        
         return Notification(
             id=dto.id,
             channel=dto.channel.value,
@@ -43,6 +48,6 @@ class NotificationDBMapper:
             recipient=dto.recipient,
             idempotency_key=dto.idempotency_key.key,
             status=dto.status.value,
-            sent_at=dto.sent_at,
-            created_at=dto.created_at,
+            sent_at=sent_at,
+            created_at=created_at,
         )

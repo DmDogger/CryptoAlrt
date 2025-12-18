@@ -1,10 +1,10 @@
 import structlog
 
-from ...domain.entities.notification import NotificationEntity
-from ...domain.enums.channel import ChannelEnum
-from ...domain.exceptions import EmailSendingError
-from ..interfaces.repositories import NotificationRepositoryProtocol
-from ..interfaces.email_client import EmailClientProtocol
+from domain.entities.notification import NotificationEntity
+from domain.enums.channel import ChannelEnum
+from domain.exceptions import EmailSendingError
+from application.interfaces.repositories import NotificationRepositoryProtocol
+from application.interfaces.email_client import EmailClientProtocol
 
 logger = structlog.getLogger(__name__)
 
@@ -76,6 +76,7 @@ class SendEmailNotificationUseCase:
 
                     await self._email_client.send(
                         to=notification.recipient,
+                        from_="noreply@cryptoalrt.io", # poka vremenno zdes
                         subject="Cryptocurrency Alert Notification",
                         body=notification.message.text,
                     )
@@ -97,6 +98,15 @@ class SendEmailNotificationUseCase:
                         error=str(e),
                         exc_info=True
                     )
+                    try:
+                        failed_notification = notification.mark_failed()
+                        await self._repository.update(failed_notification)
+                    except Exception:
+                        logger.error(
+                            "Failed to mark notification as FAILED after email error",
+                            notification_id=str(notification.id),
+                            exc_info=True
+                        )
                     continue
 
                 except Exception as e:
@@ -108,4 +118,13 @@ class SendEmailNotificationUseCase:
                         error_type=type(e).__name__,
                         exc_info=True
                     )
+                    try:
+                        failed_notification = notification.mark_failed()
+                        await self._repository.update(failed_notification)
+                    except Exception:
+                        logger.error(
+                            "Failed to mark notification as FAILED after unexpected error",
+                            notification_id=str(notification.id),
+                            exc_info=True
+                        )
                     continue

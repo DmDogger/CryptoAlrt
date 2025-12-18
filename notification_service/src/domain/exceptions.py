@@ -7,6 +7,11 @@ class DomainValidationError(Exception):
     ...
 
 @final
+class RepositoryError(Exception):
+    """Raised when repository/database operations fail."""
+    ...
+
+@final
 class EmailSendingError(Exception):
     """ Raised when occur error during sending email """
     ...

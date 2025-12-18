@@ -1,10 +1,9 @@
 import structlog
 
-from domain.enums.channel import ChannelEnum
-from ...application.use_cases.send_email_notification import SendEmailNotificationUseCase
-from ...application.use_cases.check_and_reserve import CheckAndReserveUseCase
-from ...domain.exceptions import RepositoryError, EmailSendingError
-from ...presentation.v1.schemas.alert_triggered import AlertTriggeredDTO
+from application.use_cases.send_email_notification import SendEmailNotificationUseCase
+from application.use_cases.check_and_reserve import CheckAndReserveUseCase
+from domain.exceptions import RepositoryError, EmailSendingError
+from domain.events.alert_triggered import AlertTriggeredEvent
 
 logger = structlog.getLogger(__name__)
 
@@ -35,14 +34,14 @@ class ProcessAlertTriggeredUseCase:
         self._check_and_reserve = check_and_reserve_use_case
         self._send_email = send_email_use_case
 
-    async def execute(self, dto_model: AlertTriggeredDTO) -> None:
+    async def execute(self, event: AlertTriggeredEvent) -> None:
         """Execute the alert trigger processing workflow.
 
         Processes an alert trigger event by creating notifications and sending
         them via email channel. Handles the complete flow from reservation to delivery.
 
         Args:
-            dto_model: Alert trigger event data containing alert information,
+            event: Alert trigger event data containing alert information,
                 cryptocurrency details, and user contact information.
 
         Raises:
@@ -54,30 +53,30 @@ class ProcessAlertTriggeredUseCase:
         try:
             logger.info(
                 "Starting alert trigger processing",
-                event_id=dto_model.id,
-                email=dto_model.email,
-                alert_id=dto_model.alert_id,
-                cryptocurrency=dto_model.cryptocurrency
+                event_id=event.id,
+                email=event.email,
+                alert_id=event.alert_id,
+                cryptocurrency=event.cryptocurrency
             )
 
 
             notifications = await self._check_and_reserve.execute(
-                dto_model=dto_model,
+                event=event,
             )
 
             if not notifications:
                 logger.info(
                     "No notifications created for alert trigger",
-                    event_id=dto_model.id,
-                    email=dto_model.email,
-                    alert_id=dto_model.alert_id
+                    event_id=event.id,
+                    email=event.email,
+                    alert_id=event.alert_id
                 )
                 return
 
             logger.info(
                 "Notifications created, starting email sending",
-                event_id=dto_model.id,
-                email=dto_model.email,
+                event_id=event.id,
+                email=event.email,
                 notifications_count=len(notifications)
             )
 
@@ -85,18 +84,18 @@ class ProcessAlertTriggeredUseCase:
 
             logger.info(
                 "Alert trigger processing completed successfully",
-                event_id=dto_model.id,
-                email=dto_model.email,
-                alert_id=dto_model.alert_id,
-                created_at=dto_model.created_at
+                event_id=event.id,
+                email=event.email,
+                alert_id=event.alert_id,
+                created_at=event.created_at
             )
 
         except RepositoryError as e:
             logger.error(
                 "Repository error during alert trigger processing",
-                event_id=dto_model.id,
-                email=dto_model.email,
-                alert_id=dto_model.alert_id,
+                event_id=event.id,
+                email=event.email,
+                alert_id=event.alert_id,
                 error=str(e),
                 exc_info=True
             )
@@ -105,9 +104,9 @@ class ProcessAlertTriggeredUseCase:
         except EmailSendingError as e:
             logger.error(
                 "Email sending error during alert trigger processing",
-                event_id=dto_model.id,
-                email=dto_model.email,
-                alert_id=dto_model.alert_id,
+                event_id=event.id,
+                email=event.email,
+                alert_id=event.alert_id,
                 error=str(e),
                 exc_info=True
             )
@@ -116,9 +115,9 @@ class ProcessAlertTriggeredUseCase:
         except Exception as e:
             logger.error(
                 "Unexpected error during alert trigger processing",
-                event_id=dto_model.id,
-                email=dto_model.email,
-                alert_id=dto_model.alert_id,
+                event_id=event.id,
+                email=event.email,
+                alert_id=event.alert_id,
                 error=str(e),
                 error_type=type(e).__name__,
                 exc_info=True

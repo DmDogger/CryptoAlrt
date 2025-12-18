@@ -3,7 +3,7 @@ from typing import final
 from uuid import UUID
 
 from ..exceptions import KeyValidationError
-from ...domain.enums.channel import ChannelEnum
+from domain.enums.channel import ChannelEnum
 
 
 @final

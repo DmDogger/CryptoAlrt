@@ -42,8 +42,11 @@ class NotificationEntity:
             raise DomainValidationError("Message length must be between 1 and 100 characters")
         if len(self.recipient) <= 0 or len(self.recipient) > 100:
             raise DomainValidationError("Recipient length must be between 1 and 100 characters")
-        if self.sent_at and self.sent_at > self.created_at:
-            raise DomainValidationError("Sent at date cannot be later than created_at")
+        if self.sent_at:
+            sent_at_naive = self.sent_at.replace(tzinfo=None) if self.sent_at.tzinfo else self.sent_at
+            created_at_naive = self.created_at.replace(tzinfo=None) if self.created_at.tzinfo else self.created_at
+            if sent_at_naive > created_at_naive:
+                raise DomainValidationError("Sent at date cannot be later than created_at")
 
     @classmethod
     def create(

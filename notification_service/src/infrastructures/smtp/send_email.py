@@ -3,9 +3,9 @@ from email.message import EmailMessage
 
 import structlog
 
-from ...config.smtp import smtp_settings
-from ...application.interfaces.email_client import EmailClientProtocol
-from ...domain.exceptions import EmailSendingError
+from config.smtp import smtp_settings
+from application.interfaces.email_client import EmailClientProtocol
+from domain.exceptions import EmailSendingError
 
 logger = structlog.getLogger(__name__)
 

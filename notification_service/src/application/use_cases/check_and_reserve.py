@@ -1,15 +1,15 @@
 import structlog
 
-from ...domain.entities.notification import NotificationEntity
-from ...domain.value_objects.message import MessageValueObject
-from ..interfaces.repositories import (
+from domain.entities.notification import NotificationEntity
+from domain.value_objects.message import MessageValueObject
+from application.interfaces.repositories import (
     PreferenceRepositoryProtocol,
     NotificationRepositoryProtocol,
 )
-from ...domain.enums.channel import ChannelEnum
-from ...domain.value_objects.idempotency_key import IdempotencyKeyVO
-from ...domain.exceptions import RepositoryError
-from ...presentation.v1.schemas.alert_triggered import AlertTriggeredDTO
+from domain.enums.channel import ChannelEnum
+from domain.value_objects.idempotency_key import IdempotencyKeyVO
+from domain.exceptions import RepositoryError
+from domain.events.alert_triggered import AlertTriggeredEvent
 
 logger = structlog.getLogger(__name__)
 
@@ -42,7 +42,7 @@ class CheckAndReserveUseCase:
 
     async def execute(
             self,
-            dto_model: AlertTriggeredDTO,
+            event: AlertTriggeredEvent,
     ) -> list[NotificationEntity] | None:
         """Execute the check and reserve process for alert trigger notifications.
 
@@ -53,7 +53,7 @@ class CheckAndReserveUseCase:
         4. Ensuring no duplicate notifications are created
 
         Args:
-            dto_model: Alert trigger event data containing alert information,
+            event: Alert trigger event data containing alert information,
                 cryptocurrency details, and user contact information.
                 for the same event.
 
@@ -73,26 +73,26 @@ class CheckAndReserveUseCase:
         try:
             logger.info(
                 "Starting check and reserve process",
-                event_id=dto_model.id,
-                email=dto_model.email,
-                alert_id=dto_model.alert_id
+                event_id=event.id,
+                email=event.email,
+                alert_id=event.alert_id
             )
 
-            user_preference = await self._preference_repository.get_by_email(dto_model.email)
+            user_preference = await self._preference_repository.get_by_email(event.email)
 
             if not user_preference:
                 logger.warning(
                     "User preference not found",
-                    email=dto_model.email,
-                    event_id=dto_model.id
+                    email=event.email,
+                    event_id=event.id
                 )
                 return None
 
             if not user_preference.email_enabled and not user_preference.telegram_enabled:
                 logger.info(
                     "All notification channels disabled for user",
-                    email=dto_model.email,
-                    event_id=dto_model.id
+                    email=event.email,
+                    event_id=event.id
                 )
                 return None
 
@@ -102,11 +102,11 @@ class CheckAndReserveUseCase:
                 logger.info(
                     "Processing email notification",
                     email=user_preference.email,
-                    event_id=dto_model.id
+                    event_id=event.id
                 )
 
                 idempotency_key_for_email = IdempotencyKeyVO.build(
-                    event_id=dto_model.id,
+                    event_id=event.id,
                     channel=ChannelEnum.EMAIL,
                 )
 
@@ -114,14 +114,14 @@ class CheckAndReserveUseCase:
                     logger.warning(
                         "Email notification already exists",
                         idempotency_key=idempotency_key_for_email.key,
-                        event_id=dto_model.id
+                        event_id=event.id
                     )
                     return None
 
                 notification = NotificationEntity.create(
                     channel=ChannelEnum.EMAIL,
                     message=MessageValueObject(
-                        text=f"Threshold notification: {dto_model.cryptocurrency} reached {dto_model.current_price}"
+                        text=f"Threshold notification: {event.cryptocurrency} reached {event.current_price}"
                     ),
                     recipient=user_preference.email,
                     idempotency_key=idempotency_key_for_email
@@ -134,18 +134,18 @@ class CheckAndReserveUseCase:
                     "Email notification created successfully",
                     notification_id=str(entity.id),
                     email=user_preference.email,
-                    event_id=dto_model.id
+                    event_id=event.id
                 )
 
             if user_preference.telegram_enabled and user_preference.telegram_id:
                 logger.info(
                     "Processing telegram notification",
                     telegram_id=user_preference.telegram_id,
-                    event_id=dto_model.id
+                    event_id=event.id
                 )
 
                 idempotency_key_for_telegram = IdempotencyKeyVO.build(
-                    event_id=dto_model.id,
+                    event_id=event.id,
                     channel=ChannelEnum.TELEGRAM
                 )
 
@@ -153,14 +153,14 @@ class CheckAndReserveUseCase:
                     logger.warning(
                         "Telegram notification already exists",
                         idempotency_key=idempotency_key_for_telegram.key,
-                        event_id=dto_model.id
+                        event_id=event.id
                     )
                     return None
 
                 notification = NotificationEntity.create(
                     channel=ChannelEnum.TELEGRAM,
                     message=MessageValueObject(
-                        text=f"Threshold notification: {dto_model.cryptocurrency} reached {dto_model.current_price}"
+                        text=f"Threshold notification: {event.cryptocurrency} reached {event.current_price}"
                     ),
                     recipient=str(user_preference.telegram_id),
                     idempotency_key=idempotency_key_for_telegram
@@ -173,12 +173,12 @@ class CheckAndReserveUseCase:
                     "Telegram notification created successfully",
                     notification_id=str(entity.id),
                     telegram_id=user_preference.telegram_id,
-                    event_id=dto_model.id
+                    event_id=event.id
                 )
 
             logger.info(
                 "Check and reserve process completed",
-                event_id=dto_model.id,
+                event_id=event.id,
                 notifications_created=len(entities_list)
             )
 
@@ -187,8 +187,8 @@ class CheckAndReserveUseCase:
         except RepositoryError as e:
             logger.error(
                 "Repository error during check and reserve",
-                event_id=dto_model.id,
-                email=dto_model.email,
+                event_id=event.id,
+                email=event.email,
                 error=str(e),
                 exc_info=True
             )
@@ -197,8 +197,8 @@ class CheckAndReserveUseCase:
         except Exception as e:
             logger.error(
                 "Unexpected error during check and reserve",
-                event_id=dto_model.id,
-                email=dto_model.email,
+                event_id=event.id,
+                email=event.email,
                 error=str(e),
                 error_type=type(e).__name__,
                 exc_info=True
