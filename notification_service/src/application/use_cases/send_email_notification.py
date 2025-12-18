@@ -2,7 +2,7 @@ import structlog
 
 from ...domain.entities.notification import NotificationEntity
 from ...domain.enums.channel import ChannelEnum
-from ...domain.exceptions import EmailSendingError, RepositoryError
+from ...domain.exceptions import EmailSendingError
 from ..interfaces.repositories import NotificationRepositoryProtocol
 from ..interfaces.email_client import EmailClientProtocol
 
@@ -65,7 +65,7 @@ class SendEmailNotificationUseCase:
             return
 
         for notification in notifications:
-            if notification.channel != ChannelEnum.EMAIL:
+            if notification.channel == ChannelEnum.EMAIL:
                 try:
                     logger.info(
                         "Processing email notification",
@@ -92,16 +92,6 @@ class SendEmailNotificationUseCase:
                 except EmailSendingError as e:
                     logger.error(
                         "Failed to send email notification",
-                        notification_id=str(notification.id),
-                        recipient=notification.recipient,
-                        error=str(e),
-                        exc_info=True
-                    )
-                    continue
-
-                except RepositoryError as e:
-                    logger.error(
-                        "Failed to update notification status after sending",
                         notification_id=str(notification.id),
                         recipient=notification.recipient,
                         error=str(e),

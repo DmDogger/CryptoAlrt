@@ -149,13 +149,12 @@ class SQLAlchemyNotificationRepository(NotificationRepositoryProtocol):
             )
             raise RepositoryError(f"Unexpected error occurred while saving notification with ID: {entity.id}") from e
 
-    async def update(self, notification_id: UUID, entity: NotificationEntity) -> NotificationEntity:
+    async def update(self, notification: NotificationEntity) -> NotificationEntity:
         """
         Update an existing notification entity.
 
         Args:
-            notification_id: Unique identifier of the notification to update.
-            entity: Notification entity with updated data.
+            notification: Notification entity with updated data.
 
         Returns:
             Updated notification entity.
@@ -166,54 +165,56 @@ class SQLAlchemyNotificationRepository(NotificationRepositoryProtocol):
         try:
             logger.info(
                 "Updating notification",
-                notification_id=str(entity.id),
-                status=entity.status.value
+                notification_id=str(notification.id),
+                status=notification.status.value
             )
 
-            dict_model = self._mapper.to_dict(entity)
+            dict_model = self._mapper.to_dict(notification)
 
             upd_stmt = (
                 update(Notification)
-                .where(Notification.id == notification_id)
+                .where(Notification.id == notification.id)
                 .values(dict_model)
                 .returning(Notification)
             )
 
-            entity = await self.session.execute(upd_stmt)
+            result = await self.session.execute(upd_stmt)
+            updated_model = result.scalar_one()
+            await self.session.commit()
 
             logger.info(
                 "Notification updated successfully",
-                notification_id=str(entity.id)
+                notification_id=str(notification.id)
             )
-            return entity
+            return self._mapper.from_database_model(updated_model)
 
         except IntegrityError as e:
             await self.session.rollback()
             logger.error(
                 "Integrity error during notification update",
-                notification_id=str(entity.id),
+                notification_id=str(notification.id),
                 error=str(e),
                 exc_info=True
             )
-            raise RepositoryError(f"Notification update violates constraints: {entity.id}") from e
+            raise RepositoryError(f"Notification update violates constraints: {notification.id}") from e
         except SQLAlchemyError as e:
             await self.session.rollback()
             logger.error(
                 "SQLAlchemy error during notification update",
-                notification_id=str(entity.id),
+                notification_id=str(notification.id),
                 error=str(e),
                 exc_info=True
             )
-            raise RepositoryError(f"Database error occurred while updating notification with ID: {entity.id}") from e
+            raise RepositoryError(f"Database error occurred while updating notification with ID: {notification.id}") from e
         except Exception as e:
             await self.session.rollback()
             logger.error(
                 "Unexpected error during notification update",
-                notification_id=str(entity.id),
+                notification_id=str(notification.id),
                 error=str(e),
                 exc_info=True
             )
-            raise RepositoryError(f"Unexpected error occurred while updating notification with ID: {entity.id}") from e
+            raise RepositoryError(f"Unexpected error occurred while updating notification with ID: {notification.id}") from e
 
     async def get_by_status(self, status: StatusEnum) -> list[NotificationEntity]:
         """

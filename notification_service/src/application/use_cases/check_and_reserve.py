@@ -43,7 +43,6 @@ class CheckAndReserveUseCase:
     async def execute(
             self,
             dto_model: AlertTriggeredDTO,
-            idempotency_key: str
     ) -> list[NotificationEntity] | None:
         """Execute the check and reserve process for alert trigger notifications.
 
@@ -56,7 +55,6 @@ class CheckAndReserveUseCase:
         Args:
             dto_model: Alert trigger event data containing alert information,
                 cryptocurrency details, and user contact information.
-            idempotency_key: Unique key to prevent duplicate notification creation
                 for the same event.
 
         Returns:
@@ -94,15 +92,6 @@ class CheckAndReserveUseCase:
                 logger.info(
                     "All notification channels disabled for user",
                     email=dto_model.email,
-                    event_id=dto_model.id
-                )
-                return None
-
-            existing = await self._notification_repository.get_by_idempotency_key(idempotency_key)
-            if existing:
-                logger.info(
-                    "Notification already exists with idempotency key",
-                    idempotency_key=idempotency_key,
                     event_id=dto_model.id
                 )
                 return None

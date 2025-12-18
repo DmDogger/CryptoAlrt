@@ -1,6 +1,6 @@
-from application.use_cases.check_and_reserve import CheckAndReserveUseCase
 from dishka import FromDishka
 
+from ...application.use_cases.process_alert_triggered_use_case import ProcessAlertTriggeredUseCase
 from config.broker import broker_settings
 from infrastructures.broker.broker import broker
 from ...presentation.v1.schemas.alert_triggered import AlertTriggeredDTO
@@ -12,5 +12,8 @@ from ...presentation.v1.schemas.alert_triggered import AlertTriggeredDTO
 )
 async def consume_alert_triggered(
         event: AlertTriggeredDTO,
-        use_case: FromDishka[CheckAndReserveUseCase]
-):...
+        use_case: FromDishka[ProcessAlertTriggeredUseCase],
+):
+    await use_case.execute(
+        dto=event
+    )
