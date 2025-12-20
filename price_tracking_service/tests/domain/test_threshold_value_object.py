@@ -1,8 +1,8 @@
 import pytest
 from decimal import Decimal
 
-from src.domain.value_objects.threshold import ThresholdValueObject
-from src.domain.exceptions import DomainValidationError
+from domain.value_objects.threshold import ThresholdValueObject
+from domain.exceptions import DomainValidationError
 
 
 class TestThresholdValueObject:

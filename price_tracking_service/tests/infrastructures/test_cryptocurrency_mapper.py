@@ -2,8 +2,8 @@ import pytest
 from datetime import UTC, datetime
 from uuid import uuid4
 
-from src.infrastructures.mappers.cryptocurrency import InfrastructureCryptocurrencyMapper
-from src.application.dtos.cryptocurrency import CryptocurrencyDTO
+from infrastructures.mappers.cryptocurrency import InfrastructureCryptocurrencyMapper
+from application.dtos.cryptocurrency import CryptocurrencyDTO
 
 
 class TestInfrastructureCryptocurrencyMapper:

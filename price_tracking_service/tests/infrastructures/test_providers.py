@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import MagicMock
 
-from src.application.use_cases.check_threshold import CheckThresholdUseCase
+from application.use_cases.check_threshold import CheckThresholdUseCase
 
 
 class TestCheckThresholdUseCaseProvider:

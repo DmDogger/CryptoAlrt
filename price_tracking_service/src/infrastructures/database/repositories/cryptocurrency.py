@@ -168,7 +168,7 @@ class SQLAlchemyCryptocurrencyRepository(CryptocurrencyRepositoryProtocol):
             stmt = (
                 select(CryptocurrencyPrice.price_usd)
                 .where(CryptocurrencyPrice.cryptocurrency_id == cryptocurrency_id)
-                .order_by(desc(CryptocurrencyPrice.timestamp))
+                .order_by(desc(CryptocurrencyPrice.last_updated))
                 .limit(1)
             )
             result = await self.session.scalars(stmt)

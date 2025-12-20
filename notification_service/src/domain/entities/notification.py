@@ -45,7 +45,7 @@ class NotificationEntity:
         if self.sent_at:
             sent_at_naive = self.sent_at.replace(tzinfo=None) if self.sent_at.tzinfo else self.sent_at
             created_at_naive = self.created_at.replace(tzinfo=None) if self.created_at.tzinfo else self.created_at
-            if sent_at_naive > created_at_naive:
+            if sent_at_naive <= created_at_naive:
                 raise DomainValidationError("Sent at date cannot be later than created_at")
 
     @classmethod

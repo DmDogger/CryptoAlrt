@@ -9,9 +9,9 @@ from unittest.mock import AsyncMock, MagicMock, patch
 mock_kafka = MagicMock()
 sys.modules['faststream.kafka'] = mock_kafka
 
-from src.infrastructures.broker.publisher import KafkaEventPublisher
-from src.application.dtos.price_updated import PriceUpdatedEventDTO
-from src.domain.exceptions import PublishError
+from infrastructures.broker.publisher import KafkaEventPublisher
+from application.dtos.price_updated import PriceUpdatedEventDTO
+from domain.exceptions import PublishError
 
 
 class TestKafkaEventPublisher:
@@ -65,8 +65,8 @@ class TestKafkaEventPublisher:
     @pytest.mark.asyncio
     async def test_publish_with_different_event_type(self, publisher, mock_broker):
         """Test publishing different event types."""
-        from src.application.dtos.alert import AlertDTO
-        from src.domain.value_objects.threshold import ThresholdValueObject
+        from application.dtos.alert import AlertDTO
+        from domain.value_objects.threshold import ThresholdValueObject
         
         alert_dto = AlertDTO(
             id=uuid4(),

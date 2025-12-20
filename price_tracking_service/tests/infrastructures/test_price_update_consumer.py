@@ -9,9 +9,10 @@ from uuid import uuid4
 mock_kafka = MagicMock()
 sys.modules['faststream.kafka'] = mock_kafka
 
-from src.infrastructures.consumer.price_update_consumer import _consume_price_update_and_check_thresholds
-from src.domain.events.price_updated import PriceUpdatedEvent
-from src.domain.exceptions import RepositoryError, PublishError
+from infrastructures.consumer.price_update_consumer import _consume_price_update_and_check_thresholds
+from infrastructures.consumer import price_update_consumer
+from domain.events.price_updated import PriceUpdatedEvent
+from domain.exceptions import RepositoryError, PublishError
 
 
 class TestConsumePriceUpdateAndCheckThresholds:
@@ -39,7 +40,7 @@ class TestConsumePriceUpdateAndCheckThresholds:
     async def test_consume_success(self, mock_use_case, price_updated_event, caplog):
         """Test successful consumption and processing of price update event."""
         # Arrange
-        with patch('src.infrastructures.consumer.price_update_consumer.logger') as mock_logger:
+        with patch.object(price_update_consumer, 'logger') as mock_logger:
             # Act
             await _consume_price_update_and_check_thresholds(
                 event=price_updated_event,
@@ -79,7 +80,7 @@ class TestConsumePriceUpdateAndCheckThresholds:
         repo_error = RepositoryError("Database connection failed")
         mock_use_case.execute.side_effect = repo_error
 
-        with patch('src.infrastructures.consumer.price_update_consumer.logger') as mock_logger:
+        with patch.object(price_update_consumer, 'logger') as mock_logger:
             # Act
             await _consume_price_update_and_check_thresholds(
                 event=price_updated_event,
@@ -110,7 +111,7 @@ class TestConsumePriceUpdateAndCheckThresholds:
         publish_error = PublishError("Failed to publish alert event")
         mock_use_case.execute.side_effect = publish_error
 
-        with patch('src.infrastructures.consumer.price_update_consumer.logger') as mock_logger:
+        with patch.object(price_update_consumer, 'logger') as mock_logger:
             # Act
             await _consume_price_update_and_check_thresholds(
                 event=price_updated_event,
@@ -141,7 +142,7 @@ class TestConsumePriceUpdateAndCheckThresholds:
         value_error = ValueError("Invalid price format")
         mock_use_case.execute.side_effect = value_error
 
-        with patch('src.infrastructures.consumer.price_update_consumer.logger') as mock_logger:
+        with patch.object(price_update_consumer, 'logger') as mock_logger:
             # Act
             await _consume_price_update_and_check_thresholds(
                 event=price_updated_event,
@@ -172,7 +173,7 @@ class TestConsumePriceUpdateAndCheckThresholds:
         unexpected_error = RuntimeError("Unexpected system error")
         mock_use_case.execute.side_effect = unexpected_error
 
-        with patch('src.infrastructures.consumer.price_update_consumer.logger') as mock_logger:
+        with patch.object(price_update_consumer, 'logger') as mock_logger:
             # Act
             await _consume_price_update_and_check_thresholds(
                 event=price_updated_event,
@@ -202,7 +203,7 @@ class TestConsumePriceUpdateAndCheckThresholds:
         # Arrange
         cryptocurrencies = ["bitcoin", "ethereum", "cardano", "solana"]
 
-        with patch('src.infrastructures.consumer.price_update_consumer.logger') as mock_logger:
+        with patch.object(price_update_consumer, 'logger') as mock_logger:
             for crypto in cryptocurrencies:
                 event = PriceUpdatedEvent(
                     id=uuid4(),
@@ -230,7 +231,7 @@ class TestConsumePriceUpdateAndCheckThresholds:
         # Arrange
         prices = [Decimal("0.01"), Decimal("1.50"), Decimal("1000000.99"), Decimal("999999.999999")]
 
-        with patch('src.infrastructures.consumer.price_update_consumer.logger') as mock_logger:
+        with patch.object(price_update_consumer, 'logger') as mock_logger:
             for price in prices:
                 event = PriceUpdatedEvent(
                     id=uuid4(),
@@ -269,7 +270,7 @@ class TestConsumePriceUpdateAndCheckThresholds:
     async def test_consume_logging_context(self, mock_use_case, price_updated_event):
         """Test that all log messages include proper context."""
         # Arrange
-        with patch('src.infrastructures.consumer.price_update_consumer.logger') as mock_logger:
+        with patch.object(price_update_consumer, 'logger') as mock_logger:
             # Act
             await _consume_price_update_and_check_thresholds(
                 event=price_updated_event,
@@ -294,7 +295,7 @@ class TestConsumePriceUpdateAndCheckThresholds:
         # Arrange
         mock_use_case.execute.side_effect = RepositoryError("Test error")
 
-        with patch('src.infrastructures.consumer.price_update_consumer.logger') as mock_logger:
+        with patch.object(price_update_consumer, 'logger') as mock_logger:
             # Act
             await _consume_price_update_and_check_thresholds(
                 event=price_updated_event,
@@ -303,6 +304,7 @@ class TestConsumePriceUpdateAndCheckThresholds:
 
             # Assert
             error_call = mock_logger.error.call_args
+            assert error_call is not None
             args, kwargs = error_call
             assert "topic" in kwargs
             assert kwargs["topic"] == "price-updates"

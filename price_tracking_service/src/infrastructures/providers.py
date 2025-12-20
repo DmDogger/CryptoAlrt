@@ -14,6 +14,7 @@ from application.use_cases.get_alerts_list_by_email import GetAlertsUseCase
 from application.use_cases.save_alert_to_database import SaveAlertToDBUseCase
 from application.use_cases.publish_price_update_to_broker import PublishPriceUpdateToBrokerUseCase
 from application.use_cases.process_price_update import ProcessPriceUpdateUseCase
+from application.use_cases.get_cryptocurrencies_with_prices import GetCryptocurrenciesWithPricesUseCase
 from application.interfaces.repositories import AlertRepositoryProtocol, CryptocurrencyRepositoryProtocol
 from application.interfaces.event_publisher import EventPublisherProtocol
 from application.use_cases.update_alert import UpdateAlertUseCase
@@ -221,5 +222,15 @@ class UseCaseProvider(Provider):
             repository=repository,
             broker=broker,
             mapper=mapper,
+        )
+
+    @provide(scope=Scope.REQUEST)
+    def get_cryptocurrencies_with_prices_use_case(
+        self,
+        cryptocurrency_repository: CryptocurrencyRepositoryProtocol,
+    ) -> GetCryptocurrenciesWithPricesUseCase:
+        """Use case для получения криптовалют с ценами."""
+        return GetCryptocurrenciesWithPricesUseCase(
+            cryptocurrency_repository=cryptocurrency_repository
         )
 

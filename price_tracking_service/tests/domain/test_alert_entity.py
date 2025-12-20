@@ -3,9 +3,9 @@ from datetime import UTC, datetime
 from decimal import Decimal
 from uuid import UUID, uuid4
 
-from src.domain.entities.alert import AlertEntity
-from src.domain.value_objects.threshold import ThresholdValueObject
-from src.domain.exceptions import DomainValidationError
+from domain.entities.alert import AlertEntity
+from domain.value_objects.threshold import ThresholdValueObject
+from domain.exceptions import DomainValidationError
 
 
 class TestAlertEntity:
@@ -17,8 +17,10 @@ class TestAlertEntity:
         alert = AlertEntity(
             id=uuid4(),
             email="user@example.com",
+            telegram_id=None,
             cryptocurrency="BTC",
             threshold_price=threshold,
+            is_triggered=False,
             is_active=True,
             created_at=datetime.now(UTC)
         )
@@ -37,8 +39,10 @@ class TestAlertEntity:
             AlertEntity(
                 id=uuid4(),
                 email="invalid-email",
+                telegram_id=None,
                 cryptocurrency="BTC",
                 threshold_price=threshold,
+                is_triggered=False,
                 is_active=True,
                 created_at=datetime.now(UTC)
             )
@@ -51,8 +55,10 @@ class TestAlertEntity:
             AlertEntity(
                 id=uuid4(),
                 email="user@example.com",
+                telegram_id=None,
                 cryptocurrency="BT",
                 threshold_price=threshold,
+                is_triggered=False,
                 is_active=True,
                 created_at=datetime.now(UTC)
             )
@@ -66,8 +72,10 @@ class TestAlertEntity:
             AlertEntity(
                 id=uuid4(),
                 email="user@example.com",
+                telegram_id=None,
                 cryptocurrency=long_crypto,
                 threshold_price=threshold,
+                is_triggered=False,
                 is_active=True,
                 created_at=datetime.now(UTC)
             )
@@ -78,8 +86,10 @@ class TestAlertEntity:
         alert = AlertEntity(
             id=uuid4(),
             email="user@example.com",
+            telegram_id=None,
             cryptocurrency="BTC",
             threshold_price=threshold,
+            is_triggered=False,
             is_active=True,
             created_at=datetime.now(UTC)
         )
@@ -94,8 +104,10 @@ class TestAlertEntity:
         alert = AlertEntity(
             id=uuid4(),
             email="user@example.com",
+            telegram_id=None,
             cryptocurrency="BTC",
             threshold_price=threshold,
+            is_triggered=False,
             is_active=True
             # created_at not provided, should use default
         )

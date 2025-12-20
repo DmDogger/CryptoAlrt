@@ -3,8 +3,8 @@ from datetime import datetime
 from typing import final
 from uuid import UUID
 
-from ...application.dtos.cryptocurrency import CryptocurrencyDTO
-from ...application.interfaces.serialization import SerializationMapperProtocol
+from application.dtos.cryptocurrency import CryptocurrencyDTO
+from application.interfaces.serialization import SerializationMapperProtocol
 
 
 @final

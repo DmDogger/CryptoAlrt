@@ -2,8 +2,8 @@ import pytest
 from datetime import UTC, datetime
 from decimal import Decimal
 
-from src.infrastructures.mappers.price_updated import InfrastructurePriceUpdatedEventMapper
-from src.application.dtos.price_updated import PriceUpdatedEventDTO
+from infrastructures.mappers.price_updated import InfrastructurePriceUpdatedEventMapper
+from application.dtos.price_updated import PriceUpdatedEventDTO
 
 
 class TestInfrastructurePriceUpdatedEventMapper:

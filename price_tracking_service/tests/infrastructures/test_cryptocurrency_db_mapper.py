@@ -4,7 +4,7 @@ from uuid import uuid4
 from unittest import mock
 from unittest.mock import MagicMock
 
-from src.domain.entities.cryptocurrency import CryptocurrencyEntity
+from domain.entities.cryptocurrency import CryptocurrencyEntity
 
 
 class TestCryptocurrencyDBMapper:
@@ -13,7 +13,7 @@ class TestCryptocurrencyDBMapper:
     @pytest.fixture
     def mapper(self):
         """Create CryptocurrencyDBMapper instance."""
-        from src.infrastructures.database.mappers.cryptocurrency_db_mapper import CryptocurrencyDBMapper
+        from infrastructures.database.mappers.cryptocurrency_db_mapper import CryptocurrencyDBMapper
         return CryptocurrencyDBMapper()
 
     def test_to_database_model(self, mapper):
@@ -22,6 +22,7 @@ class TestCryptocurrencyDBMapper:
             id=uuid4(),
             symbol="BTC",
             name="Bitcoin",
+            coingecko_id="bitcoin",
             created_at=datetime(2023, 1, 1, 12, 0, 0, tzinfo=UTC)
         )
 
@@ -47,6 +48,7 @@ class TestCryptocurrencyDBMapper:
             id=uuid4(),
             symbol="ETH",
             name="Ethereum",
+            coingecko_id="ethereum",
             created_at=datetime(2023, 1, 1, 12, 0, 0)  # No timezone
         )
 

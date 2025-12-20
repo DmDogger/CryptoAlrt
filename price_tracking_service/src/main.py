@@ -1,18 +1,22 @@
 import asyncio
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from faststream import FastStream
 from dishka.integrations.fastapi import setup_dishka as setup_dishka_fastapi
 from dishka.integrations.faststream import setup_dishka as setup_dishka_faststream
 import structlog
 
+from config.cors import CORSSettings
 from infrastructures.di_container import create_container
 from infrastructures.tasks.tasks import kafka_broker, taskiq_broker
 from presentation.api.v1.controllers.alert import router as alert_router
+from presentation.api.v1.controllers.cryptocurrency import router as cryptocurrency_router
 
 logger = structlog.getLogger(__name__)
 
 container = create_container()
+cors_settings = CORSSettings()
 
 faststream_app = FastStream(kafka_broker)
 setup_dishka_faststream(container, faststream_app)
@@ -50,9 +54,19 @@ fastapi_app = FastAPI(
     lifespan=lifespan
 )
 
+# Configure CORS
+fastapi_app.add_middleware(
+    CORSMiddleware,
+    allow_origins=cors_settings.cors_origins,
+    allow_credentials=cors_settings.cors_allow_credentials,
+    allow_methods=cors_settings.cors_allow_methods,
+    allow_headers=cors_settings.cors_allow_headers,
+)
+
 setup_dishka_fastapi(container, fastapi_app)
 
 fastapi_app.include_router(alert_router)
+fastapi_app.include_router(cryptocurrency_router)
 
 
 __all__ = ["fastapi_app", "faststream_app"]

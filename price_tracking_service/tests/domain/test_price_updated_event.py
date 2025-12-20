@@ -2,7 +2,7 @@ import pytest
 from datetime import UTC, datetime
 from decimal import Decimal
 
-from src.domain.events.price_updated import PriceUpdatedEvent
+from domain.events.price_updated import PriceUpdatedEvent
 
 
 class TestPriceUpdatedEvent:
@@ -35,7 +35,8 @@ class TestPriceUpdatedEvent:
         assert data["cryptocurrency"] == "BTC"
         assert data["name"] == ""  # Default value
         assert data["price"] == "50000"
-        assert data["timestamp"] == timestamp.isoformat()
+        # to_dict() removes timezone, so we compare without timezone
+        assert data["timestamp"] == timestamp.replace(tzinfo=None).isoformat()
 
     def test_event_from_dict(self):
         """Test deserialization from dict."""

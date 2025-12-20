@@ -2,7 +2,7 @@ import pytest
 from datetime import UTC, datetime
 from decimal import Decimal
 
-from src.application.dtos.price_updated import PriceUpdatedEventDTO
+from application.dtos.price_updated import PriceUpdatedEventDTO
 
 
 class TestPriceUpdatedEventDTO:

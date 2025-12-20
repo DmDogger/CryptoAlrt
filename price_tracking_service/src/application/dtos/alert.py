@@ -3,7 +3,7 @@ from datetime import datetime, UTC
 from typing import final
 from uuid import UUID
 
-from ...domain.value_objects.threshold import ThresholdValueObject
+from domain.value_objects.threshold import ThresholdValueObject
 
 
 @final

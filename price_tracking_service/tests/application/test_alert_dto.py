@@ -3,8 +3,8 @@ from datetime import UTC, datetime
 from decimal import Decimal
 from uuid import uuid4
 
-from src.application.dtos.alert import AlertDTO
-from src.domain.value_objects.threshold import ThresholdValueObject
+from application.dtos.alert import AlertDTO
+from domain.value_objects.threshold import ThresholdValueObject
 
 
 class TestAlertDTO:

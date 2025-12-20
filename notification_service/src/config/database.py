@@ -16,3 +16,4 @@ class DatabaseSettings(BaseSettings):
 db_settings = DatabaseSettings()
 
 
+

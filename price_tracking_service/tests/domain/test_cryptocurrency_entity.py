@@ -2,8 +2,8 @@ import pytest
 from datetime import UTC, datetime
 from uuid import UUID, uuid4
 
-from src.domain.entities.cryptocurrency import CryptocurrencyEntity
-from src.domain.exceptions import DomainValidationError
+from domain.entities.cryptocurrency import CryptocurrencyEntity
+from domain.exceptions import DomainValidationError
 
 
 class TestCryptocurrencyEntity:
@@ -15,6 +15,7 @@ class TestCryptocurrencyEntity:
             id=uuid4(),
             symbol="BTC",
             name="Bitcoin",
+            coingecko_id="bitcoin",
             created_at=datetime.now(UTC)
         )
 
@@ -28,7 +29,8 @@ class TestCryptocurrencyEntity:
         # Creating directly instead
         crypto = CryptocurrencyEntity(
             symbol="ETH",
-            name="Ethereum"
+            name="Ethereum",
+            coingecko_id="ethereum"
         )
 
         assert crypto.symbol == "ETH"
@@ -42,6 +44,7 @@ class TestCryptocurrencyEntity:
                 id=uuid4(),
                 symbol="BT",
                 name="Bitcoin",
+                coingecko_id="bitcoin",
                 created_at=datetime.now(UTC)
             )
 
@@ -52,6 +55,7 @@ class TestCryptocurrencyEntity:
                 id=uuid4(),
                 symbol="VERYLONGCRYPTOSYMBOL",
                 name="Bitcoin",
+                coingecko_id="bitcoin",
                 created_at=datetime.now(UTC)
             )
 
@@ -63,6 +67,7 @@ class TestCryptocurrencyEntity:
                 id=uuid4(),
                 symbol="btc",
                 name="Bitcoin",
+                coingecko_id="bitcoin",
                 created_at=datetime.now(UTC)
             )
 
@@ -73,6 +78,7 @@ class TestCryptocurrencyEntity:
                 id=uuid4(),
                 symbol="BTC",
                 name="B",
+                coingecko_id="bitcoin",
                 created_at=datetime.now(UTC)
             )
 
@@ -84,6 +90,7 @@ class TestCryptocurrencyEntity:
             id=uuid4(),
             symbol="BTC",
             name="Bitcoin",
+            coingecko_id="bitcoin",
             created_at=datetime(2023, 1, 1, tzinfo=UTC)
         )
 
@@ -98,6 +105,7 @@ class TestCryptocurrencyEntity:
             id=uuid4(),
             symbol="BTC",
             name="Bitcoin",
+            coingecko_id="bitcoin",
             created_at=datetime.now(UTC)
         )
 

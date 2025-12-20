@@ -2,8 +2,8 @@ import pytest
 from datetime import UTC, datetime
 from decimal import Decimal
 
-from src.domain.value_objects.price import PriceValueObject
-from src.domain.exceptions import DomainValidationError
+from domain.value_objects.price import PriceValueObject
+from domain.exceptions import DomainValidationError
 
 
 class TestPriceValueObject:

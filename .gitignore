@@ -170,3 +170,6 @@ uvicorn.log
 
 # Alembic migrations (uncomment if you want to ignore generated migrations)
 # alembic/versions/*.py
+
+# Frontend
+frontend/

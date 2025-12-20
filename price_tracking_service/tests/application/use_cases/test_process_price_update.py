@@ -3,9 +3,9 @@ from decimal import Decimal
 from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
 
-from src.application.use_cases.process_price_update import ProcessPriceUpdateUseCase
-from src.domain.entities.cryptocurrency import CryptocurrencyEntity
-from src.domain.exceptions import (
+from application.use_cases.process_price_update import ProcessPriceUpdateUseCase
+from domain.entities.cryptocurrency import CryptocurrencyEntity
+from domain.exceptions import (
     UnsuccessfullyCoinGeckoAPICall,
     RepositoryError,
     PublishError,
@@ -31,11 +31,19 @@ class TestProcessPriceUpdateUseCase:
         return use_case
 
     @pytest.fixture
-    def use_case(self, mock_fetch_and_save_use_case, mock_publish_use_case):
+    def mock_check_threshold_use_case(self):
+        """Create mock CheckThresholdUseCase."""
+        use_case = MagicMock()
+        use_case.execute = AsyncMock()
+        return use_case
+
+    @pytest.fixture
+    def use_case(self, mock_fetch_and_save_use_case, mock_publish_use_case, mock_check_threshold_use_case):
         """Create ProcessPriceUpdateUseCase instance with mocks."""
         return ProcessPriceUpdateUseCase(
             fetch_and_save_use_case=mock_fetch_and_save_use_case,
-            publish_price_updated_use_case=mock_publish_use_case
+            publish_price_updated_use_case=mock_publish_use_case,
+            check_threshold_use_case=mock_check_threshold_use_case
         )
 
     @pytest.fixture
@@ -44,7 +52,8 @@ class TestProcessPriceUpdateUseCase:
         return CryptocurrencyEntity(
             id=uuid4(),
             symbol="BTC",
-            name="Bitcoin"
+            name="Bitcoin",
+            coingecko_id="bitcoin"
         )
 
     @pytest.fixture
@@ -177,7 +186,8 @@ class TestProcessPriceUpdateUseCase:
             entity = CryptocurrencyEntity(
                 id=uuid4(),
                 symbol=coin_id.upper()[:3],
-                name=coin_id.capitalize()
+                name=coin_id.capitalize(),
+                coingecko_id=coin_id
             )
             price = Decimal("1000.00")
             

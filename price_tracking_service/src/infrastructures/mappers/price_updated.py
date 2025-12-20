@@ -3,8 +3,8 @@ from datetime import datetime
 from decimal import Decimal
 from typing import final
 
-from ...application.dtos.price_updated import PriceUpdatedEventDTO
-from ...application.interfaces.serialization import SerializationMapperProtocol
+from application.dtos.price_updated import PriceUpdatedEventDTO
+from application.interfaces.serialization import SerializationMapperProtocol
 
 
 @final

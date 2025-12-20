@@ -6,9 +6,9 @@ from uuid import uuid4
 
 import httpx
 
-from src.infrastructures.http.coingecko_client import CoinGeckoClient
-from src.application.dtos.coingecko_object import CoinGeckoDTO
-from src.domain.exceptions import UnsuccessfullyCoinGeckoAPICall
+from infrastructures.http.coingecko_client import CoinGeckoClient
+from application.dtos.coingecko_object import CoinGeckoDTO
+from domain.exceptions import UnsuccessfullyCoinGeckoAPICall
 
 
 class TestCoinGeckoClient:
@@ -38,16 +38,20 @@ class TestCoinGeckoClient:
 
     @pytest.fixture
     def mock_coingecko_response(self):
-        """Create a sample CoinGecko API response."""
-        return {
-            "bitcoin": {
-                "usd": 67187.34,
-                "usd_market_cap": 1317802988326.25,
-                "usd_24h_vol": 31260929299.52,
-                "usd_24h_change": 3.637,
-                "last_updated_at": 1711356300
-            }
-        }
+        """Create a sample CoinGecko API response (array format)."""
+        return [{
+            "id": "bitcoin",
+            "symbol": "btc",
+            "name": "Bitcoin",
+            "current_price": 67187.34,
+            "market_cap": 1317802988326.25,
+            "total_volume": 31260929299.52,
+            "high_24h": None,
+            "low_24h": None,
+            "price_change_24h": None,
+            "price_change_percentage_24h": 3.637,
+            "last_updated": datetime.fromtimestamp(1711356300)
+        }]
 
     @pytest.fixture
     def expected_dto(self):
@@ -83,17 +87,16 @@ class TestCoinGeckoClient:
         mock_httpx_client.get.return_value = mock_response
 
         # Act
-        with patch.object(CoinGeckoDTO, 'to_dto') as mock_to_dto:
-            mock_to_dto.return_value = MagicMock(spec=CoinGeckoDTO)
-            result = await coingecko_client.fetch_price(coin_id)
+        result = await coingecko_client.fetch_price(coin_id)
 
-            # Assert
-            assert result is not None
-            mock_httpx_client.get.assert_called_once()
-            call_args = mock_httpx_client.get.call_args
-            assert coin_id in call_args.kwargs['params']['ids']
-            assert 'usd' in call_args.kwargs['params']['vs_currencies']
-            mock_to_dto.assert_called_once_with(mock_coingecko_response[coin_id])
+        # Assert
+        assert result is not None
+        mock_httpx_client.get.assert_called_once()
+        call_args = mock_httpx_client.get.call_args
+        assert coin_id in call_args.kwargs['params']['ids']
+        assert 'usd' in call_args.kwargs['params']['vs_currency']
+        assert result.id == "bitcoin"
+        assert result.symbol == "btc"
 
     @pytest.mark.asyncio
     async def test_fetch_price_http_error(
@@ -143,7 +146,7 @@ class TestCoinGeckoClient:
         coin_id = "nonexistent-coin"
         mock_response = MagicMock()
         mock_response.status_code = 200
-        mock_response.json.return_value = {}  # Empty response without coin_id
+        mock_response.json.return_value = []  # Empty array response
         mock_response.raise_for_status = MagicMock()
         mock_httpx_client.get.return_value = mock_response
 
@@ -169,24 +172,29 @@ class TestCoinGeckoClient:
         for coin_id in coin_ids:
             mock_response = MagicMock()
             mock_response.status_code = 200
-            mock_response.json.return_value = {
-                coin_id: {
-                    "usd": 1000.0,
-                    "last_updated_at": 1711356300
-                }
-            }
+            mock_response.json.return_value = [{
+                "id": coin_id,
+                "symbol": coin_id[:3],
+                "name": coin_id.capitalize(),
+                "current_price": 1000.0,
+                "market_cap": None,
+                "total_volume": None,
+                "high_24h": None,
+                "low_24h": None,
+                "price_change_24h": None,
+                "price_change_percentage_24h": None,
+                "last_updated": datetime.fromtimestamp(1711356300)
+            }]
             mock_response.raise_for_status = MagicMock()
             mock_httpx_client.get.return_value = mock_response
 
             # Act
-            with patch.object(CoinGeckoDTO, 'to_dto') as mock_to_dto:
-                mock_to_dto.return_value = MagicMock(spec=CoinGeckoDTO)
-                result = await coingecko_client.fetch_price(coin_id)
+            result = await coingecko_client.fetch_price(coin_id)
 
-                # Assert
-                assert result is not None
-                call_args = mock_httpx_client.get.call_args
-                assert coin_id in call_args.kwargs['params']['ids']
+            # Assert
+            assert result is not None
+            call_args = mock_httpx_client.get.call_args
+            assert coin_id in call_args.kwargs['params']['ids']
 
     # Note: fetch_and_save method was removed from CoinGeckoClient
     # as the functionality is now handled by FetchAndSaveUseCase

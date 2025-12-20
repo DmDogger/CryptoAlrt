@@ -2,7 +2,7 @@ import pytest
 from datetime import UTC, datetime
 from uuid import uuid4
 
-from src.application.dtos.cryptocurrency import CryptocurrencyDTO
+from application.dtos.cryptocurrency import CryptocurrencyDTO
 
 
 class TestCryptocurrencyDTO:

@@ -4,10 +4,10 @@ from decimal import Decimal
 from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
 
-from src.application.use_cases.fetch_and_save_to_database import FetchAndSaveUseCase
-from src.application.dtos.coingecko_object import CoinGeckoDTO
-from src.domain.entities.cryptocurrency import CryptocurrencyEntity
-from src.domain.exceptions import UnsuccessfullyCoinGeckoAPICall, UnexpectedError
+from application.use_cases.fetch_and_save_to_database import FetchAndSaveUseCase
+from application.dtos.coingecko_object import CoinGeckoDTO
+from domain.entities.cryptocurrency import CryptocurrencyEntity
+from domain.exceptions import UnsuccessfullyCoinGeckoAPICall, UnexpectedError
 
 
 class TestFetchAndSaveUseCase:
@@ -60,7 +60,8 @@ class TestFetchAndSaveUseCase:
         return CryptocurrencyEntity(
             id=uuid4(),
             symbol="BTC",
-            name="Bitcoin"
+            name="Bitcoin",
+            coingecko_id="bitcoin"
         )
 
     @pytest.mark.asyncio
@@ -117,6 +118,7 @@ class TestFetchAndSaveUseCase:
         assert isinstance(saved_entity, CryptocurrencyEntity)
         assert saved_entity.symbol == "BTC"
         assert saved_entity.name == "Bitcoin"
+        assert saved_entity.coingecko_id == "bitcoin"
         
         # Should save price with new cryptocurrency ID
         mock_crypto_repository.save_price.assert_called_once()
@@ -295,6 +297,7 @@ class TestFetchAndSaveUseCase:
         created_entity = mock_crypto_repository.save.call_args[0][0]
         assert created_entity.symbol == "SOL"
         assert created_entity.name == "Solana"
+        assert created_entity.coingecko_id == "solana"
         
         # 4. Save price
         mock_crypto_repository.save_price.assert_called_once()

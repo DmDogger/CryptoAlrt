@@ -5,8 +5,8 @@ from uuid import uuid4
 from unittest import mock
 from unittest.mock import MagicMock
 
-from src.domain.entities.alert import AlertEntity
-from src.domain.value_objects.threshold import ThresholdValueObject
+from domain.entities.alert import AlertEntity
+from domain.value_objects.threshold import ThresholdValueObject
 
 
 class TestAlertDBMapper:
@@ -15,7 +15,7 @@ class TestAlertDBMapper:
     @pytest.fixture
     def mapper(self):
         """Create AlertDBMapper instance."""
-        from src.infrastructures.database.mappers.alert_db_mapper import AlertDBMapper
+        from infrastructures.database.mappers.alert_db_mapper import AlertDBMapper
         return AlertDBMapper()
 
     def test_to_database_model(self, mapper):
@@ -23,8 +23,10 @@ class TestAlertDBMapper:
         entity = AlertEntity(
             id=uuid4(),
             email="user@example.com",
+            telegram_id=None,
             cryptocurrency="BTC",
             threshold_price=ThresholdValueObject(value=Decimal("50000")),
+            is_triggered=False,
             is_active=True,
             created_at=datetime(2023, 1, 1, 12, 0, 0, tzinfo=UTC)
         )

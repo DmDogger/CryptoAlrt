@@ -3,9 +3,9 @@ from datetime import datetime
 from typing import final
 from uuid import UUID
 
-from ...application.dtos.alert import AlertDTO
-from ...application.interfaces.serialization import SerializationMapperProtocol
-from ...domain.value_objects.threshold import ThresholdValueObject
+from application.dtos.alert import AlertDTO
+from application.interfaces.serialization import SerializationMapperProtocol
+from domain.value_objects.threshold import ThresholdValueObject
 
 
 @final
