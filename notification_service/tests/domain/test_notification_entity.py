@@ -1,3 +1,4 @@
+import dataclasses
 from datetime import datetime, UTC, timedelta
 from uuid import uuid4
 
@@ -8,6 +9,7 @@ from domain.enums.status import StatusEnum
 
 from domain.entities.notification import NotificationEntity
 from domain.exceptions import DomainValidationError
+from domain.value_objects.message import MessageValueObject
 
 
 class TestNotificationEntity:
@@ -57,7 +59,6 @@ class TestNotificationEntity:
             sample_idempotency_key,
             sample_message_value_object,
             invalid_channel,
-            sample_notification_entity_with_params
     ):
         with pytest.raises(DomainValidationError):
             NotificationEntity(
@@ -73,7 +74,6 @@ class TestNotificationEntity:
 
     def test_incorrect_datetime(
             self,
-            sample_notification_entity_with_params,
             sample_message_value_object,
             sample_idempotency_key,
     ):
@@ -91,7 +91,88 @@ class TestNotificationEntity:
                 created_at=datetime.now(UTC),
             )
 
+    @pytest.mark.parametrize(
+        "invalid_value",
+        [
+        "test_big_string" * 105,
+        "",
+    ]
+    )
+    def test_invalid_recipient_length(
+            self,
+            invalid_value,
+            sample_idempotency_key,
+            sample_message_value_object,
+    ):
+        with pytest.raises(DomainValidationError):
+            NotificationEntity(
+                    id=uuid4(),
+                    message=sample_message_value_object,
+                    recipient=invalid_value,
+                    idempotency_key=sample_idempotency_key,
+                    channel=ChannelEnum.EMAIL,
+                    status=StatusEnum.PENDING,
+                    sent_at=None,
+                    created_at=datetime.now(UTC),
+                )
+
+    @pytest.mark.parametrize(
+        "invalid_value",
+        [
+            "",
+            "giant_test_string" * 100,
+        ]
+    )
+    def test_invalid_message_length(
+            self,
+            invalid_value,
+            sample_idempotency_key,
+            sample_message_value_object,
+    ):
+        with pytest.raises(DomainValidationError):
+            NotificationEntity(
+                    id=uuid4(),
+                    message=MessageValueObject(text=invalid_value),
+                    recipient="validov@dmitrii.io",
+                    idempotency_key=sample_idempotency_key,
+                    channel=ChannelEnum.EMAIL,
+                    status=StatusEnum.PENDING,
+                    sent_at=None,
+                    created_at=datetime.now(UTC),
+                )
+
+    def test_entity_is_immutable(
+            self,
+            sample_notification_entity
+    ):
+        with pytest.raises(dataclasses.FrozenInstanceError):
+            sample_notification_entity.recipient = 'immutablov@dataclass.comov'
 
 
 
-
+    @pytest.mark.parametrize(
+        "invalid_value",
+        [
+            "Test_string",
+            123,
+            -505,
+            None,
+            True,
+         ]
+    )
+    def test_notification_entity_invalid_idempotency_key(
+            self,
+            sample_message_value_object,
+            invalid_value
+    ):
+        with pytest.raises(DomainValidationError):
+            NotificationEntity(
+                id=uuid4(),
+                message=sample_message_value_object,
+                recipient="validov@dmitrii.io",
+                idempotency_key=invalid_value,
+                channel=ChannelEnum.EMAIL,
+                status=StatusEnum.PENDING,
+                sent_at=None,
+                created_at=datetime.now(UTC),
+            )

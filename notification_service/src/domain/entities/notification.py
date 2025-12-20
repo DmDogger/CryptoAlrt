@@ -38,9 +38,9 @@ class NotificationEntity:
             raise DomainValidationError("Channel must be a value from ChannelEnum")
         if not isinstance(self.idempotency_key, IdempotencyKeyVO):
             raise DomainValidationError("Idempotency key must be an IdempotencyKeyVO instance")
-        if len(self.message.text) <= 0 or len(self.message.text) > 100:
+        if len(self.message.text) < 5 or len(self.message.text) > 100:
             raise DomainValidationError("Message length must be between 1 and 100 characters")
-        if len(self.recipient) <= 0 or len(self.recipient) > 100:
+        if len(self.recipient) < 5 or len(self.recipient) > 100:
             raise DomainValidationError("Recipient length must be between 1 and 100 characters")
         if self.sent_at:
             sent_at_naive = self.sent_at.replace(tzinfo=None) if self.sent_at.tzinfo else self.sent_at
