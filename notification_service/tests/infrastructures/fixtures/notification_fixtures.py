@@ -9,6 +9,8 @@ from domain.enums.channel import ChannelEnum
 from domain.value_objects.message import MessageValueObject
 from domain.value_objects.idempotency_key import IdempotencyKeyVO
 
+from infrastructures.database.mappers import NotificationDBMapper
+
 
 @pytest.fixture
 def sample_notification_entity(
@@ -24,16 +26,18 @@ def sample_notification_entity(
         idempotency_key=sample_idempotency_key,
     )
 
+@pytest.fixture
+def sample_notification_db_model(sample_notification_entity):
+    return NotificationDBMapper.to_database_model(sample_notification_entity)
+
 
 @pytest.fixture
 def sample_notification_entity_with_params(sample_event_id):
     """Фабрика для создания NotificationEntity с кастомными параметрами."""
     def _create(
             channel: ChannelEnum = ChannelEnum.EMAIL,
-            msg_text: str = "Text message already here! Please, change me :)",
+            msg_text: str = "Text message is already here! Please, change me :)",
             recipient: str = "cryptodmitrii@cryptoalertov.com",
-            sent_at: datetime | None = None,
-            created_at: datetime | None = datetime.now(UTC),
     ):
         return NotificationEntity.create(
             channel=channel,
