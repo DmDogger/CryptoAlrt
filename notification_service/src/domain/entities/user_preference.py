@@ -2,6 +2,8 @@ import uuid
 from dataclasses import field, dataclass
 from typing import final
 
+from domain.exceptions import DomainValidationError
+
 
 @final
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -23,6 +25,10 @@ class UserPreferenceEntity:
     email_enabled: bool = field(default=True)
     telegram_id: int | None = None
     telegram_enabled: bool = field(default=False)
+
+    def __post_init__(self):
+        if len(self.email) < 5 or len(self.email) > 100:
+            raise DomainValidationError("Email length must be between 5 and 100 characters")
 
     @classmethod
     def create(
