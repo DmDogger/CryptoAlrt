@@ -5,10 +5,10 @@ import pytest
 from domain.enums.channel import ChannelEnum
 from domain.value_objects.message import MessageValueObject
 
-# Подключаем фикстуры из отдельных файлов
 pytest_plugins = [
     "tests.infrastructures.fixtures.user_preference_fixtures",
     "tests.infrastructures.fixtures.notification_fixtures",
+    "tests.helpers.mocks",
 ]
 
 @pytest.fixture
