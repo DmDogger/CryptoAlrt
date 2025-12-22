@@ -43,11 +43,11 @@ class TestSendEmailUseCase:
     async def test_send_email_with_exceptions(
             self,
             mock_send_email_use_case: SendEmailNotificationUseCase,
-            sample_notification_entity,
-            sample_notification_entity_marked_as_failed,
+            sample_notification_entity: NotificationEntity,
+            sample_notification_entity_marked_as_failed: NotificationEntity,
             mock_email_client: SMTPEmailClient,
-            exception_,
-            mock_notification_repository,
+            exception_: type[Exception] | type[EmailSendingError],
+            mock_notification_repository: AsyncMock,
     ) -> None:
         """Test that execute handles exceptions during email sending and updates notification status to FAILED."""
         notifications = [sample_notification_entity]
