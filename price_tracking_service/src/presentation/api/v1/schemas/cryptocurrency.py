@@ -15,3 +15,4 @@ class CryptocurrenciesListResponse(BaseModel):
     cryptocurrencies: list[CryptocurrencyPriceResponse]
 
 
+

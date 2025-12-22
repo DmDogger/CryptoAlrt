@@ -226,86 +226,27 @@ class TestSQLAlchemyNotificationRepository:
         mock_async_session.scalars.assert_called_once()
 
 
+
+    @pytest.mark.parametrize(
+        "exception_",
+        [
+            IntegrityError(params=None, statement="", orig=None),
+            SQLAlchemyError,
+            Exception,
+            RepositoryError,
+        ]
+    )
     @pytest.mark.asyncio
-    async def test_incorrect_saved_with_sqlalchemy_error(
-            self,
-            sample_notification_entity: NotificationEntity,
-            mock_async_session: AsyncMock,
-            mock_notification_mapper: MagicMock,
-            sample_notification_db_model: "Notification",
-            repository: "SQLAlchemyNotificationRepository",
-    ) -> None:
-        """Test that save raises RepositoryError and calls rollback when SQLAlchemyError occurs."""
-
-        mock_async_session.add.side_effect = SQLAlchemyError("Test SQLAlchemy error")
-        with pytest.raises(RepositoryError):
-            await repository.save(sample_notification_entity)
-
-        mock_async_session.rollback.assert_called_once()
-        mock_notification_mapper.to_database_model.assert_called_with(sample_notification_entity)
-        mock_notification_mapper.from_database_model.assert_not_called()
-
-    @pytest.mark.asyncio
-    async def test_incorrect_saved_with_integrity_error(
-            self,
-            mock_async_session: AsyncMock,
-            sample_notification_entity: NotificationEntity,
-            repository: "SQLAlchemyNotificationRepository",
-    ) -> None:
-        """Test that save raises RepositoryError and calls rollback when IntegrityError occurs."""
-        mock_async_session.add.side_effect = IntegrityError(params=None, statement="", orig=None)
-
-        with pytest.raises(RepositoryError):
-            await repository.save(sample_notification_entity)
-
-        mock_async_session.add.assert_called_once()
-        mock_async_session.rollback.assert_called_once()
-
-    @pytest.mark.asyncio
-    async def test_incorrect_saved_with_unexpected_error(
-            self,
-            mock_async_session: AsyncMock,
-            sample_notification_entity: NotificationEntity,
-            repository: "SQLAlchemyNotificationRepository",
-            mock_notification_mapper: MagicMock,
-    )-> None:
-
-        mock_async_session.add.side_effect = Exception
-
-        with pytest.raises(RepositoryError):
-            await repository.save(sample_notification_entity)
-
-        mock_notification_mapper.to_database_model.assert_called_with(sample_notification_entity)
-        mock_async_session.rollback.assert_called_once()
-
-    @pytest.mark.asyncio
-    async def test_incorrect_updated_with_sqlalchemy_error(
-            self,
-            mock_async_session: AsyncMock,
-            repository: "SQLAlchemyNotificationRepository",
-            sample_notification_entity: NotificationEntity,
-            mock_notification_mapper: MagicMock,
-    ) -> None:
-
-        mock_async_session.execute.side_effect = SQLAlchemyError
-
-        with pytest.raises(RepositoryError):
-            await repository.update(sample_notification_entity)
-
-        mock_async_session.rollback.assert_called_once()
-        mock_async_session.commit.assert_not_called()
-        mock_notification_mapper.to_dict.assert_called_with(sample_notification_entity)
-
-    @pytest.mark.asyncio
-    async def test_incorrect_updated_with_integrity_error(
+    async def test_incorrect_updated_with_errors(
             self,
             sample_notification_entity: NotificationEntity,
             mock_async_session: AsyncMock,
             repository: "SQLAlchemyNotificationRepository",
             mock_notification_mapper: MagicMock,
+            exception_,
     ):
 
-        mock_async_session.execute.side_effect = IntegrityError(params=None, statement="", orig=None)
+        mock_async_session.execute.side_effect = exception_
 
         with pytest.raises(RepositoryError):
             await repository.update(sample_notification_entity)

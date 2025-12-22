@@ -17,3 +17,4 @@ async def get_cryptocurrencies_with_prices(
     return [CryptocurrencyPriceResponse(**item) for item in data]
 
 
+
