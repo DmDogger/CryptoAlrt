@@ -297,7 +297,7 @@ class SQLAlchemyNotificationRepository(NotificationRepositoryProtocol):
                 "Notification retrieved successfully by idempotency key",
                 notification_id=str(result.id),
                 idempotency_key=idempotency_key,
-                status=result.status.value
+                status=result.status
             )
             return self._mapper.from_database_model(result)
 

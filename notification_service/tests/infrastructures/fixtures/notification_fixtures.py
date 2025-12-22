@@ -1,7 +1,3 @@
-"""Фикстуры для NotificationEntity."""
-from datetime import datetime, UTC
-from uuid import uuid4
-
 import pytest
 
 from domain.entities.notification import NotificationEntity
@@ -30,6 +26,9 @@ def sample_notification_entity(
 def sample_notification_db_model(sample_notification_entity):
     return NotificationDBMapper.to_database_model(sample_notification_entity)
 
+@pytest.fixture
+def sample_notification_to_dict(sample_notification_entity):
+    return NotificationDBMapper.to_dict(sample_notification_entity)
 
 @pytest.fixture
 def sample_notification_entity_with_params(sample_event_id):
