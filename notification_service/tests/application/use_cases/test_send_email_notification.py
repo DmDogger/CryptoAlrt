@@ -22,12 +22,13 @@ class TestSendEmailUseCase:
     )
     @pytest.mark.asyncio
     async def test_correct_sending_email_use_case(
-            self,
-            mock_email_client: AsyncMock,
-            mock_send_email_use_case: SendEmailNotificationUseCase,
-            sample_notification_entity: NotificationEntity,
-            mock_fake_repository: FakeRepository,
-            notification_to_be_multiplied: int,
+        self,
+        mock_email_client: AsyncMock,
+        mock_send_email_use_case: SendEmailNotificationUseCase,
+        sample_notification_entity: NotificationEntity,
+        sample_notification_entity_marked_as_sent,
+        mock_fake_repository: FakeRepository,
+        notification_to_be_multiplied: int,
     ) -> None:
         """Test that execute successfully sends email and updates notification status to SENT."""
         #arrange
@@ -45,11 +46,11 @@ class TestSendEmailUseCase:
 
     @pytest.mark.asyncio
     async def test_send_email_with_empty_list(
-            self,
-            mock_send_email_use_case: SendEmailNotificationUseCase,
-            mock_fake_repository: FakeRepository,
-            mock_email_client: EmailClientProtocol,
-            sample_notification_entity: NotificationEntity,
+        self,
+        mock_send_email_use_case: SendEmailNotificationUseCase,
+        mock_fake_repository: FakeRepository,
+        mock_email_client: EmailClientProtocol,
+        sample_notification_entity: NotificationEntity,
     ) -> None:
         """Test that execute returns early without processing when notifications list is empty."""
         #arrange
@@ -70,12 +71,13 @@ class TestSendEmailUseCase:
     )
     @pytest.mark.asyncio
     async def test_send_email_with_exceptions(
-            self,
+        self,
         mock_send_email_use_case: SendEmailNotificationUseCase,
+        sample_notification_entity_marked_as_failed: NotificationEntity,
         sample_notification_entity: NotificationEntity,
         mock_email_client: SMTPEmailClient,
-            exception_: type[Exception] | type[EmailSendingError],
-            mock_fake_repository: FakeRepository,
+        exception_: type[Exception] | type[EmailSendingError],
+        mock_fake_repository: FakeRepository,
     ) -> None:
         """Test that execute handles exceptions during email sending and updates notification status to FAILED."""
         #arrange
@@ -90,10 +92,4 @@ class TestSendEmailUseCase:
         #assert
         assert failed is not None
         assert failed.status == StatusEnum.FAILED
-
-
-
-
-
-
 

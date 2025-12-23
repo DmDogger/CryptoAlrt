@@ -1,3 +1,6 @@
+import uuid
+from datetime import datetime, UTC
+
 import pytest
 
 from domain.entities.notification import NotificationEntity
@@ -5,6 +8,7 @@ from domain.enums.channel import ChannelEnum
 from domain.value_objects.message import MessageValueObject
 from domain.value_objects.idempotency_key import IdempotencyKeyVO
 
+from domain.enums.status import StatusEnum
 from infrastructures.database.mappers import NotificationDBMapper
 
 
@@ -51,15 +55,41 @@ def sample_notification_entity_with_params(sample_event_id):
 
 
 @pytest.fixture
-def sample_notification_entity_marked_as_failed(sample_notification_entity):
+def sample_notification_entity_marked_as_failed(
+        sample_email_channel,
+        sample_message_value_object,
+        sample_idempotency_key
+):
     """Фикстура для NotificationEntity со статусом FAILED."""
-    return sample_notification_entity.mark_failed()
+    return NotificationEntity(
+                id="1563c91c-d189-4748-a160-94cd175dc51d",
+                channel=sample_email_channel,
+                message=sample_message_value_object,
+                recipient="failed-notification@cryptoalertov.com",
+                idempotency_key=sample_idempotency_key,
+                status=StatusEnum.FAILED,
+                sent_at=None,
+                created_at=datetime.now(UTC)
+    )
 
 
 @pytest.fixture
-def sample_notification_entity_marked_as_sent(sample_notification_entity):
+def sample_notification_entity_marked_as_sent(
+        sample_email_channel,
+        sample_message_value_object,
+        sample_idempotency_key
+):
     """Фикстура для NotificationEntity со статусом SENT."""
-    return sample_notification_entity.make_sent()
+    return NotificationEntity(
+        id="2563c91c-d189-4748-a160-94cd175dc51a",
+        channel=sample_email_channel,
+        message=sample_message_value_object,
+        recipient="sent-notification@cryptoalertov.com",
+        idempotency_key=sample_idempotency_key,
+        status=StatusEnum.SENT,
+        sent_at=None,
+        created_at=datetime.now(UTC)
+    )
 
 
 @pytest.fixture

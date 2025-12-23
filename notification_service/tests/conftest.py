@@ -10,6 +10,7 @@ from domain.enums.status import StatusEnum
 pytest_plugins = [
     "tests.infrastructures.fixtures.user_preference_fixtures",
     "tests.infrastructures.fixtures.notification_fixtures",
+    "tests.infrastructures.fixtures.event_fixtures",
     "tests.helpers.mocks",
 ]
 

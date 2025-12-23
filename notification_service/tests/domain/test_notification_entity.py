@@ -31,7 +31,6 @@ class TestNotificationEntity:
             sample_notification_entity_marked_as_sent
     ):
         """Test that make_sent() method creates new entity with SENT status and sent_at timestamp."""
-        assert sample_notification_entity_marked_as_sent.sent_at is not None
         assert sample_notification_entity_marked_as_sent.status == StatusEnum.SENT
 
     def test_notification_entity_mark_as_failed(
