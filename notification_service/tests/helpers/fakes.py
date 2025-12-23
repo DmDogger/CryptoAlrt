@@ -19,7 +19,6 @@ class FakeRepository(NotificationRepositoryProtocol):
         return next((p for p in self._preferences if p.id == notification_id), None)
 
     async def update(self, preference: NotificationEntity) -> NotificationEntity:
-        # Удаляем старый объект с таким же ID, если он есть
         self._preferences = {p for p in self._preferences if p.id != preference.id}
         self._preferences.add(preference)
         return preference

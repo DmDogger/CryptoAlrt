@@ -6,7 +6,7 @@ from domain.entities.user_preference import UserPreferenceEntity
 @pytest.fixture
 def sample_user_preference_entity():
     return UserPreferenceEntity.create(
-        email="user@preferencov.com",
+        email="mail@enabled.cryptoalrt.io",
         email_enabled=True,
         telegram_id=None,
         telegram_enabled=False,
@@ -15,7 +15,7 @@ def sample_user_preference_entity():
 @pytest.fixture
 def sample_user_preference_entity_with_disabled_email():
     return UserPreferenceEntity.create(
-        email="user@preferencov.com",
+        email="mail@disabled.cryptoalrt.io",
         email_enabled=False,
         telegram_id=None,
         telegram_enabled=False,
@@ -25,7 +25,7 @@ def sample_user_preference_entity_with_disabled_email():
 @pytest.fixture
 def sample_user_preference_entity_with_enabled_telegram():
     return UserPreferenceEntity.create(
-        email="user@preferencov.com",
+        email="telegram@enabled.cryptoalrt.io",
         email_enabled=True,
         telegram_id=None,
         telegram_enabled=True,

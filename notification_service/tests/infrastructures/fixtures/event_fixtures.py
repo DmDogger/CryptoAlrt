@@ -11,7 +11,7 @@ def sample_alert_triggered_event() -> AlertTriggeredEvent:
     """Базовая фикстура для создания AlertTriggeredEvent."""
     return AlertTriggeredEvent(
         id=str(uuid4()),
-        email="test@cryptoalrt.io",
+        email="mail@enabled.cryptoalrt.io",
         alert_id=str(uuid4()),
         cryptocurrency="BTC",
         current_price="50000.50",

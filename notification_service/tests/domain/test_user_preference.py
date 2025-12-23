@@ -14,7 +14,7 @@ class TestUserPreference:
             sample_user_preference_entity
     ):
         """Test creating a valid UserPreferenceEntity with all required fields."""
-        assert sample_user_preference_entity.email == "user@preferencov.com"
+        assert sample_user_preference_entity.email == "mail@enabled.cryptoalrt.io"
         assert sample_user_preference_entity.id is not None
         assert sample_user_preference_entity.email_enabled is True
         assert sample_user_preference_entity.telegram_enabled is False
