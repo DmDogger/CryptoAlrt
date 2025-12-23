@@ -6,6 +6,8 @@ import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from application.use_cases.send_email_notification import SendEmailNotificationUseCase
+
+from tests.helpers.fakes import FakeRepository
 from infrastructures.database.mappers import NotificationDBMapper
 from infrastructures.database.repositories import SQLAlchemyNotificationRepository
 from infrastructures.smtp.send_email import SMTPEmailClient
@@ -85,8 +87,16 @@ def mock_email_client(mock_smtp):
 def mock_send_email_use_case(
         mock_email_client,
         mock_notification_repository,
+        mock_fake_repository,
 ):
     return SendEmailNotificationUseCase(
         email_client=mock_email_client,
-        repository=mock_notification_repository,
+        repository=mock_fake_repository,
     )
+
+@pytest.fixture
+def mock_fake_repository() -> FakeRepository:
+    """Fake in-memory repository for use case tests."""
+    return FakeRepository(preferences=())
+
+
