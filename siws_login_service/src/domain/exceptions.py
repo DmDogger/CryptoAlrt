@@ -14,6 +14,9 @@ class InvalidNonceError(DomainError):
 class NonceExpiredError(DomainError):
     """Raised when the nonce has expired and can no longer be used for authentication."""
 
+class NonceValidationError(DomainError):
+    """Raised when the nonce value fails validation, such as being too short or empty."""
+
 class NonceAlreadyUserError(DomainError):
     """Raised when the nonce has already been used and cannot be reused."""
 
