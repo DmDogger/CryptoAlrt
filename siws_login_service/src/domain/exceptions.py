@@ -5,6 +5,9 @@ class DomainError(Exception):
 class SignatureVerificationFailed(DomainError):
     """Raised when signature verification fails during authentication."""
 
+class SignatureValidationError(DomainError):
+    """Raised when the signature value fails validation, such as incorrect length or format."""
+
 class InvalidWalletAddressError(DomainError):
     """Raised when the provided wallet address is invalid or malformed."""
 
