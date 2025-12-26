@@ -1,4 +1,4 @@
-from datetime import datetime, UTC
+from datetime import datetime, UTC, timedelta
 from uuid import uuid4, UUID
 
 from dataclasses import dataclass, field
@@ -7,7 +7,8 @@ from typing import final
 from domain.value_objects.wallet_vo import WalletAddressVO
 from domain.value_objects.nonce_vo import NonceVO
 
-from domain.exceptions import NonceValidationError, InvalidWalletAddressError, DateValidationError
+from domain.exceptions import NonceValidationError, InvalidWalletAddressError, DateValidationError, DomainError, \
+    NonceAlreadyUsedError
 from domain.value_objects.message_vo import MessageVO
 
 
@@ -36,7 +37,7 @@ class NonceEntity:
     uuid: UUID
     wallet_address: WalletAddressVO
     nonce: NonceVO # Randomized token used to prevent replay attacks, at least 8 alphanumeric
-    domain: str # RFC 4501 dns authority that is requesting the signing.
+    domain: str = "cryptoalrt.io" # RFC 4501 dns authority that is requesting the signing.
     statement: str | None # Human-readable ASCII assertion that the user will sign, and it must not contain newline characters.
     uri: str # RFC 3986 URI referring to the resource that is the subject of the signing
     version: str | None # Current version of the message.
@@ -62,8 +63,67 @@ class NonceEntity:
             raise NonceValidationError(f"Nonce must be an instance of NonceVO, got {type(self.nonce).__name__}")
         if not isinstance(self.wallet_address, WalletAddressVO):
             raise InvalidWalletAddressError(f"Wallet address must be an instance of WalletAddressVO, got {type(self.wallet_address).__name__}")
+        if not isinstance(self.statement, str):
+            raise DomainError(f"Statement must be a string, got {type(self.statement).__name__}")
         if self.issued_at >= self.expiration_time:
             raise DateValidationError(f"issued_at ({self.issued_at}) must be before expiration_time ({self.expiration_time})")
+
+    @classmethod
+    def create(
+        cls,
+        wallet_address: WalletAddressVO,
+        nonce: NonceVO,
+        statement: str,
+        uri: str | None = None,
+        version: str | None = None,
+        expiration_time: datetime | None = None,
+        ttl_time: int = 59,
+    ) -> "NonceEntity":
+        """Creates a new NonceEntity instance with default values for optional fields.
+        
+        Factory method for creating a nonce entity with automatically generated UUID
+        and sensible defaults for domain, URI, version, and expiration time.
+        
+        Args:
+            wallet_address: Solana address performing the signing as a WalletAddressVO.
+            nonce: Randomized token used to prevent replay attacks as a NonceVO.
+            statement: Human-readable ASCII assertion that the user will sign.
+            uri: Optional RFC 3986 URI. If None, defaults to "https://cryptoalrt.io/login/solana".
+            version: Optional message version. If None, defaults to "1".
+            expiration_time: Optional expiration datetime. If None, defaults to current time + ttl_time minutes.
+            ttl_time: Time to live in minutes for expiration time calculation. Defaults to 59 minutes.
+        
+        Returns:
+            A new NonceEntity instance with:
+            - Automatically generated UUID (UUID v4)
+            - Provided wallet address and nonce
+            - Domain set to "cryptoalrt.io"
+            - Provided statement
+            - URI (provided or default)
+            - Version (provided or default "1")
+            - Expiration time (provided or calculated from ttl_time)
+            - used_at set to None (not used)
+            - issued_at set to current UTC time
+            - chain_id set to "mainnet-beta"
+        
+        Raises:
+            NonceValidationError: If the nonce is not a valid NonceVO instance.
+            InvalidWalletAddressError: If the wallet address is not a valid WalletAddressVO instance.
+            DateValidationError: If expiration_time is before issued_at.
+        """
+        return cls(
+            uuid=uuid4(),
+            wallet_address=wallet_address,
+            nonce=nonce,
+            domain="cryptoalrt.io",
+            statement=statement,
+            uri=uri if uri is not None else "https://cryptoalrt.io/login/solana",
+            version=version if version is not None else "1",
+            expiration_time=expiration_time if expiration_time is not None else datetime.now(UTC) + timedelta(minutes=ttl_time),
+            used_at=None,
+            issued_at=datetime.now(UTC),
+            chain_id="mainnet-beta"
+        )
 
     def is_expired(self) -> bool:
         """Checks if the nonce has expired.
@@ -110,7 +170,12 @@ class NonceEntity:
         
         Returns:
             A new NonceEntity instance with used_at set to the current timestamp.
+
+        Raises:
+            NonceAlreadyUsedError: If the nonce is already used.
         """
+        if self.used_at is not None:
+            raise NonceAlreadyUsedError(f"Nonce is already marked as used.")
         return NonceEntity(
             uuid=self.uuid,
             wallet_address=self.wallet_address,

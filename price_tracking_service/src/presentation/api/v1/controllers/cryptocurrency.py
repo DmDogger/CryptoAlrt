@@ -19,3 +19,4 @@ async def get_cryptocurrencies_with_prices(
 
 
 
+

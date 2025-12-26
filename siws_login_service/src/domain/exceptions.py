@@ -20,7 +20,7 @@ class NonceExpiredError(DomainError):
 class NonceValidationError(DomainError):
     """Raised when the nonce value fails validation, such as being too short or empty."""
 
-class NonceAlreadyUserError(DomainError):
+class NonceAlreadyUsedError(DomainError):
     """Raised when the nonce has already been used and cannot be reused."""
 
 class NonceNotFoundError(DomainError):

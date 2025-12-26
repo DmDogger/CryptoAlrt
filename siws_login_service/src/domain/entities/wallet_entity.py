@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime, UTC
 from typing import final
-from uuid import UUID
+from uuid import UUID, uuid4
 
 import base58
 from domain.value_objects.wallet_vo import WalletAddressVO
@@ -50,6 +50,41 @@ class WalletEntity:
                 f"Received: {self.created_at.isoformat()}, "
                 f"Current time: {datetime.now(UTC).isoformat()}"
             )
+
+    @classmethod
+    def create(
+        cls,
+        wallet_address: WalletAddressVO,
+    ) -> "WalletEntity":
+        """Creates a new WalletEntity instance with default values.
+        
+        Factory method for creating a wallet entity with automatically generated UUID
+        and current timestamps for both last_active and created_at fields.
+        
+        Args:
+            wallet_address: The wallet address as a WalletAddressVO value object.
+        
+        Returns:
+            A new WalletEntity instance with:
+            - Automatically generated UUID (UUID v4)
+            - Provided wallet address
+            - last_active set to current UTC timestamp
+            - created_at set to current UTC timestamp
+        
+        Raises:
+            InvalidWalletAddressError: If wallet_address is not a valid WalletAddressVO instance.
+            DateValidationError: If created_at validation fails (should not happen with current time).
+        
+        Example:
+            >>> wallet_address = WalletAddressVO(value="...")
+            >>> wallet = WalletEntity.create(wallet_address=wallet_address)
+        """
+        return cls(
+            uuid=uuid4(),
+            wallet_address=wallet_address,
+            last_active=datetime.now(UTC),
+            created_at=datetime.now(UTC),
+        )
 
     def ping(self) -> "WalletEntity":
         """Updates the last_active timestamp to the current time.
