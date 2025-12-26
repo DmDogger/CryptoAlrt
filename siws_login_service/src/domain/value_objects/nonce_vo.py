@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from datetime import datetime, UTC
 from typing import final
 from uuid import uuid4
 

@@ -16,3 +16,4 @@ class CryptocurrenciesListResponse(BaseModel):
 
 
 
+
