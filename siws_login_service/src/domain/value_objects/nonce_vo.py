@@ -32,3 +32,17 @@ class NonceVO:
         if not self.value or not len(self.value) >= 8:
             raise NonceValidationError(f"Nonce value must be at least 8 characters long, got {len(self.value) if self.value else 0} characters")
 
+
+    @classmethod
+    def generate(cls) -> "NonceVO":
+        """Generates a new random nonce value.
+        
+        Creates a new NonceVO instance with a randomly generated UUID hex string,
+        which provides a cryptographically secure nonce value.
+        
+        Returns:
+            A new NonceVO instance with a randomly generated nonce value.
+        """
+        return cls(
+            value=uuid4().hex
+        )
