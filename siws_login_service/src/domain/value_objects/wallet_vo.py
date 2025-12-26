@@ -29,7 +29,7 @@ class WalletAddressVO:
             raise InvalidWalletAddressError("Expected wallet address to decode to 32 bytes, but got different length")
 
     @staticmethod
-    def to_bytes(value: str):
+    def to_bytes(value: str) -> bytes:
         """Converts a base58-encoded wallet address to bytes.
         
         Args:
