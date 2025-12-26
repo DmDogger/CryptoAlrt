@@ -47,7 +47,9 @@ class MessageVO:
             DateValidationError: If issued_at is greater than or equal to expiration_time.
         """
         if self.issued_at >= self.expiration_time:
-            raise DateValidationError(f"issued_at ({self.issued_at}) must be before expiration_time ({self.expiration_time})")
+            raise DateValidationError(f"issued_at ({self.issued_at}) must be before expiration_time ({self.expiration_time}).")
+        if not isinstance(self.wallet_address, WalletAddressVO):
+            raise InvalidWalletAddressError(f"Wallet must be an instance of Wallet Address Value Object.")
 
 
 
