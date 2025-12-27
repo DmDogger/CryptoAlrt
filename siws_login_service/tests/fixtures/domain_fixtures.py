@@ -14,6 +14,8 @@ from domain.events.wallet_logged_in_event import WalletLoggedInEvent
 
 from domain.value_objects.signature_vo import SignatureVO
 
+from domain.value_objects.message_vo import MessageVO
+
 
 @pytest.fixture
 def sample_wallet_vo():
@@ -90,6 +92,10 @@ def sample_wallet_entity(sample_wallet_vo):
     return WalletEntity.create(
         wallet_address=sample_wallet_vo,
     )
+
+@pytest.fixture
+def sample_message_vo(sample_nonce_entity):
+    return MessageVO.from_record(record=sample_nonce_entity)
 
 @pytest.fixture
 def sample_wallet_logged_in_event(sample_wallet_vo):
