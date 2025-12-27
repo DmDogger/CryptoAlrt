@@ -10,3 +10,13 @@ class FailedToSaveWalletError(InfrastructureError):
 
 class FailedToUpdateWalletError(InfrastructureError):
     """ Raises when unable to update wallet to DB """
+
+class NonceNotFoundError(InfrastructureError):
+    """ Raises when nonce not found in database """
+
+class FailedToSaveNonceError(InfrastructureError):
+    """ Raises when unable to save nonce to DB """
+
+class FailedToUpdateNonceError(InfrastructureError):
+    """ Raises when unable to update nonce to DB """
+

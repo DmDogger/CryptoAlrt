@@ -26,16 +26,16 @@ class TestWalletDBMapper:
 
     def test_correct_to_db_model(
         self,
-        wallet_mapper_to_db_model,
+        wallet_db_model,
         sample_wallet_entity,
     ) -> None:
         """Test that to_database_model() correctly converts WalletEntity to Wallet.
 
         Args:
-            wallet_mapper_to_db_model: Fixture providing Wallet from WalletEntity.
+            wallet_db_model: Fixture providing Wallet from WalletEntity.
             sample_wallet_entity: Fixture providing the original WalletEntity.
         """
-        db_model = wallet_mapper_to_db_model
+        db_model = wallet_db_model
 
         assert db_model.uuid == sample_wallet_entity.uuid
         assert db_model.wallet_address.value == sample_wallet_entity.wallet_address.value

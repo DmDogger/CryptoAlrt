@@ -29,7 +29,7 @@ def sample_db_wallet_model(sample_wallet_vo, sample_uuid):
 
 
 @pytest.fixture
-def wallet_mapper_to_db_model(sample_wallet_entity):
+def wallet_db_model(sample_wallet_entity):
     """Fixture providing WalletEntity converted to Wallet database model.
 
     Args:

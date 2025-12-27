@@ -66,3 +66,43 @@ class NonceDBMapper:
             issued_at=nonce.issued_at,
             chain_id=nonce.chain_id,
         )
+
+    @staticmethod
+    def to_dict(entity: NonceEntity) -> dict:
+        """Converts a NonceEntity domain entity to a dictionary.
+
+        Args:
+            entity: The NonceEntity domain entity to convert.
+
+        Returns:
+            A dictionary representation of the NonceEntity.
+        """
+        expiration_time = (
+            entity.expiration_time.replace(tzinfo=None)
+            if entity.expiration_time and entity.expiration_time.tzinfo
+            else entity.expiration_time
+        )
+        used_at = (
+            entity.used_at.replace(tzinfo=None)
+            if entity.used_at and entity.used_at.tzinfo
+            else entity.used_at
+        )
+        issued_at = (
+            entity.issued_at.replace(tzinfo=None)
+            if entity.issued_at and entity.issued_at.tzinfo
+            else entity.issued_at
+        )
+
+        return {
+            "uuid": str(entity.uuid),
+            "wallet_address": entity.wallet_address.value,
+            "nonce": entity.nonce.value,
+            "domain": entity.domain,
+            "statement": entity.statement,
+            "uri": entity.uri,
+            "version": entity.version,
+            "expiration_time": expiration_time,
+            "used_at": used_at,
+            "issued_at": issued_at,
+            "chain_id": entity.chain_id,
+        }
