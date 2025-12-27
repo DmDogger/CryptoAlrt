@@ -2,7 +2,11 @@ from uuid import uuid4
 
 import pytest
 
-pytest_plugins = ["tests.fixtures.domain_fixtures"]
+pytest_plugins = [
+    "tests.fixtures.domain_fixtures",
+    "tests.fixtures.infra_fixtures",
+]
+
 
 @pytest.fixture
 def sample_uuid():

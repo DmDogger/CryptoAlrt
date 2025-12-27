@@ -27,7 +27,7 @@ class Wallet(Base):
 
     uuid: Mapped[UUID] = mapped_column(
         PG_UUID(as_uuid=True),
-        default_factory=uuid4,
+        default=uuid4,
         primary_key=True,
         unique=True,
         nullable=False,

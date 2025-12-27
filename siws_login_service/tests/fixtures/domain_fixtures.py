@@ -1,19 +1,13 @@
-import os
 from datetime import datetime, UTC, timedelta
 
-import base58
 import pytest
 
 from domain.entities.nonce_entity import NonceEntity
 from domain.value_objects.wallet_vo import WalletAddressVO
 from domain.value_objects.nonce_vo import NonceVO
-
 from domain.entities.wallet_entity import WalletEntity
-
 from domain.events.wallet_logged_in_event import WalletLoggedInEvent
-
 from domain.value_objects.signature_vo import SignatureVO
-
 from domain.value_objects.message_vo import MessageVO
 
 
