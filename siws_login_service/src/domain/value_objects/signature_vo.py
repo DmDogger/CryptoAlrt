@@ -31,8 +31,8 @@ class SignatureVO:
         """
         if not len(b58decode(self.value)) == 64:
             raise SignatureValidationError(f"Expected signature to decode to 64 bytes, but got {len(b58decode(self.value))} bytes")
-        # if not isinstance(self.value, str):
-        #     raise SignatureValidationError(f"Expected signature type: string, but got {type(self.value).__name__!r}")
+        if not isinstance(self.value, str):
+            raise SignatureValidationError(f"Expected signature type: string, but got :{type(self.value).__name__!r}")
 
 
     @classmethod

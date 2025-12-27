@@ -38,6 +38,26 @@ def sample_nonce_entity(sample_wallet_vo, sample_nonce_vo) -> NonceEntity:
         nonce=sample_nonce_vo,
         statement="Statement is not empty.",
     )
+
+@pytest.fixture
+def custom_wallet_entity(sample_uuid, sample_wallet_vo):
+    def _create(
+            last_active: datetime | None = None,
+            created_at: datetime | None = None,
+    ) -> WalletEntity:
+        if last_active is None:
+            last_active = datetime.now(UTC)
+        if created_at is None:
+            created_at = datetime.now(UTC)
+        return WalletEntity(
+            uuid=sample_uuid,
+            wallet_address=sample_wallet_vo,
+            created_at=created_at,
+            last_active=last_active,
+        )
+    return _create
+
+
 @pytest.fixture
 def sample_nonce_entity_with_custom_datetime(sample_uuid, sample_wallet_vo, sample_nonce_vo):
     def _create(
