@@ -2,6 +2,7 @@ from datetime import datetime, UTC
 from dataclasses import dataclass, field
 from typing import final
 
+import base58
 from domain.value_objects.wallet_vo import WalletAddressVO
 from domain.exceptions import DateValidationError, InvalidWalletAddressError
 
@@ -95,7 +96,6 @@ class MessageVO:
             f"Issued At: {self.issued_at.strftime('%Y-%m-%dT%H:%M:%SZ')}\n"
             f"Expiration Time: {self.expiration_time.strftime('%Y-%m-%dT%H:%M:%SZ')}"
         )
-
 
 
 
