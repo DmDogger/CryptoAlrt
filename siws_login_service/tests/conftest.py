@@ -6,6 +6,7 @@ pytest_plugins = [
     "tests.helpers.mocks",
     "tests.fixtures.domain_fixtures",
     "tests.fixtures.infra_fixtures",
+    "tests.helpers.fakes"
 
 ]
 

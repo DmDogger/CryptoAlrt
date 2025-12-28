@@ -7,7 +7,6 @@ import pytest
 from infrastructures.database.models.wallet_model import Wallet
 from infrastructures.database.mappers.wallet_mapper import WalletDBMapper
 from infrastructures.database.mappers.nonce_mapper import NonceDBMapper
-
 from infrastructures.database.models.nonce_model import Nonce
 
 

@@ -8,6 +8,9 @@ from infrastructures.database.repositories.wallet_repository import SQLAlchemyWa
 from infrastructures.database.mappers.wallet_mapper import WalletDBMapper
 from infrastructures.database.repositories.nonce_repository import SQLAlchemyNonceRepository
 from infrastructures.database.mappers.nonce_mapper import NonceDBMapper
+from infrastructures.crypto.ed25519_verifier import SignatureVerifier
+
+from tests.helpers.fakes import FakeNonceRepository
 
 
 @pytest.fixture
@@ -44,6 +47,14 @@ def mock_async_session() -> AsyncMock:
     session.execute = AsyncMock()
     session.add = MagicMock()
     return session
+
+@pytest.fixture
+def fake_nonce_repository():
+    return FakeNonceRepository()
+
+@pytest.fixture
+def mock_signature_verifier(fake_nonce_repository):
+    return SignatureVerifier(_nonce_repository=fake_nonce_repository)
 
 @pytest.fixture
 def mock_wallet_repository(
