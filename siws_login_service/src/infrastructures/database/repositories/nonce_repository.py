@@ -172,7 +172,16 @@ class SQLAlchemyNonceRepository:
                 nonce_uuid=str(nonce_entity.uuid),
                 wallet_address=nonce_entity.wallet_address.value,
             )
-            return nonce_entity
+
+            reloaded_nonce = await self._session.get(Nonce, nonce_entity.uuid)
+            logger.info(
+                "Found created nonce, returning back >>>",
+                nonce_uuid=str(nonce_entity.uuid),
+                wallet_address=nonce_entity.wallet_address.value,
+            )
+
+            return self._mapper.from_database_model(reloaded_nonce)
+
         except IntegrityError as e:
             await self._session.rollback()
             logger.error(
@@ -186,6 +195,7 @@ class SQLAlchemyNonceRepository:
                 f"Nonce with UUID {nonce_entity.uuid} already exists "
                 f"or constraint violated"
             ) from e
+
         except SQLAlchemyError as e:
             await self._session.rollback()
             logger.error(

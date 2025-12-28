@@ -2,15 +2,24 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from sqlalchemy import ScalarResult
-
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from infrastructures.database.repositories.wallet_repository import SQLAlchemyWalletRepository
 from infrastructures.database.mappers.wallet_mapper import WalletDBMapper
+from infrastructures.database.repositories.nonce_repository import SQLAlchemyNonceRepository
+from infrastructures.database.mappers.nonce_mapper import NonceDBMapper
 
 
 @pytest.fixture
 def mock_wallet_mapper():
     mapper = MagicMock(spec=WalletDBMapper)
+    mapper.to_database = MagicMock()
+    mapper.from_database = MagicMock()
+    return mapper
+
+@pytest.fixture
+def mock_nonce_mapper():
+    mapper = MagicMock(spec=NonceDBMapper)
     mapper.to_database = MagicMock()
     mapper.from_database = MagicMock()
     return mapper
@@ -45,4 +54,14 @@ def mock_wallet_repository(
     return SQLAlchemyWalletRepository(
         _session=mock_async_session,
         _mapper=mock_wallet_mapper,
+    )
+
+@pytest.fixture
+def mock_nonce_repository(
+        mock_async_session: AsyncMock,
+        mock_nonce_mapper: MagicMock,
+):
+    return SQLAlchemyNonceRepository(
+        _session=mock_async_session,
+        _mapper=mock_nonce_mapper
     )
