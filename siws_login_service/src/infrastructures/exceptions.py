@@ -20,3 +20,5 @@ class FailedToSaveNonceError(InfrastructureError):
 class FailedToUpdateNonceError(InfrastructureError):
     """ Raises when unable to update nonce to DB """
 
+class PublicationError(InfrastructureError):
+    """ raises when occurred error during publication message to Kafka """
