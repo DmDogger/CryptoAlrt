@@ -71,6 +71,7 @@ class MessageVO:
             chain_id=record.chain_id,
             nonce=record.nonce.value,
             expiration_time=record.expiration_time,
+            issued_at=record.issued_at,
         )
 
     def to_string(self) -> str:
@@ -86,7 +87,7 @@ class MessageVO:
 
         return (
             f"{self.domain} wants you to sign in with your Solana account:\n"
-            f"{self.wallet_address}\n"
+            f"{self.wallet_address.value}\n"
             f"\n"
             f"{statement_block}"
             f"URI: {self.uri}\n"
