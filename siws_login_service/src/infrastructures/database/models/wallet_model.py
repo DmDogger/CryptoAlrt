@@ -7,7 +7,7 @@ from sqlalchemy import String, DateTime
 from sqlalchemy.dialects.postgresql.base import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
-from infrastructures.database.models.base import Base
+from src.infrastructures.database.models.base import Base
 
 
 class Wallet(Base):

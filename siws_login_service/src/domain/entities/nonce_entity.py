@@ -4,12 +4,17 @@ from uuid import uuid4, UUID
 from dataclasses import dataclass, field
 from typing import final
 
-from domain.value_objects.wallet_vo import WalletAddressVO
-from domain.value_objects.nonce_vo import NonceVO
+from src.domain.value_objects.wallet_vo import WalletAddressVO
+from src.domain.value_objects.nonce_vo import NonceVO
 
-from domain.exceptions import NonceValidationError, InvalidWalletAddressError, DateValidationError, DomainError, \
-    NonceAlreadyUsedError
-from domain.value_objects.message_vo import MessageVO
+from src.domain.exceptions import (
+    NonceValidationError,
+    InvalidWalletAddressError,
+    DateValidationError,
+    DomainError,
+    NonceAlreadyUsedError,
+)
+from src.domain.value_objects.message_vo import MessageVO
 
 
 @final

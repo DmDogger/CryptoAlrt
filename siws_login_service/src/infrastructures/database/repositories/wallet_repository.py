@@ -6,17 +6,17 @@ from sqlalchemy import select, update
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from infrastructures.database.mappers.wallet_mapper import WalletDBMapper
-from domain.entities.wallet_entity import WalletEntity
-from infrastructures.database.models.wallet_model import Wallet
-from infrastructures.exceptions import (
+from src.infrastructures.database.mappers.wallet_mapper import WalletDBMapper
+from src.domain.entities.wallet_entity import WalletEntity
+from src.infrastructures.database.models.wallet_model import Wallet
+from src.infrastructures.exceptions import (
     FailedToSaveWalletError,
     InfrastructureError,
     FailedToUpdateWalletError,
     WalletNotFoundError,
 )
 
-from application.interfaces.repositories import WalletRepositoryProtocol
+from src.application.interfaces.repositories import WalletRepositoryProtocol
 
 logger = structlog.getLogger(__name__)
 

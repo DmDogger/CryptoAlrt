@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import final
 from uuid import uuid4
 
-from domain.exceptions import NonceValidationError
+from src.domain.exceptions import NonceValidationError
 
 
 @final

@@ -6,11 +6,11 @@ from aiokafka.errors import (
     InvalidTopicError,
 )
 
-from application.interfaces.event_publisher import EventPublisherProtocol
-from infrastructures.exceptions import PublicationError
-from domain.events.wallet_logged_in_event import WalletLoggedInEvent
-from domain.value_objects.wallet_vo import WalletAddressVO
-from config.broker import siws_broker_settings
+from src.application.interfaces.event_publisher import EventPublisherProtocol
+from src.infrastructures.exceptions import PublicationError
+from src.domain.events.wallet_logged_in_event import WalletLoggedInEvent
+from src.domain.value_objects.wallet_vo import WalletAddressVO
+from src.config.broker import siws_broker_settings
 
 logger = structlog.getLogger(__name__)
 

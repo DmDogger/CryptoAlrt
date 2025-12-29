@@ -12,13 +12,19 @@ from alembic import context
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
 # Import Base and all models using absolute imports
-from infrastructures.database.models.base import Base
-from infrastructures.database.models.wallet_model import Wallet  # noqa: F401
-from infrastructures.database.models.nonce_model import Nonce  # noqa: F401
+from src.infrastructures.database.models.base import Base
+from src.infrastructures.database.models.wallet_model import Wallet  # noqa: F401
+from src.infrastructures.database.models.nonce_model import Nonce  # noqa: F401
+from src.config.database import db_settings
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
+
+# Override database URL from settings
+# Convert asyncpg URL to sync URL for Alembic
+database_url = db_settings.database_url.replace("+asyncpg", "")
+config.set_main_option("sqlalchemy.url", database_url)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
@@ -53,6 +59,7 @@ def run_migrations_offline() -> None:
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
+        version_table="alembic_version_siws_login",
     )
 
     with context.begin_transaction():
@@ -74,7 +81,9 @@ def run_migrations_online() -> None:
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, target_metadata=target_metadata
+            connection=connection,
+            target_metadata=target_metadata,
+            version_table="alembic_version_siws_login",
         )
 
         with context.begin_transaction():

@@ -1,11 +1,15 @@
 import structlog
 
-from application.interfaces.repositories import NonceRepositoryProtocol
-from domain.entities.nonce_entity import NonceEntity
-from domain.value_objects.wallet_vo import WalletAddressVO
-from domain.value_objects.nonce_vo import NonceVO
-from domain.value_objects.message_vo import MessageVO
-from infrastructures.exceptions import (
+from src.application.interfaces.repositories import (
+    NonceRepositoryProtocol,
+    WalletRepositoryProtocol,
+)
+from src.domain.entities.nonce_entity import NonceEntity
+from src.domain.entities.wallet_entity import WalletEntity
+from src.domain.value_objects.wallet_vo import WalletAddressVO
+from src.domain.value_objects.nonce_vo import NonceVO
+from src.domain.value_objects.message_vo import MessageVO
+from src.infrastructures.exceptions import (
     InfrastructureError,
     FailedToSaveNonceError,
 )
@@ -23,13 +27,16 @@ class SendRequestUseCase:
     def __init__(
         self,
         nonce_repository: NonceRepositoryProtocol,
+        wallet_repository: WalletRepositoryProtocol,
     ) -> None:
         """Initialize the use case with required dependencies.
 
         Args:
             nonce_repository: Repository for nonce operations.
+            wallet_repository: Repository for wallet operations.
         """
         self._nonce_repository = nonce_repository
+        self._wallet_repository = wallet_repository
 
     async def execute(
         self,
@@ -73,8 +80,22 @@ class SendRequestUseCase:
                 "No active nonce found, creating new nonce",
                 wallet_address=wallet_address,
             )
+
+            # TODO: Create wallet if not exist
+            wallet_address_vo = WalletAddressVO(value=wallet_address)
+            existing_wallet = await self._wallet_repository.get_wallet_by_address(
+                wallet_address
+            )
+            if existing_wallet is None:
+                logger.info(
+                    "Wallet not found, creating new wallet",
+                    wallet_address=wallet_address,
+                )
+                wallet_entity = WalletEntity.create(wallet_address=wallet_address_vo)
+                await self._wallet_repository.create_wallet(wallet_entity)
+
             nonce_to_save = NonceEntity.create(
-                wallet_address=WalletAddressVO(value=wallet_address),
+                wallet_address=wallet_address_vo,
                 nonce=NonceVO.generate(),
                 statement="Powered by DmDogg",
             )

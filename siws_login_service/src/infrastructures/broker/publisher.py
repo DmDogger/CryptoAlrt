@@ -4,8 +4,8 @@ from typing import Any, final
 from faststream.kafka import KafkaBroker
 from structlog import getLogger
 
-from application.interfaces.event_publisher import EventPublisherProtocol
-from infrastructures.exceptions import PublicationError
+from src.application.interfaces.event_publisher import EventPublisherProtocol
+from src.infrastructures.exceptions import PublicationError
 
 logger = getLogger(__name__)
 

@@ -5,11 +5,11 @@ import structlog
 from nacl.exceptions import BadSignatureError
 from nacl.signing import VerifyKey
 
-from domain.exceptions import NonceNotFoundError, SignatureVerificationFailed
-from domain.value_objects.message_vo import MessageVO
-from domain.value_objects.signature_vo import SignatureVO
-from domain.value_objects.wallet_vo import WalletAddressVO
-from infrastructures.database.repositories.nonce_repository import SQLAlchemyNonceRepository
+from src.domain.exceptions import NonceNotFoundError, SignatureVerificationFailed
+from src.domain.value_objects.message_vo import MessageVO
+from src.domain.value_objects.signature_vo import SignatureVO
+from src.domain.value_objects.wallet_vo import WalletAddressVO
+from src.infrastructures.database.repositories.nonce_repository import SQLAlchemyNonceRepository
 
 logger = structlog.getLogger(__name__)
 

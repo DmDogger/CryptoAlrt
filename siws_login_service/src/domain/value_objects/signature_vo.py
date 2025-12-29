@@ -3,7 +3,7 @@ from typing import final
 
 from base58 import b58decode
 
-from domain.exceptions import SignatureValidationError
+from src.domain.exceptions import SignatureValidationError
 
 
 @final

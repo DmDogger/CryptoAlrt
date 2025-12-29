@@ -1,7 +1,7 @@
 from typing import Protocol
 
-from domain.entities.wallet_entity import WalletEntity
-from domain.entities.nonce_entity import NonceEntity
+from src.domain.entities.wallet_entity import WalletEntity
+from src.domain.entities.nonce_entity import NonceEntity
 
 
 class WalletRepositoryProtocol(Protocol):

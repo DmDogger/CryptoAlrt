@@ -4,8 +4,8 @@ from typing import final
 from uuid import UUID, uuid4
 
 import base58
-from domain.value_objects.wallet_vo import WalletAddressVO
-from domain.exceptions import InvalidWalletAddressError, DateValidationError
+from src.domain.value_objects.wallet_vo import WalletAddressVO
+from src.domain.exceptions import InvalidWalletAddressError, DateValidationError
 
 
 @final

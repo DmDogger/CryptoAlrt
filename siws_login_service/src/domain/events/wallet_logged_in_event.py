@@ -3,7 +3,7 @@ from datetime import datetime, UTC
 from dataclasses import dataclass, field
 from typing import final
 
-from domain.value_objects.wallet_vo import WalletAddressVO
+from src.domain.value_objects.wallet_vo import WalletAddressVO
 
 
 @final

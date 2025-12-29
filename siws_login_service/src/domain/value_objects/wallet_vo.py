@@ -3,7 +3,7 @@ from typing import final
 
 import base58
 
-from domain.exceptions import InvalidWalletAddressError
+from src.domain.exceptions import InvalidWalletAddressError
 
 
 @final

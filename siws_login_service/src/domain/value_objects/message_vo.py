@@ -3,8 +3,8 @@ from dataclasses import dataclass, field
 from typing import final
 
 import base58
-from domain.value_objects.wallet_vo import WalletAddressVO
-from domain.exceptions import DateValidationError, InvalidWalletAddressError
+from src.domain.value_objects.wallet_vo import WalletAddressVO
+from src.domain.exceptions import DateValidationError, InvalidWalletAddressError
 
 
 @final
