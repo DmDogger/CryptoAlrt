@@ -94,8 +94,6 @@ class SignatureVerifier:
             )
             return True
 
-        except NonceNotFoundError:
-            raise
         except BadSignatureError as e:
             logger.error(
                 "Signature verification failed",

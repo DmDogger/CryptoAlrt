@@ -288,3 +288,4 @@ class SQLAlchemyNonceRepository:
             raise FailedToUpdateNonceError(
                 f"Failed to update nonce with UUID: {nonce_uuid}"
             ) from e
+
