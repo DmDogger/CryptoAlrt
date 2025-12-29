@@ -4,9 +4,10 @@ import pytest
 
 pytest_plugins = [
     "tests.helpers.mocks",
+    "tests.helpers.fakes",
     "tests.fixtures.domain_fixtures",
     "tests.fixtures.infra_fixtures",
-    "tests.helpers.fakes"
+    "tests.fixtures.application_fixtures",
 
 ]
 
