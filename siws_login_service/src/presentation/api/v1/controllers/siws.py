@@ -22,7 +22,8 @@ async def send_request(
     use_case: FromDishka[SendRequestUseCase],
 ):
     """Generate SIWS message for wallet authentication."""
-    return await use_case.execute(wallet_address)
+    message = await use_case.execute(wallet_address)
+    return {"message": message}
 
 
 @router.post(
@@ -42,7 +43,11 @@ async def verify_signature(
     use_case: FromDishka[VerifySignatureUseCase],
 ):
     """Verify wallet signature and mark nonce as used."""
-    return await use_case.execute(
+    verified_wallet_address = await use_case.execute(
         signature=signature,
         wallet_address=wallet_address,
     )
+    return {
+        "status": "success",
+        "wallet_address": verified_wallet_address,
+    }

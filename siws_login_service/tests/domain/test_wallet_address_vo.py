@@ -4,8 +4,8 @@ from decimal import Decimal
 from typing import Any
 
 import pytest
-from domain.value_objects.wallet_vo import WalletAddressVO
-from domain.exceptions import InvalidWalletAddressError
+from src.domain.value_objects.wallet_vo import WalletAddressVO
+from src.domain.exceptions import InvalidWalletAddressError
 
 
 class TestWalletAddressVO:

@@ -3,11 +3,11 @@ import pytest
 
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 
-from domain.entities.nonce_entity import NonceEntity
-from infrastructures.database.repositories.nonce_repository import SQLAlchemyNonceRepository
-from infrastructures.database.mappers.nonce_mapper import NonceDBMapper
-from infrastructures.database.models.nonce_model import Nonce
-from infrastructures.exceptions import FailedToSaveNonceError
+from src.domain.entities.nonce_entity import NonceEntity
+from src.infrastructures.database.repositories.nonce_repository import SQLAlchemyNonceRepository
+from src.infrastructures.database.mappers.nonce_mapper import NonceDBMapper
+from src.infrastructures.database.models.nonce_model import Nonce
+from src.infrastructures.exceptions import FailedToSaveNonceError
 
 
 class TestNonceRepository:

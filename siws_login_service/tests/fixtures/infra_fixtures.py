@@ -4,10 +4,10 @@ from datetime import datetime, UTC
 
 import pytest
 
-from infrastructures.database.models.wallet_model import Wallet
-from infrastructures.database.mappers.wallet_mapper import WalletDBMapper
-from infrastructures.database.mappers.nonce_mapper import NonceDBMapper
-from infrastructures.database.models.nonce_model import Nonce
+from src.infrastructures.database.models.wallet_model import Wallet
+from src.infrastructures.database.mappers.wallet_mapper import WalletDBMapper
+from src.infrastructures.database.mappers.nonce_mapper import NonceDBMapper
+from src.infrastructures.database.models.nonce_model import Nonce
 
 
 @pytest.fixture
@@ -24,7 +24,7 @@ def sample_db_wallet_model(sample_wallet_vo, sample_uuid):
     now = datetime.now(UTC)
     return Wallet(
         uuid=sample_uuid,
-        wallet_address=sample_wallet_vo,
+        wallet_address=sample_wallet_vo.value,
         last_active=now,
         created_at=now,
     )

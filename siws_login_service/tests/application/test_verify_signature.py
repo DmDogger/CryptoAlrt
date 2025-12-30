@@ -2,15 +2,15 @@ from typing import Any
 
 import pytest
 
-from application.use_cases.verify_signature_use_case import VerifySignatureUseCase
-from domain.entities.nonce_entity import NonceEntity
-from domain.exceptions import (
+from src.application.use_cases.verify_signature_use_case import VerifySignatureUseCase
+from src.domain.entities.nonce_entity import NonceEntity
+from src.domain.exceptions import (
     NonceNotFoundError,
     SignatureVerificationFailed,
     NonceAlreadyUsedError,
 )
-from domain.value_objects.signature_vo import SignatureVO
-from infrastructures.exceptions import (
+from src.domain.value_objects.signature_vo import SignatureVO
+from src.infrastructures.exceptions import (
     FailedToUpdateNonceError,
     InfrastructureError,
 )

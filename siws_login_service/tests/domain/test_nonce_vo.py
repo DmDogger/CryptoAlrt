@@ -1,8 +1,8 @@
 """Tests for NonceVO value object."""
 
 import pytest
-from domain.value_objects.nonce_vo import NonceVO
-from domain.exceptions import NonceValidationError
+from src.domain.value_objects.nonce_vo import NonceVO
+from src.domain.exceptions import NonceValidationError
 
 
 class TestNonceVO:

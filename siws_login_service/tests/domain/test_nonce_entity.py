@@ -6,10 +6,10 @@ from uuid import uuid4
 import pytest
 from freezegun import freeze_time
 
-from domain.entities.nonce_entity import NonceEntity
-from domain.exceptions import NonceAlreadyUsedError, DateValidationError
-from domain.value_objects.nonce_vo import NonceVO
-from domain.value_objects.wallet_vo import WalletAddressVO
+from src.domain.entities.nonce_entity import NonceEntity
+from src.domain.exceptions import NonceAlreadyUsedError, DateValidationError
+from src.domain.value_objects.nonce_vo import NonceVO
+from src.domain.value_objects.wallet_vo import WalletAddressVO
 
 
 class TestNonceEntity:

@@ -3,14 +3,17 @@
 import structlog
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from dishka.integrations.fastapi import setup_dishka
 
+from src.config.cors import CORSSettings
 from src.infrastructures.di_container import create_container
 from src.presentation.api.v1.controllers.siws import router as siws_router
 
 logger = structlog.getLogger(__name__)
 
 container = create_container()
+cors_settings = CORSSettings()
 
 
 @asynccontextmanager
@@ -27,6 +30,14 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=cors_settings.cors_origins,
+    allow_credentials=cors_settings.cors_allow_credentials,
+    allow_methods=cors_settings.cors_allow_methods,
+    allow_headers=cors_settings.cors_allow_headers,
+)
 
 setup_dishka(container, app)
 app.include_router(siws_router, prefix="/api/v1", tags=["SIWS"])

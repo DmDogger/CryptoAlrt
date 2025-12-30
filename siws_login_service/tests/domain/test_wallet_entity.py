@@ -6,8 +6,8 @@ from datetime import datetime, UTC, timedelta
 import pytest
 from freezegun import freeze_time
 
-from domain.entities.wallet_entity import WalletEntity
-from domain.exceptions import DateValidationError, InvalidWalletAddressError
+from src.domain.entities.wallet_entity import WalletEntity
+from src.domain.exceptions import DateValidationError, InvalidWalletAddressError
 
 
 class TestWalletEntity:

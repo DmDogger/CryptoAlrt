@@ -2,10 +2,10 @@ import pytest
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from unittest.mock import AsyncMock, MagicMock
 
-from infrastructures.exceptions import FailedToSaveWalletError
-from infrastructures.database.repositories.wallet_repository import SQLAlchemyWalletRepository
-from domain.entities.wallet_entity import WalletEntity
-from infrastructures.database.models.wallet_model import Wallet
+from src.infrastructures.exceptions import FailedToSaveWalletError
+from src.infrastructures.database.repositories.wallet_repository import SQLAlchemyWalletRepository
+from src.domain.entities.wallet_entity import WalletEntity
+from src.infrastructures.database.models.wallet_model import Wallet
 
 
 class TestWalletRepository:

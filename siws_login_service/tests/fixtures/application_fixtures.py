@@ -2,16 +2,17 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from application.use_cases.send_request_use_case import SendRequestUseCase
-from infrastructures.database.repositories.nonce_repository import SQLAlchemyNonceRepository
-from application.use_cases.verify_signature_use_case import VerifySignatureUseCase
-from infrastructures.crypto.ed25519_verifier import SignatureVerifier
+from src.application.use_cases.send_request_use_case import SendRequestUseCase
+from src.infrastructures.database.repositories.nonce_repository import SQLAlchemyNonceRepository
+from src.application.use_cases.verify_signature_use_case import VerifySignatureUseCase
+from src.infrastructures.crypto.ed25519_verifier import SignatureVerifier
 
 
 @pytest.fixture
-def mock_request_signature(fake_nonce_repository):
+def mock_request_signature(fake_nonce_repository, fake_wallet_repository):
     return SendRequestUseCase(
         nonce_repository=fake_nonce_repository,
+        wallet_repository=fake_wallet_repository,
     )
 
 @pytest.fixture
@@ -43,7 +44,8 @@ def mock_nonce_repo():
     return repo
 
 @pytest.fixture
-def mock_request_signature_with_mock_repo(mock_nonce_repo):
+def mock_request_signature_with_mock_repo(mock_nonce_repo, fake_wallet_repository):
     return SendRequestUseCase(
         nonce_repository=mock_nonce_repo,
+        wallet_repository=fake_wallet_repository,
     )

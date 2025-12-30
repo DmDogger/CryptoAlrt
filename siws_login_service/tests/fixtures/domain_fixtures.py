@@ -1,14 +1,17 @@
 from datetime import datetime, UTC, timedelta
+from os import access
 
 import pytest
 
-from domain.entities.nonce_entity import NonceEntity
-from domain.value_objects.wallet_vo import WalletAddressVO
-from domain.value_objects.nonce_vo import NonceVO
-from domain.entities.wallet_entity import WalletEntity
-from domain.events.wallet_logged_in_event import WalletLoggedInEvent
-from domain.value_objects.signature_vo import SignatureVO
-from domain.value_objects.message_vo import MessageVO
+from src.domain.entities.nonce_entity import NonceEntity
+from src.domain.value_objects.wallet_vo import WalletAddressVO
+from src.domain.value_objects.nonce_vo import NonceVO
+from src.domain.entities.wallet_entity import WalletEntity
+from src.domain.events.wallet_logged_in_event import WalletLoggedInEvent
+from src.domain.value_objects.signature_vo import SignatureVO
+from src.domain.value_objects.message_vo import MessageVO
+
+from src.domain.value_objects.token_vo import TokenPairVO
 
 
 @pytest.fixture
@@ -96,4 +99,11 @@ def sample_wallet_logged_in_event(sample_wallet_vo):
     return WalletLoggedInEvent.create_event(
         pubkey=sample_wallet_vo.value,
         device_id=999,
+    )
+
+@pytest.fixture
+def sample_token_vo():
+    return TokenPairVO.from_string(
+        access_token="access.token.test",
+        refresh_token="refresh.token.test",
     )

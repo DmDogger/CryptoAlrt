@@ -2,14 +2,14 @@ from typing import Any
 
 import pytest
 
-from domain.entities.nonce_entity import NonceEntity
-from domain.value_objects.wallet_vo import WalletAddressVO
-from infrastructures.exceptions import (
+from src.domain.entities.nonce_entity import NonceEntity
+from src.domain.value_objects.wallet_vo import WalletAddressVO
+from src.infrastructures.exceptions import (
     InfrastructureError,
     FailedToSaveNonceError,
 )
 from tests.helpers.fakes import FakeNonceRepository
-from application.use_cases.send_request_use_case import SendRequestUseCase
+from src.application.use_cases.send_request_use_case import SendRequestUseCase
 
 
 class TestRequestSignatureUseCase:

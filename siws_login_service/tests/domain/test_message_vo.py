@@ -1,8 +1,8 @@
 """Tests for MessageVO value object."""
 
-from domain.entities.nonce_entity import NonceEntity
-from domain.value_objects.message_vo import MessageVO
-from domain.value_objects.wallet_vo import WalletAddressVO
+from src.domain.entities.nonce_entity import NonceEntity
+from src.domain.value_objects.message_vo import MessageVO
+from src.domain.value_objects.wallet_vo import WalletAddressVO
 
 
 class TestMessageVO:

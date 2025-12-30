@@ -3,8 +3,8 @@
 from typing import Any
 
 import pytest
-from domain.value_objects.signature_vo import SignatureVO
-from domain.exceptions import SignatureValidationError
+from src.domain.value_objects.signature_vo import SignatureVO
+from src.domain.exceptions import SignatureValidationError
 
 
 class TestSignatureVO:

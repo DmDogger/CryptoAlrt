@@ -5,11 +5,11 @@ import base58
 import pytest
 from nacl.signing import SigningKey
 
-from domain.entities.nonce_entity import NonceEntity
-from domain.value_objects.message_vo import MessageVO
-from domain.value_objects.wallet_vo import WalletAddressVO
-from domain.value_objects.nonce_vo import NonceVO
-from infrastructures.crypto.ed25519_verifier import SignatureVerifier
+from src.domain.entities.nonce_entity import NonceEntity
+from src.domain.value_objects.message_vo import MessageVO
+from src.domain.value_objects.wallet_vo import WalletAddressVO
+from src.domain.value_objects.nonce_vo import NonceVO
+from src.infrastructures.crypto.ed25519_verifier import SignatureVerifier
 from tests.helpers.fakes import FakeNonceRepository
 
 

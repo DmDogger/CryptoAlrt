@@ -4,13 +4,13 @@ import pytest
 from sqlalchemy import ScalarResult
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from infrastructures.database.repositories.wallet_repository import SQLAlchemyWalletRepository
-from infrastructures.database.mappers.wallet_mapper import WalletDBMapper
-from infrastructures.database.repositories.nonce_repository import SQLAlchemyNonceRepository
-from infrastructures.database.mappers.nonce_mapper import NonceDBMapper
-from infrastructures.crypto.ed25519_verifier import SignatureVerifier
+from src.infrastructures.database.repositories.wallet_repository import SQLAlchemyWalletRepository
+from src.infrastructures.database.mappers.wallet_mapper import WalletDBMapper
+from src.infrastructures.database.repositories.nonce_repository import SQLAlchemyNonceRepository
+from src.infrastructures.database.mappers.nonce_mapper import NonceDBMapper
+from src.infrastructures.crypto.ed25519_verifier import SignatureVerifier
 
-from tests.helpers.fakes import FakeNonceRepository
+from tests.helpers.fakes import FakeNonceRepository, FakeWalletRepository
 
 
 @pytest.fixture
@@ -51,6 +51,10 @@ def mock_async_session() -> AsyncMock:
 @pytest.fixture
 def fake_nonce_repository():
     return FakeNonceRepository()
+
+@pytest.fixture
+def fake_wallet_repository():
+    return FakeWalletRepository()
 
 @pytest.fixture
 def mock_signature_verifier(fake_nonce_repository):
