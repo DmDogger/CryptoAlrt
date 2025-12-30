@@ -1,4 +1,7 @@
-import bcrypt
+import base64
+import secrets
+
+import pyscrypt
 import structlog
 
 from src.application.interfaces.repositories import WalletRepositoryProtocol
@@ -65,10 +68,16 @@ class TokensIssuerUseCase:
             access_token = self._access_issuer.execute(wallet_address)
             refresh_token = self._refresh_issuer.execute(wallet_address)
 
-            hashed_refresh = bcrypt.hashpw(
-                refresh_token.encode(),
-                bcrypt.gensalt(),
-            ).decode()
+            hashed_bytes = pyscrypt.hash(
+                password=refresh_token.encode(),
+                salt=secrets.token_bytes(16),
+                N=1024,
+                r=1,
+                p=1,
+                dkLen=256
+            )
+
+            hashed_refresh = base64.b64encode(hashed_bytes).decode('utf-8')
 
             logger.info(
                 "Tokens issued and hashed successfully, updating wallet",
