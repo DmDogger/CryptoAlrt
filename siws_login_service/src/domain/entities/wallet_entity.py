@@ -25,6 +25,8 @@ class WalletEntity:
     """
     uuid: UUID
     wallet_address: WalletAddressVO
+    hashed_refresh: str
+    is_revoked: bool
     last_active: datetime
     created_at: datetime
 
@@ -50,6 +52,14 @@ class WalletEntity:
                 f"Received: {self.created_at.isoformat()}, "
                 f"Current time: {datetime.now(UTC).isoformat()}"
             )
+        if self.hashed_refresh is not None:
+            if not isinstance(self.hashed_refresh, str):
+                raise ValueError(
+                    f"hashed_refresh_token must be a string, "
+                    f"got {type(self.hashed_refresh).__name__}"
+                )
+            if not self.hashed_refresh.strip():
+                raise ValueError("hashed_refresh_token cannot be empty")
 
     @classmethod
     def create(
@@ -68,6 +78,8 @@ class WalletEntity:
             A new WalletEntity instance with:
             - Automatically generated UUID (UUID v4)
             - Provided wallet address
+            - hashed_refresh set to empty string
+            - is_revoked set to False
             - last_active set to current UTC timestamp
             - created_at set to current UTC timestamp
         
@@ -82,6 +94,8 @@ class WalletEntity:
         return cls(
             uuid=uuid4(),
             wallet_address=wallet_address,
+            hashed_refresh="default_refresh_token_hash",
+            is_revoked=False,
             last_active=datetime.now(UTC),
             created_at=datetime.now(UTC),
         )
@@ -99,7 +113,30 @@ class WalletEntity:
         return WalletEntity(
             uuid=self.uuid,
             wallet_address=self.wallet_address,
+            hashed_refresh=self.hashed_refresh,
+            is_revoked=self.is_revoked,
             last_active=datetime.now(UTC),
+            created_at=self.created_at,
+        )
+
+    def set_hashed_token(self, token: str) -> "WalletEntity":
+        """Sets the hashed refresh token for the wallet.
+
+        Creates a new WalletEntity instance with the provided hashed refresh token.
+        Since the entity is immutable, this method returns a new instance.
+
+        Args:
+            token: The hashed refresh token string to set.
+
+        Returns:
+            A new WalletEntity instance with the updated hashed_refresh token.
+        """
+        return WalletEntity(
+            uuid=self.uuid,
+            wallet_address=self.wallet_address,
+            hashed_refresh=token,
+            is_revoked=self.is_revoked,
+            last_active=self.last_active,
             created_at=self.created_at,
         )
 

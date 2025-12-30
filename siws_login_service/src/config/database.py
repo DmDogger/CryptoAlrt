@@ -12,6 +12,7 @@ class DatabaseSettings(BaseSettings):
     class Config:
         env_prefix = "DB_"
         env_file = ".env"
+        extra = "ignore"
 
 
 db_settings = DatabaseSettings()

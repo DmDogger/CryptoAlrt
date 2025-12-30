@@ -51,6 +51,8 @@ def custom_wallet_entity(sample_uuid, sample_wallet_vo):
         return WalletEntity(
             uuid=sample_uuid,
             wallet_address=sample_wallet_vo,
+            hashed_refresh="test_refresh_token_hash",
+            is_revoked=False,
             created_at=created_at,
             last_active=last_active,
         )

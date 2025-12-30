@@ -25,6 +25,8 @@ def sample_db_wallet_model(sample_wallet_vo, sample_uuid):
     return Wallet(
         uuid=sample_uuid,
         wallet_address=sample_wallet_vo.value,
+        hashed_refresh_token="test_refresh_token_hash",
+        is_revoked=False,
         last_active=now,
         created_at=now,
     )
