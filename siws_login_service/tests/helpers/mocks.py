@@ -15,6 +15,10 @@ from tests.helpers.fakes import FakeNonceRepository, FakeWalletRepository
 from src.config.jwt import JWTSettings
 from src.infrastructures.jwt.token_issuer import JWTAccessIssuer
 
+from config.jwt import jwt_settings
+
+from infrastructures.jwt.token_issuer import JWTRefreshIssuer
+
 
 @pytest.fixture
 def mock_wallet_mapper():
@@ -90,15 +94,13 @@ def mock_access_issuer():
     
     Uses real JWTSettings with a test Ed25519 private key for token issuance.
     """
-    test_private_key = "-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEIPtUxyxlhjOWetjIYmc98dmB2GxpeaMPP64qBhZmG13r\n-----END PRIVATE KEY-----\n"
-    test_public_key = "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEA7p4c1IU6aA65FWn6YZ+Bya5dRbfd4P6d4a6H0u9+gCg=\n-----END PUBLIC KEY-----\n"
-    
-    test_settings = JWTSettings(
-        secret_key=test_private_key,
-        public_key=test_public_key,
-        exp_time_mins=59,
-    )
     
     return JWTAccessIssuer(
-        _jwt_settings=test_settings
+        _jwt_settings=jwt_settings,
+    )
+
+@pytest.fixture
+def mock_refresh_issuer():
+    return JWTRefreshIssuer(
+        _jwt_settings=jwt_settings,
     )
