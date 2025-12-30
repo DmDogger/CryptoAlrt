@@ -31,3 +31,4 @@ class CORSSettings(BaseSettings):
         extra = "ignore"
 
 
+

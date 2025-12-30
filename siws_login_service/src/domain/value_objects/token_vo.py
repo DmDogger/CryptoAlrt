@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import final
 
-from domain.exceptions import TokenValidationError
+from src.domain.exceptions import TokenValidationError
 
 
 @final

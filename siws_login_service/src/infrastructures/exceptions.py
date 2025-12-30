@@ -22,3 +22,6 @@ class FailedToUpdateNonceError(InfrastructureError):
 
 class PublicationError(InfrastructureError):
     """ raises when occurred error during publication message to Kafka """
+
+class TokenIssueError(InfrastructureError):
+    """ raises when occurred error during issue token for subject """
