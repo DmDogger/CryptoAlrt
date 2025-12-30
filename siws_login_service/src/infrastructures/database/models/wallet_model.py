@@ -3,7 +3,7 @@
 from datetime import datetime
 from uuid import UUID, uuid4
 
-from sqlalchemy import String, DateTime
+from sqlalchemy import String, DateTime, Boolean
 from sqlalchemy.dialects.postgresql.base import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -36,6 +36,16 @@ class Wallet(Base):
         String(50),
         unique=True,
         nullable=False,
+    )
+    hashed_refresh_token: Mapped[str] = mapped_column(
+        String,
+        nullable=True,
+    )
+    is_revoked: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=True,
+        default=False,
+
     )
     last_active: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
