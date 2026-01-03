@@ -1,3 +1,6 @@
+from decimal import Decimal
+from sys import exc_info
+
 import structlog
 
 from application.interfaces.coingecko_client import CoinGeckoClientProtocol
@@ -37,7 +40,7 @@ class FetchAndSaveUseCase:
     async def execute(
             self,
             coin_id: str
-    ) -> CryptocurrencyEntity:
+    ) -> tuple[CryptocurrencyEntity, Decimal]:
         """Execute the use case to fetch and save cryptocurrency price.
         
         This method:
@@ -65,27 +68,35 @@ class FetchAndSaveUseCase:
             crypto_entity = await self._crypto_repository.get_cryptocurrency_by_symbol(coingecko_dto.symbol.upper())
             
             if crypto_entity is None:
-                logger.info(f"[Info]: Cryptocurrency with symbol {coingecko_dto.symbol} not found, creating new one")
+                logger.info(
+                    "Cryptocurrency not found, creating",
+                    coin_id=coin_id,
+                            )
                 crypto_entity = CryptocurrencyEntity(
                     symbol=coingecko_dto.symbol.upper(),
                     name=coingecko_dto.name,
                     coingecko_id=coingecko_dto.id
                 )
                 await self._crypto_repository.save(crypto_entity)
-                logger.info(f"[Success]: Created cryptocurrency {crypto_entity.id}")
+                logger.info(
+                    "Cryptocurrency created successfully",
+                    coin_id=coin_id,
+                )
 
-            logger.info(f"[Info]: Preparing to save price to database...")
             crypto_entity = await self._crypto_repository.save_price(
                 cryptocurrency_id=crypto_entity.id,
                 price_data=coingecko_dto
             )
-            logger.info(f"[Success]: Price successfully saved for {coingecko_dto.symbol}")
 
             return crypto_entity, coingecko_dto.current_price
 
         except UnsuccessfullyCoinGeckoAPICall:
             raise
         except Exception as e:
-            logger.error(f"[Unexpected error]: Occurred unexpected error: {e}")
+            logger.error(
+                "Unexpected error",
+                error=str(e),
+                exc_info=True
+            )
             raise UnexpectedError(f"Occurred unexpected error")
 
