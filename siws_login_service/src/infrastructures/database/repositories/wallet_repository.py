@@ -365,9 +365,6 @@ class SQLAlchemyWalletRepository(WalletRepositoryProtocol):
             ) from e
 
 
-
-
-
     async def revoke_single_session(
         self,
         wallet_address: str,

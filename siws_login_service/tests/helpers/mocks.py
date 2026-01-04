@@ -19,6 +19,7 @@ from src.infrastructures.jwt.token_issuer import JWTAccessIssuer
 from config.jwt import jwt_settings
 
 from infrastructures.jwt.token_issuer import JWTRefreshIssuer
+from src.application.use_cases.revoke_session_use_case import RevokeSessionUseCase
 
 
 @pytest.fixture
@@ -114,4 +115,10 @@ def mock_access_issuer():
 def mock_refresh_issuer():
     return JWTRefreshIssuer(
         _jwt_settings=jwt_settings,
+    )
+
+@pytest.fixture
+def mock_revoke_session_uc(fake_wallet_repository):
+    return RevokeSessionUseCase(
+        wallet_repository=fake_wallet_repository,
     )

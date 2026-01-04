@@ -1,6 +1,8 @@
+import uuid
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from typing import final
+from uuid import uuid4
 
 import jwt
 import structlog
@@ -162,6 +164,7 @@ class JWTRefreshIssuer(RefreshTokenIssuerProtocol):
                 "exp": exp_time,
                 "iss": iss if iss else "cryptoalrt.io",
                 "iat": datetime.now(UTC),
+                "jti": str(uuid.uuid4()),
             }
 
             logger.debug(
@@ -170,6 +173,7 @@ class JWTRefreshIssuer(RefreshTokenIssuerProtocol):
                 type=payload.get("typ"),
                 exp=payload.get("exp"),
                 iss=payload.get("iss"),
+                jti=payload.get("jti"),
             )
 
             encoded = jwt.encode(

@@ -65,6 +65,8 @@ class TestJWTRefreshIssuer:
         assert decoded["sub"] == "test_sub_refresh"
         assert decoded["iss"] == "cryptoalrt.io"
         assert decoded["exp"] == 1893484980
+        assert decoded["jti"] is not None
+        assert isinstance(decoded["jti"], str)
 
 
 
