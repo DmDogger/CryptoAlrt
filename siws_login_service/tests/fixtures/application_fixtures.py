@@ -71,6 +71,7 @@ def mock_refresh_token_use_case(mock_refresh_issuer):
 
 @pytest.fixture
 def mock_tokens_issuer_with_mocks(
+    fake_wallet_repository,
     mock_refresh_token_use_case_mock,
     mock_access_token_use_case_mock,
 ):
@@ -78,6 +79,7 @@ def mock_tokens_issuer_with_mocks(
     return TokensIssuerUseCase(
         access_issuer_uc=mock_access_token_use_case_mock,
         refresh_issuer_uc=mock_refresh_token_use_case_mock,
+        wallet_repository=fake_wallet_repository,
     )
 
 
@@ -100,6 +102,7 @@ def mock_refresh_token_use_case_mock():
 
 @pytest.fixture
 def mock_tokens_issuer(
+    fake_wallet_repository,
     mock_refresh_token_use_case,
     mock_access_token_use_case,
 ):
@@ -107,4 +110,5 @@ def mock_tokens_issuer(
     return TokensIssuerUseCase(
         access_issuer_uc=mock_access_token_use_case,
         refresh_issuer_uc=mock_refresh_token_use_case,
+        wallet_repository=fake_wallet_repository,
     )

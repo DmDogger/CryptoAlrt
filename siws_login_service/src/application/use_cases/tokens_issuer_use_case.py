@@ -1,3 +1,6 @@
+import secrets
+
+import pyscrypt
 import structlog
 
 from src.application.use_cases.access_token_use_case import AccessTokenIssueUseCase
@@ -5,6 +8,9 @@ from src.application.use_cases.refresh_token_use_case import RefreshTokenIssueUs
 from src.domain.exceptions import TokenValidationError
 from src.domain.value_objects.token_vo import TokenPairVO
 from src.infrastructures.exceptions import InfrastructureError
+from src.infrastructures.database.repositories.wallet_repository import SQLAlchemyWalletRepository
+from src.domain.value_objects.wallet_session_vo import WalletSessionVO
+from src.domain.value_objects.wallet_vo import WalletAddressVO
 
 logger = structlog.getLogger(__name__)
 
@@ -19,6 +25,7 @@ class TokensIssuerUseCase:
         self,
         access_issuer_uc: AccessTokenIssueUseCase,
         refresh_issuer_uc: RefreshTokenIssueUseCase,
+        wallet_repository: SQLAlchemyWalletRepository,
     ) -> None:
         """Initialize the use case with required dependencies.
 
@@ -28,6 +35,7 @@ class TokensIssuerUseCase:
         """
         self._access_issuer = access_issuer_uc
         self._refresh_issuer = refresh_issuer_uc
+        self._repository = wallet_repository
 
     async def execute(
         self,
@@ -63,6 +71,31 @@ class TokensIssuerUseCase:
             #TODO: добавить wallet_repo, будем добавлять сессию в репозиторий
             #TODO: scrypt тоже (хешируем токен)
             #TODO: добавляем сессию при выпуске токенов
+
+            hashed_bytes = pyscrypt.hash(
+                password=refresh_token.encode(),
+                salt=secrets.token_bytes(16),
+                N=1024,
+                r=1,
+                p=1,
+                dkLen=32,
+            )
+
+            refresh_token_hash = hashed_bytes.hex()
+
+            wallet_session = WalletSessionVO.initiate(
+                wallet_address=WalletAddressVO.from_string(
+                    value=wallet_address,
+                ),
+                refresh_token_hash=refresh_token_hash,
+            )
+
+            logger.info(
+                "Trying to save session to database",
+                wallet_address=wallet_address,
+                device_id=wallet_session.device_id,
+            )
+            await self._repository.save_session(wallet_session)
 
             tokens = TokenPairVO.from_string(
                 access_token=access_token,

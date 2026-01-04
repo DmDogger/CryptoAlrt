@@ -48,6 +48,7 @@ def mock_result_obj():
     result.first = MagicMock()
     result.all = MagicMock()
     result.scalar_one_or_none = MagicMock()
+    result.scalars = MagicMock()
     return result
 
 @pytest.fixture

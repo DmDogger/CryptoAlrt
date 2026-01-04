@@ -499,8 +499,10 @@ class SQLAlchemyWalletRepository(WalletRepositoryProtocol):
             )
             result = await self._session.execute(stmt)
             revoked_sessions = result.scalars().all()
+            logger.debug("revoked sessions executed", debug_len=len(revoked_sessions))
 
             await self._session.commit()
+            logger.debug("revoked", debug_revs=revoked_sessions)
 
             if not revoked_sessions:
                 logger.warning(
