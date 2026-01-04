@@ -13,6 +13,8 @@ from src.domain.value_objects.message_vo import MessageVO
 
 from src.domain.value_objects.token_vo import TokenPairVO
 
+from domain.value_objects.wallet_session_vo import WalletSessionVO
+
 
 @pytest.fixture
 def sample_wallet_vo():
@@ -51,8 +53,6 @@ def custom_wallet_entity(sample_uuid, sample_wallet_vo):
         return WalletEntity(
             uuid=sample_uuid,
             wallet_address=sample_wallet_vo,
-            hashed_refresh="test_refresh_token_hash",
-            is_revoked=False,
             created_at=created_at,
             last_active=last_active,
         )
@@ -109,3 +109,30 @@ def sample_token_vo():
         access_token="access.token.test",
         refresh_token="refresh.token.test",
     )
+
+@pytest.fixture
+def sample_wallet_session_vo(sample_wallet_vo):
+    return WalletSessionVO.initiate(
+        wallet_address=sample_wallet_vo,
+        refresh_token_hash="RefreshTokenHashHere"
+    )
+
+@pytest.fixture
+def wallet_session_with_custom_fields():
+    def _create(
+            wallet_address: str,
+            refresh_token_hash: str,
+            device_id: int,
+            is_revoked: bool | None = None,
+            created_at: datetime | None = None,
+
+
+    ):
+        return WalletSessionVO(
+            wallet_address=WalletAddressVO(value=wallet_address),
+            refresh_token_hash=refresh_token_hash,
+            device_id=device_id,
+            is_revoked=is_revoked if is_revoked else False,
+            created_at=created_at if created_at else datetime.now(UTC),
+        )
+    return _create

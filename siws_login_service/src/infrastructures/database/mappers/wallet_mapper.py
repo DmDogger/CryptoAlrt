@@ -31,8 +31,6 @@ class WalletDBMapper:
         return Wallet(
             uuid=entity.uuid,
             wallet_address=entity.wallet_address.value,
-            hashed_refresh_token=entity.hashed_refresh,
-            is_revoked=entity.is_revoked,
             last_active=entity.last_active,
             created_at=entity.created_at,
         )
@@ -50,8 +48,6 @@ class WalletDBMapper:
         return WalletEntity(
             uuid=wallet.uuid,
             wallet_address=WalletAddressVO.from_string(wallet.wallet_address),
-            hashed_refresh=wallet.hashed_refresh_token if wallet.hashed_refresh_token else "default_refresh_token_hash",
-            is_revoked=wallet.is_revoked if wallet.is_revoked is not None else False,
             last_active=wallet.last_active,
             created_at=wallet.created_at,
         )

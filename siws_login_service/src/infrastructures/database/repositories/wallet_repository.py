@@ -17,6 +17,9 @@ from src.infrastructures.exceptions import (
 )
 
 from src.application.interfaces.repositories import WalletRepositoryProtocol
+from src.domain.value_objects.wallet_session_vo import WalletSessionVO
+from src.infrastructures.database.mappers.wallet_session_mapper import WalletSessionDBMapper
+from src.infrastructures.exceptions import SessionSaveFailed
 
 logger = structlog.getLogger(__name__)
 
@@ -31,6 +34,7 @@ class SQLAlchemyWalletRepository(WalletRepositoryProtocol):
     """
     _session: AsyncSession
     _mapper: WalletDBMapper
+    _wallet_session_mapper: WalletSessionDBMapper
 
     async def get_wallet_by_address(
         self,
@@ -215,3 +219,80 @@ class SQLAlchemyWalletRepository(WalletRepositoryProtocol):
                 f"Failed to update wallet with address: "
                 f"{wallet_entity.wallet_address.value}"
             ) from e
+
+    async def save_session(
+        self,
+        wallet_vo: WalletSessionVO,
+    ) -> WalletSessionVO:
+        """Save a wallet session to the database.
+
+        Args:
+            wallet_vo: The WalletSessionVO value object to save.
+
+        Returns:
+            The saved WalletSessionVO instance.
+
+        Raises:
+            SessionSaveFailed: If database operation fails or
+                integrity constraint is violated.
+        """
+        try:
+            session_model = self._wallet_session_mapper.to_database_model(wallet_vo)
+            logger.info(
+                "Saving wallet session to database",
+                wallet_address=wallet_vo.wallet_address.value,
+                device_id=wallet_vo.device_id,
+            )
+            self._session.add(session_model)
+            await self._session.commit()
+
+            logger.info(
+                "Wallet session saved successfully",
+                wallet_address=wallet_vo.wallet_address.value,
+                device_id=wallet_vo.device_id,
+            )
+            await self._session.refresh(session_model)
+            return self._wallet_session_mapper.from_database_model(session_model)
+        except IntegrityError as e:
+            await self._session.rollback()
+            logger.error(
+                "Integrity error during wallet session save",
+                wallet_address=wallet_vo.wallet_address.value,
+                device_id=wallet_vo.device_id,
+                error=str(e),
+                exc_info=True,
+            )
+            raise SessionSaveFailed(
+                f"Failed to save wallet session: session with wallet address "
+                f"{wallet_vo.wallet_address.value} and device_id {wallet_vo.device_id} "
+                f"already exists or constraint violated"
+            ) from e
+        except SQLAlchemyError as e:
+            await self._session.rollback()
+            logger.error(
+                "Database error during wallet session save",
+                wallet_address=wallet_vo.wallet_address.value,
+                device_id=wallet_vo.device_id,
+                error=str(e),
+                exc_info=True,
+            )
+            raise SessionSaveFailed(
+                f"Failed to save wallet session for wallet address "
+                f"{wallet_vo.wallet_address.value} and device_id {wallet_vo.device_id}: "
+                f"database operation failed"
+            ) from e
+        except Exception as e:
+            await self._session.rollback()
+            logger.error(
+                "Unexpected error during wallet session save",
+                wallet_address=wallet_vo.wallet_address.value,
+                device_id=wallet_vo.device_id,
+                error=str(e),
+                exc_info=True,
+            )
+            raise SessionSaveFailed(
+                f"Unexpected error while saving wallet session for wallet address "
+                f"{wallet_vo.wallet_address.value} and device_id {wallet_vo.device_id}: {e}"
+            ) from e
+
+

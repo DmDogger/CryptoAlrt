@@ -35,4 +35,7 @@ class DateValidationError(DomainError):
 class TokenValidationError(DomainError):
     """"""
 
+class DeviceValidationError(DomainError):
+    """ Raises when have no device ID or device ID isn't UUID / integer """
+
 

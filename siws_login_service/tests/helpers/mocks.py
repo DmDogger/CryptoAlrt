@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.infrastructures.database.repositories.wallet_repository import SQLAlchemyWalletRepository
 from src.infrastructures.database.mappers.wallet_mapper import WalletDBMapper
+from src.infrastructures.database.mappers.wallet_session_mapper import WalletSessionDBMapper
 from src.infrastructures.database.repositories.nonce_repository import SQLAlchemyNonceRepository
 from src.infrastructures.database.mappers.nonce_mapper import NonceDBMapper
 from src.infrastructures.crypto.ed25519_verifier import SignatureVerifier
@@ -25,6 +26,13 @@ def mock_wallet_mapper():
     mapper = MagicMock(spec=WalletDBMapper)
     mapper.to_database = MagicMock()
     mapper.from_database = MagicMock()
+    return mapper
+
+@pytest.fixture
+def mock_wallet_session_mapper():
+    mapper = MagicMock(spec=WalletSessionDBMapper)
+    mapper.to_database_model = MagicMock()
+    mapper.from_database_model = MagicMock()
     return mapper
 
 @pytest.fixture
@@ -71,11 +79,13 @@ def mock_signature_verifier(fake_nonce_repository):
 def mock_wallet_repository(
     mock_async_session: AsyncMock,
     mock_wallet_mapper: MagicMock,
+    mock_wallet_session_mapper: MagicMock,
 ) -> SQLAlchemyWalletRepository:
     """Реальный SQLAlchemyWalletRepository с мок-сессией для тестов."""
     return SQLAlchemyWalletRepository(
         _session=mock_async_session,
         _mapper=mock_wallet_mapper,
+        _wallet_session_mapper=mock_wallet_session_mapper,
     )
 
 @pytest.fixture

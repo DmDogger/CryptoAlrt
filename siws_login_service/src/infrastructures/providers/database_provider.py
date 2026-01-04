@@ -18,6 +18,7 @@ from src.application.interfaces.repositories import (
 from src.config.database import db_settings
 from src.infrastructures.database.mappers.nonce_mapper import NonceDBMapper
 from src.infrastructures.database.mappers.wallet_mapper import WalletDBMapper
+from src.infrastructures.database.mappers.wallet_session_mapper import WalletSessionDBMapper
 from src.infrastructures.database.repositories.nonce_repository import (
     SQLAlchemyNonceRepository,
 )
@@ -61,6 +62,11 @@ class DatabaseProvider(Provider):
         """Provide WalletDBMapper instance."""
         return WalletDBMapper()
 
+    @provide(scope=Scope.APP)
+    def provide_wallet_session_mapper(self) -> WalletSessionDBMapper:
+        """Provide WalletSessionDBMapper instance."""
+        return WalletSessionDBMapper()
+
     @provide(scope=Scope.REQUEST)
     def provide_nonce_repository(
         self,
@@ -75,9 +81,14 @@ class DatabaseProvider(Provider):
         self,
         session: AsyncSession,
         mapper: WalletDBMapper,
+        wallet_session_mapper: WalletSessionDBMapper,
     ) -> WalletRepositoryProtocol:
         """Provide SQLAlchemyWalletRepository instance."""
-        return SQLAlchemyWalletRepository(_session=session, _mapper=mapper)
+        return SQLAlchemyWalletRepository(
+            _session=session,
+            _mapper=mapper,
+            _wallet_session_mapper=wallet_session_mapper,
+        )
 
     @provide(scope=Scope.REQUEST)
     def provide_sqlalchemy_nonce_repository(

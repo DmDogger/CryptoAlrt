@@ -25,3 +25,6 @@ class PublicationError(InfrastructureError):
 
 class TokenIssueError(InfrastructureError):
     """ raises when occurred error during issue token for subject """
+
+class SessionSaveFailed(InfrastructureError):
+    """Raises when occur error during save a new session """

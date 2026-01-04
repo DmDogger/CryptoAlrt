@@ -4,8 +4,9 @@ from datetime import datetime, UTC
 
 import pytest
 
-from src.infrastructures.database.models.wallet_model import Wallet
+from src.infrastructures.database.models.wallet_model import Wallet, WalletSession
 from src.infrastructures.database.mappers.wallet_mapper import WalletDBMapper
+from src.infrastructures.database.mappers.wallet_session_mapper import WalletSessionDBMapper
 from src.infrastructures.database.mappers.nonce_mapper import NonceDBMapper
 from src.infrastructures.database.models.nonce_model import Nonce
 
@@ -25,8 +26,6 @@ def sample_db_wallet_model(sample_wallet_vo, sample_uuid):
     return Wallet(
         uuid=sample_uuid,
         wallet_address=sample_wallet_vo.value,
-        hashed_refresh_token="test_refresh_token_hash",
-        is_revoked=False,
         last_active=now,
         created_at=now,
     )
@@ -95,3 +94,49 @@ def sample_wallet_db_mapper():
         WalletDBMapper class.
     """
     return WalletDBMapper
+
+
+@pytest.fixture
+def sample_db_wallet_session_model(sample_wallet_vo):
+    """Fixture providing a sample WalletSession database model instance.
+
+    Args:
+        sample_wallet_vo: Fixture providing a valid WalletAddressVO instance.
+
+    Returns:
+        A WalletSession SQLAlchemy model instance with test data.
+    """
+    now = datetime.now(UTC)
+    return WalletSession(
+        wallet_address=sample_wallet_vo.value,
+        device_id=123456789,
+        refresh_token_hash="test_refresh_token_hash_12345",
+        is_revoked=False,
+        created_at=now,
+    )
+
+
+@pytest.fixture
+def wallet_session_db_model(sample_wallet_session_vo):
+    """Fixture providing WalletSessionVO converted to WalletSession database model.
+
+    Args:
+        sample_wallet_session_vo: Fixture providing a valid WalletSessionVO instance.
+
+    Returns:
+        A WalletSession SQLAlchemy model instance converted from WalletSessionVO.
+    """
+    return WalletSessionDBMapper.to_database_model(sample_wallet_session_vo)
+
+
+@pytest.fixture
+def wallet_session_mapper_from_db_model(sample_db_wallet_session_model):
+    """Fixture providing WalletSession database model converted to WalletSessionVO.
+
+    Args:
+        sample_db_wallet_session_model: Fixture providing a valid WalletSession database model instance.
+
+    Returns:
+        A WalletSessionVO domain entity converted from WalletSession database model.
+    """
+    return WalletSessionDBMapper.from_database_model(sample_db_wallet_session_model)
