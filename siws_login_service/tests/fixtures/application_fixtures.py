@@ -13,6 +13,7 @@ from src.application.use_cases.access_token_use_case import AccessTokenIssueUseC
 from src.application.use_cases.refresh_token_use_case import RefreshTokenIssueUseCase
 from src.application.use_cases.tokens_issuer_use_case import TokensIssuerUseCase
 
+from application.use_cases.terminate_sessions_use_case import TerminateSessionsUseCase
 
 
 @pytest.fixture
@@ -111,4 +112,11 @@ def mock_tokens_issuer(
         access_issuer_uc=mock_access_token_use_case,
         refresh_issuer_uc=mock_refresh_token_use_case,
         wallet_repository=fake_wallet_repository,
+    )
+
+@pytest.fixture
+def mock_terminate_sessions_uc(fake_wallet_repository):
+    return TerminateSessionsUseCase(
+        repository=fake_wallet_repository
+
     )
