@@ -1,4 +1,5 @@
 import secrets
+import uuid
 
 import pyscrypt
 import structlog
@@ -40,6 +41,7 @@ class TokensIssuerUseCase:
     async def execute(
         self,
         wallet_address: str,
+
     ) -> TokenPairVO:
         """Issue access and refresh tokens for the given wallet address.
 
@@ -61,8 +63,17 @@ class TokensIssuerUseCase:
                 wallet_address=wallet_address,
             )
 
+            wallet_session = WalletSessionVO.initiate(
+                wallet_address=WalletAddressVO.from_string(
+                    value=wallet_address
+                )
+            )
+
             access_token = self._access_issuer.execute(wallet_address)
-            refresh_token = self._refresh_issuer.execute(wallet_address)
+            refresh_token = self._refresh_issuer.execute(
+                wallet_address=wallet_address,
+                device_id=wallet_session.device_id,
+            )
 
             logger.info(
                 "Tokens issued successfully",
@@ -83,19 +94,17 @@ class TokensIssuerUseCase:
 
             refresh_token_hash = hashed_bytes.hex()
 
-            wallet_session = WalletSessionVO.initiate(
-                wallet_address=WalletAddressVO.from_string(
-                    value=wallet_address,
-                ),
+            wallet_session_w_hashed_token = wallet_session.set_hashed_refresh(
                 refresh_token_hash=refresh_token_hash,
             )
+
 
             logger.info(
                 "Trying to save session to database",
                 wallet_address=wallet_address,
                 device_id=wallet_session.device_id,
             )
-            await self._repository.save_session(wallet_session)
+            await self._repository.save_session(wallet_session_w_hashed_token)
 
             tokens = TokenPairVO.from_string(
                 access_token=access_token,

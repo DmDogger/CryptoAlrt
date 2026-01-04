@@ -2,12 +2,16 @@ import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, UTC
 from typing import final
-from uuid import UUID
+
 
 from src.domain.value_objects.wallet_vo import WalletAddressVO
 
-from src.domain.exceptions import InvalidWalletAddressError, DeviceValidationError, DateValidationError, \
+from src.domain.exceptions import (
+    InvalidWalletAddressError,
+    DeviceValidationError,
+    DateValidationError,
     TokenValidationError
+)
 
 
 @final
@@ -27,8 +31,8 @@ class WalletSessionVO:
         created_at: Session creation timestamp (cannot be in the future)
     """
     wallet_address: WalletAddressVO
-    device_id: int
-    refresh_token_hash: str
+    device_id: str
+    refresh_token_hash: str | None
     is_revoked: bool = field(default=False)
     created_at: datetime
 
@@ -53,37 +57,34 @@ class WalletSessionVO:
                 f"Expected wallet_address to be WalletAddressVO, "
                 f"but got {type(self.wallet_address).__name__}"
             )
-        if not isinstance(self.device_id, int):
+        if not isinstance(self.device_id, str):
             raise DeviceValidationError(
-                f"Expected device_id to be an integer, "
+                f"Expected device_id to be a string, "
                 f"but got {type(self.device_id).__name__}"
             )
-        if self.device_id <= 0:
-            raise DeviceValidationError(
-                f"Expected device_id to be a positive integer, "
-                f"but got {self.device_id}"
-            )
-        if not self.refresh_token_hash:
-            raise TokenValidationError(
-                "Expected refresh_token_hash to be a non-empty string, "
-                "but got an empty value"
-            )
-        if len(self.refresh_token_hash) < 10:
-            raise TokenValidationError(
-                f"Expected refresh_token_hash length to be at least 10 characters, "
-                f"but got {len(self.refresh_token_hash)}"
-            )
+
         if self.created_at > datetime.now(UTC):
             raise DateValidationError(
                 f"Expected created_at to be in the past or present, "
                 f"but got {self.created_at} (future timestamp)"
             )
 
+    def set_hashed_refresh(
+        self,
+        refresh_token_hash: str,
+    ):
+        return WalletSessionVO(
+            wallet_address=self.wallet_address,
+            device_id=self.device_id,
+            refresh_token_hash=refresh_token_hash,
+            is_revoked=self.is_revoked,
+            created_at=self.created_at,
+        )
+
     @classmethod
     def initiate(
         cls,
         wallet_address: WalletAddressVO,
-        refresh_token_hash: str,
     ) -> "WalletSessionVO":
         """
         Creates a new wallet session.
@@ -94,7 +95,6 @@ class WalletSessionVO:
 
         Args:
             wallet_address: Wallet address for session creation
-            refresh_token_hash: Refresh token hash
 
         Returns:
             WalletSessionVO: New wallet session instance
@@ -106,8 +106,8 @@ class WalletSessionVO:
         """
         return cls(
             wallet_address=wallet_address,
-            device_id=uuid.getnode(),
-            refresh_token_hash=refresh_token_hash,
+            device_id=str(uuid.getnode()),
+            refresh_token_hash=None,
             is_revoked=False,
             created_at=datetime.now(UTC),
         )

@@ -1,7 +1,7 @@
 import pytest
 from freezegun import freeze_time
 
-from src.domain.exceptions import TokenValidationError
+from src.domain.exceptions import DeviceValidationError
 
 
 class TestWalletSessionVO:
@@ -20,7 +20,7 @@ class TestWalletSessionVO:
         assert revoked.is_revoked is True
 
     def test_raises_token_validation_error(self, wallet_session_with_custom_fields):
-        with pytest.raises(TokenValidationError):
+        with pytest.raises(DeviceValidationError):
             wallet_session_with_custom_fields(
                 wallet_address="5cRypRAdKEUtMCyFdqtEifWER5GMCfVnhZ8EUtcB7Sc3",
                 refresh_token_hash="vv",

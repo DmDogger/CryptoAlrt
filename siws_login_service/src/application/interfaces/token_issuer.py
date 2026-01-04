@@ -43,6 +43,7 @@ class RefreshTokenIssuerProtocol(Protocol):
     def issue(
         self,
         sub: str,
+        device_id: str | int,
         iss: str | None = None,
         ttl: int | None = None,
     ) -> str:
@@ -53,6 +54,7 @@ class RefreshTokenIssuerProtocol(Protocol):
 
         Args:
             sub: Subject identifier (typically wallet address or user ID).
+            device_id: User's device ID.
             iss: Issuer identifier. Defaults to application default if not provided.
             ttl: Time to live in minutes. Uses default from settings if not provided.
 

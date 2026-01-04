@@ -109,7 +109,7 @@ def sample_db_wallet_session_model(sample_wallet_vo):
     now = datetime.now(UTC)
     return WalletSession(
         wallet_address=sample_wallet_vo.value,
-        device_id=123456789,
+        device_id="123456789",
         refresh_token_hash="test_refresh_token_hash_12345",
         is_revoked=False,
         created_at=now,

@@ -50,7 +50,7 @@ class TestJWTRefreshIssuer:
         Args:
             mock_refresh_issuer: Fixture providing JWTRefreshIssuer with test settings.
         """
-        result_jwt = mock_refresh_issuer.issue(sub="test_sub_refresh", ttl=3)
+        result_jwt = mock_refresh_issuer.issue(sub="test_sub_refresh", device_id="str", ttl=3)
 
         assert result_jwt is not None
         assert isinstance(result_jwt, str)

@@ -126,6 +126,7 @@ class JWTRefreshIssuer(RefreshTokenIssuerProtocol):
     def issue(
         self,
         sub: str,
+        device_id: str | int,
         iss: str | None = None,
         ttl: int | None = None,
     ) -> str:
@@ -138,6 +139,7 @@ class JWTRefreshIssuer(RefreshTokenIssuerProtocol):
             sub: Subject identifier (typically wallet address or user ID).
             iss: Issuer identifier. Defaults to "cryptoalrt.io" if not provided.
             ttl: Time to live in minutes. Uses default from settings if not provided.
+            device_id: user's device ID
 
         Returns:
             Encoded JWT token string.
@@ -164,7 +166,7 @@ class JWTRefreshIssuer(RefreshTokenIssuerProtocol):
                 "exp": exp_time,
                 "iss": iss if iss else "cryptoalrt.io",
                 "iat": datetime.now(UTC),
-                "jti": str(uuid.uuid4()),
+                "jti": device_id,
             }
 
             logger.debug(

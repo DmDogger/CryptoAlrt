@@ -152,9 +152,8 @@ class TestWalletRepository:
         res = await fake_wallet_repository.save_session(sample_wallet_session_vo)
 
         assert res is not None
-        assert res.device_id == 113154126182590
+        assert res.device_id == "113154126182590"
         assert res.is_revoked is False
-        assert res.refresh_token_hash == "RefreshTokenHashHere"
 
     @pytest.mark.asyncio
     async def test_revoke_session_works(

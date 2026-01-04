@@ -26,6 +26,7 @@ class RefreshTokenIssueUseCase:
     def execute(
         self,
         wallet_address: str,
+        device_id: str,
     ) -> str:
         """Issue a JWT refresh token for the given wallet address.
 
@@ -34,6 +35,7 @@ class RefreshTokenIssueUseCase:
         as the subject.
 
         Args:
+            device_id: user's device
             wallet_address: The wallet address to issue token for.
 
         Returns:
@@ -48,7 +50,10 @@ class RefreshTokenIssueUseCase:
                 wallet_address=wallet_address,
             )
 
-            refresh_token = self._issuer.issue(sub=wallet_address)
+            refresh_token = self._issuer.issue(
+                sub=wallet_address,
+                device_id=device_id,
+            )
 
             logger.info(
                 "Refresh token issued successfully",

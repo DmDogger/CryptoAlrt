@@ -79,8 +79,8 @@ class WalletSession(Base):
         String(500),
         nullable=False,
     )
-    device_id: Mapped[int] = mapped_column(
-        Integer,
+    device_id: Mapped[str] = mapped_column(
+        String,
         primary_key=True,
         index=True,
         nullable=False,

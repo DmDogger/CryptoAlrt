@@ -114,7 +114,6 @@ def sample_token_vo():
 def sample_wallet_session_vo(sample_wallet_vo):
     return WalletSessionVO.initiate(
         wallet_address=sample_wallet_vo,
-        refresh_token_hash="RefreshTokenHashHere"
     )
 
 @pytest.fixture

@@ -368,7 +368,7 @@ class SQLAlchemyWalletRepository(WalletRepositoryProtocol):
     async def revoke_single_session(
         self,
         wallet_address: str,
-        device_id: int,
+        device_id: str,
     ) -> WalletSessionVO:
         """Revoke a single wallet session by wallet address and device ID.
 
