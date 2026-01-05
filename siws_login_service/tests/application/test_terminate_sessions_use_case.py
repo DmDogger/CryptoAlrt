@@ -11,7 +11,6 @@ class TestTerminateSessionsUC:
         mock_terminate_sessions_uc
     ):
 
-
         wallet_address = sample_wallet_entity.wallet_address.value
         await fake_wallet_repository.create_wallet(sample_wallet_entity)
         await fake_wallet_repository.save_session(sample_wallet_session_vo)

@@ -15,6 +15,8 @@ from src.infrastructures.exceptions import (
     InfrastructureError,
 )
 
+from src.domain.value_objects.token_vo import TokenPairVO
+
 
 class TestVerifySignature:
     """Tests for VerifySignatureUseCase."""
@@ -34,7 +36,7 @@ class TestVerifySignature:
         )
 
         assert result is not None
-        assert result is created_nonce.wallet_address.value
+        assert isinstance(result, TokenPairVO)
 
     @pytest.mark.asyncio
     async def test_no_active_nonce_raises(

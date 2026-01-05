@@ -12,6 +12,10 @@ from src.infrastructures.exceptions import (
     InfrastructureError,
 )
 
+from src.application.use_cases.tokens_issuer_use_case import TokensIssuerUseCase
+
+from src.domain.value_objects.token_vo import TokenPairVO
+
 logger = structlog.getLogger(__name__)
 
 
@@ -33,6 +37,7 @@ class VerifySignatureUseCase:
         self,
         nonce_repository: NonceRepositoryProtocol,
         signature_verifier: SignatureVerifier,
+        issuer : TokensIssuerUseCase,
     ) -> None:
         """Initialize the use case with required dependencies.
 
@@ -42,12 +47,13 @@ class VerifySignatureUseCase:
         """
         self._repository = nonce_repository
         self._verifier = signature_verifier
+        self._issuer = issuer
 
     async def execute(
         self,
         signature: str,
         wallet_address: str,
-    ) -> str:
+    ) -> TokenPairVO:
         """Verify wallet signature and mark nonce as used.
 
         Verifies the cryptographic signature provided by the wallet against
@@ -140,7 +146,10 @@ class VerifySignatureUseCase:
                 nonce_uuid=str(deactivated_nonce.uuid),
             )
 
-            return deactivated_nonce.wallet_address.value
+            tokens = await self._issuer.execute(
+                wallet_address=deactivated_nonce.wallet_address.value
+            )
+            return tokens
 
         except NonceNotFoundError as e:
             logger.warning(

@@ -364,8 +364,64 @@ class SQLAlchemyWalletRepository(WalletRepositoryProtocol):
                 f"{wallet_address}: {e}"
             ) from e
 
+    async def get_session_by_device_id(
+        self,
+        wallet_address: str,
+        device_id: str,
+    ) -> WalletSessionVO | None:
+        try:
+            logger.info(
+                "Trying to find active session by device ID",
+                wallet_address=wallet_address,
+                device_id=device_id,
+            )
+            stmt = (
+                select(WalletSession)
+                .where(
+                    WalletSession.wallet_address == wallet_address,
+                    WalletSession.device_id == device_id,
+                    WalletSession.is_revoked == False,
+                )
+            )
+            result = await self._session.execute(stmt)
+            session = result.scalar_one_or_none()
 
-    async def revoke_single_session(
+            if session is None:
+                logger.error(
+                    "User session not found",
+                    wallet_address=wallet_address,
+                    device_id=device_id,
+                )
+                raise SessionError("Cannot find session")
+
+            return self._wallet_session_mapper.from_database_model(session)
+        except SQLAlchemyError as e:
+            logger.error(
+                "Database error during wallet session retrieval",
+                wallet_address=wallet_address,
+                device_id=device_id,
+                error=str(e),
+                exc_info=True,
+            )
+            raise SessionError(
+                f"Failed to retrieve wallet sessions for wallet address "
+                f"{wallet_address}: database operation failed"
+            ) from e
+        except Exception as e:
+            logger.error(
+                "Unexpected error during wallet sessions retrieval",
+                wallet_address=wallet_address,
+                device_id=device_id,
+                error=str(e),
+                exc_info=True,
+            )
+            raise SessionError(
+                f"Unexpected error while retrieving wallet sessions for wallet address "
+                f"{wallet_address}: {e}"
+            ) from e
+
+
+async def revoke_single_session(
         self,
         wallet_address: str,
         device_id: str,
@@ -466,7 +522,7 @@ class SQLAlchemyWalletRepository(WalletRepositoryProtocol):
                 f"{wallet_address} and device_id {device_id}: {e}"
             ) from e
 
-    async def terminate_all_sessions(
+async def terminate_all_sessions(
         self,
         wallet_address: str,
     ) -> list[WalletSessionVO]:

@@ -30,18 +30,21 @@ def asyncmock_signature_verifier():
     return verifier
 
 @pytest.fixture
-def asyncmock_verify_signature_uc(fake_nonce_repository, asyncmock_signature_verifier):
+def asyncmock_verify_signature_uc(fake_nonce_repository, asyncmock_signature_verifier, mock_tokens_issuer):
     return VerifySignatureUseCase(
         nonce_repository=fake_nonce_repository,
         signature_verifier=asyncmock_signature_verifier,
+        issuer=mock_tokens_issuer,
     )
 
 
 @pytest.fixture
-def mock_verify_signature_uc(fake_nonce_repository, mock_signature_verifier):
+def mock_verify_signature_uc(fake_nonce_repository, mock_signature_verifier, mock_tokens_issuer):
     return VerifySignatureUseCase(
         nonce_repository=fake_nonce_repository,
         signature_verifier=AsyncMock(spec=SignatureVerifier),
+        issuer=mock_tokens_issuer,
+
     )
 
 @pytest.fixture

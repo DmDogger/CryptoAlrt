@@ -6,6 +6,7 @@ from src.infrastructures.providers import (
     BrokerProvider,
     CryptoProvider,
     DatabaseProvider,
+    JWTProvider,
     UseCaseProvider,
 )
 
@@ -16,5 +17,6 @@ def create_container() -> AsyncContainer:
         DatabaseProvider(),
         CryptoProvider(),
         BrokerProvider(),
+        JWTProvider(),
         UseCaseProvider(),
     )

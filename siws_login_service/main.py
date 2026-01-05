@@ -9,6 +9,7 @@ from dishka.integrations.fastapi import setup_dishka
 from src.config.cors import CORSSettings
 from src.infrastructures.di_container import create_container
 from src.presentation.api.v1.controllers.siws import router as siws_router
+from src.presentation.exceptions import register_exception_handlers
 
 logger = structlog.getLogger(__name__)
 
@@ -30,7 +31,6 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Configure CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_settings.cors_origins,
@@ -41,6 +41,8 @@ app.add_middleware(
 
 setup_dishka(container, app)
 app.include_router(siws_router, prefix="/api/v1", tags=["SIWS"])
+
+register_exception_handlers(app)
 
 
 if __name__ == "__main__":

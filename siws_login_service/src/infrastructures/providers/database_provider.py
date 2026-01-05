@@ -102,3 +102,21 @@ class DatabaseProvider(Provider):
         rather than the protocol.
         """
         return SQLAlchemyNonceRepository(_session=session, _mapper=mapper)
+
+    @provide(scope=Scope.REQUEST)
+    def provide_sqlalchemy_wallet_repository(
+        self,
+        session: AsyncSession,
+        mapper: WalletDBMapper,
+        wallet_session_mapper: WalletSessionDBMapper,
+    ) -> SQLAlchemyWalletRepository:
+        """Provide SQLAlchemyWalletRepository instance (concrete type).
+        
+        This is needed for TerminateSessionsUseCase which requires the concrete type
+        rather than the protocol.
+        """
+        return SQLAlchemyWalletRepository(
+            _session=session,
+            _mapper=mapper,
+            _wallet_session_mapper=wallet_session_mapper,
+        )

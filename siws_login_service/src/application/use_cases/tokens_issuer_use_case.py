@@ -41,7 +41,6 @@ class TokensIssuerUseCase:
     async def execute(
         self,
         wallet_address: str,
-
     ) -> TokenPairVO:
         """Issue access and refresh tokens for the given wallet address.
 
