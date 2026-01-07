@@ -4,9 +4,10 @@ from dataclasses import dataclass
 from datetime import datetime, UTC
 from decimal import Decimal
 from typing import final
+from uuid import UUID, uuid4
 
-from src.domain.exceptions import DomainValidationError
-from src.domain.events.price_updated import PriceUpdatedEvent
+from domain.exceptions import DomainValidationError
+from domain.events.price_updated import PriceUpdatedEvent
 
 
 @final
@@ -23,13 +24,15 @@ class MPEntity:
         price: Current price as Decimal.
         timestamp: Timestamp when the price was recorded.
     """
+
+    id: UUID
     cryptocurrency: str
     name: str
     price: Decimal
     timestamp: datetime
 
     def __post_init__(self):
-        if not len(self.cryptocurrency) < 3 or not len(self.cryptocurrency) < 10:
+        if not (3 <= len(self.cryptocurrency) <= 10):
             raise DomainValidationError(
                 "Cryptocurrency's ticker must be between 3 and 10 symbols"
                 f"But got: {len(self.cryptocurrency)}"
@@ -44,7 +47,7 @@ class MPEntity:
                 f"Created at time must cannot be in the future"
                 f"Timestamp now: {datetime.now(UTC)}, time you selected: {self.timestamp}"
             )
-    
+
     @staticmethod
     def from_event(event: PriceUpdatedEvent) -> "MPEntity":
         """Create MPEntity from PriceUpdatedEvent.
@@ -56,6 +59,7 @@ class MPEntity:
             A new MPEntity instance created from the event data.
         """
         return MPEntity(
+            id=uuid4(),
             cryptocurrency=event.cryptocurrency,
             name=event.name,
             price=event.price,

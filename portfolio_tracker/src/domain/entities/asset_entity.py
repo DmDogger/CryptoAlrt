@@ -6,7 +6,7 @@ from decimal import Decimal
 from typing import final
 from uuid import UUID, uuid4
 
-from src.domain.exceptions import DomainValidationError
+from domain.exceptions import DomainValidationError
 
 
 @final

@@ -1,0 +1,4 @@
+[tool.pytest.ini_options]
+pythonpath = [".", "src"]
+testpaths = ["tests"]
+norecursedirs = [".git", ".pytest_cache", "__pycache__", "*.egg"]

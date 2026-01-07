@@ -19,16 +19,17 @@ class PriceUpdatedEvent:
     price: str | int | float | Decimal
     timestamp: str | datetime
 
-    def from_raw(self) -> "PriceUpdatedEvent":
+    @classmethod
+    def from_raw(cls, data: dict) -> "PriceUpdatedEvent":
         """Convert price and timestamp to proper types.
 
         Returns:
             A new PriceUpdatedEvent with Decimal price and ISO format timestamp.
         """
-        return PriceUpdatedEvent(
-            id=self.id,
-            cryptocurrency=self.cryptocurrency,
-            name=self.name,
-            price=Decimal(self.price),
-            timestamp=self.timestamp.isoformat()
+        return cls(
+            id=str(data["id"]),
+            cryptocurrency=str(data["cryptocurrency"]),
+            name=str(data.get("name", "")),
+            price=Decimal(str(data["price"])),
+            timestamp=datetime.fromisoformat(data["timestamp"]),
         )
