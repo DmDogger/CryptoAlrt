@@ -6,7 +6,9 @@ import pytest
 
 from src.infrastructures.database.models.wallet_model import Wallet, WalletSession
 from src.infrastructures.database.mappers.wallet_mapper import WalletDBMapper
-from src.infrastructures.database.mappers.wallet_session_mapper import WalletSessionDBMapper
+from src.infrastructures.database.mappers.wallet_session_mapper import (
+    WalletSessionDBMapper,
+)
 from src.infrastructures.database.mappers.nonce_mapper import NonceDBMapper
 from src.infrastructures.database.models.nonce_model import Nonce
 
@@ -30,14 +32,14 @@ def sample_db_wallet_model(sample_wallet_vo, sample_uuid):
         created_at=now,
     )
 
+
 @pytest.fixture
 def nonce_db_model(sample_nonce_entity):
     return NonceDBMapper.to_database_model(sample_nonce_entity)
 
+
 @pytest.fixture
-def nonce_custom_nonce_db_model(
-        sample_uuid
-):
+def nonce_custom_nonce_db_model(sample_uuid):
     def _create(
         expiration_time: int | None = 5,
         used_at: datetime | None = None,
@@ -45,18 +47,17 @@ def nonce_custom_nonce_db_model(
         version: int | None = 1,
     ):
         return Nonce(
-        domain="domain",
-        statement="Solana statement test test",
-        uri="uri",
-        version=version,
-        uuid=sample_uuid,
-        wallet_address="Base58address",
-        expiration_time=expiration_time,
-        used_at=used_at,
-        issued_at=issued_at,
+            domain="domain",
+            statement="Solana statement test test",
+            uri="uri",
+            version=version,
+            uuid=sample_uuid,
+            wallet_address="Base58address",
+            expiration_time=expiration_time,
+            used_at=used_at,
+            issued_at=issued_at,
+        )
 
-
-    )
     return _create
 
 

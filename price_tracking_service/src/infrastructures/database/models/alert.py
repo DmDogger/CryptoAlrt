@@ -2,7 +2,16 @@ import uuid
 from datetime import datetime
 from decimal import Decimal
 
-from sqlalchemy import UUID as PG_UUID, String, DateTime, func, Boolean, Numeric, ForeignKey, BigInteger
+from sqlalchemy import (
+    UUID as PG_UUID,
+    String,
+    DateTime,
+    func,
+    Boolean,
+    Numeric,
+    ForeignKey,
+    BigInteger,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
@@ -10,6 +19,7 @@ from .base import Base
 
 class Alert(Base):
     """SQLAlchemy model for Alert data."""
+
     __tablename__ = "alerts"
 
     id: Mapped[uuid.UUID] = mapped_column(
@@ -17,21 +27,22 @@ class Alert(Base):
         primary_key=True,
         unique=True,
         nullable=False,
-        default=uuid.uuid4
+        default=uuid.uuid4,
     )
     email: Mapped[str] = mapped_column(String(100), nullable=False)
     telegram_id: Mapped[int] = mapped_column(BigInteger, nullable=True)
     cryptocurrency_id: Mapped[uuid.UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
-        ForeignKey('cryptocurrency.id'),
-        nullable=False
+        PG_UUID(as_uuid=True), ForeignKey("cryptocurrency.id"), nullable=False
     )
-    threshold_price: Mapped[Decimal] = mapped_column(Numeric(precision=10, scale=2), nullable=False)
+    threshold_price: Mapped[Decimal] = mapped_column(
+        Numeric(precision=10, scale=2), nullable=False
+    )
     is_triggered: Mapped[bool] = mapped_column(Boolean, nullable=True, default=False)
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
 
-    cryptocurrency: Mapped['Cryptocurrency'] = relationship(
-        'Cryptocurrency',
-        back_populates='alerts'
+    cryptocurrency: Mapped["Cryptocurrency"] = relationship(
+        "Cryptocurrency", back_populates="alerts"
     )

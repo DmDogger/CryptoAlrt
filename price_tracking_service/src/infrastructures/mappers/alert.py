@@ -36,12 +36,10 @@ class InfrastructureAlertMapper(SerializationMapperProtocol):
         Converts dictionary back to AlertDTO for deserialization.
         """
         return AlertDTO(
-            id=UUID(data['id']),
-            email=data['email'],
-            cryptocurrency=data['cryptocurrency'],
-            threshold_price=ThresholdValueObject.from_dict(data['threshold_price']),
-            is_active=data['is_active'],
-            created_at=datetime.fromisoformat(data['created_at']),
+            id=UUID(data["id"]),
+            email=data["email"],
+            cryptocurrency=data["cryptocurrency"],
+            threshold_price=ThresholdValueObject.from_dict(data["threshold_price"]),
+            is_active=data["is_active"],
+            created_at=datetime.fromisoformat(data["created_at"]),
         )
-
-

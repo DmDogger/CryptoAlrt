@@ -1,7 +1,9 @@
 import structlog
 from sqlalchemy.exc import IntegrityError
 
-from src.infrastructures.database.repositories.wallet_repository import SQLAlchemyWalletRepository
+from src.infrastructures.database.repositories.wallet_repository import (
+    SQLAlchemyWalletRepository,
+)
 from src.infrastructures.exceptions import (
     WalletNotFoundError,
     SessionError,
@@ -117,4 +119,3 @@ class RevokeSessionUseCase:
                 f"for address: {wallet_address}, "
                 f"device id: {device_id}"
             ) from e
-

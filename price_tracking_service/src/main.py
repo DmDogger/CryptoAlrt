@@ -11,7 +11,9 @@ from config.cors import CORSSettings
 from infrastructures.di_container import create_container
 from infrastructures.tasks.tasks import kafka_broker, taskiq_broker
 from presentation.api.v1.controllers.alert import router as alert_router
-from presentation.api.v1.controllers.cryptocurrency import router as cryptocurrency_router
+from presentation.api.v1.controllers.cryptocurrency import (
+    router as cryptocurrency_router,
+)
 
 logger = structlog.getLogger(__name__)
 
@@ -51,7 +53,7 @@ fastapi_app = FastAPI(
     title="CryptoAlert by DmDogger",
     description="service.__name__",
     version="1.0.0",
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 # Configure CORS
@@ -78,13 +80,5 @@ if __name__ == "__main__":
     import uvicorn
 
     uvicorn.run(
-            "main:fastapi_app",
-            host="0.0.0.0",
-            port=8002,
-            reload=True,
-            log_level="info"
-        )
-
-
-
-
+        "main:fastapi_app", host="0.0.0.0", port=8002, reload=True, log_level="info"
+    )

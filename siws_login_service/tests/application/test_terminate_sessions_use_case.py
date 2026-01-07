@@ -8,7 +8,7 @@ class TestTerminateSessionsUC:
         sample_wallet_session_vo,
         sample_wallet_entity,
         fake_wallet_repository,
-        mock_terminate_sessions_uc
+        mock_terminate_sessions_uc,
     ):
 
         wallet_address = sample_wallet_entity.wallet_address.value

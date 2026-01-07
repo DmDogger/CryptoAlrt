@@ -12,9 +12,7 @@ class TestPriceUpdatedEvent:
         """Test creating a valid price updated event."""
         timestamp = datetime.now(UTC)
         event = PriceUpdatedEvent(
-            cryptocurrency="BTC",
-            price=Decimal("50000"),
-            timestamp=timestamp
+            cryptocurrency="BTC", price=Decimal("50000"), timestamp=timestamp
         )
 
         assert event.cryptocurrency == "BTC"
@@ -25,9 +23,7 @@ class TestPriceUpdatedEvent:
         """Test serialization to dict."""
         timestamp = datetime(2023, 1, 1, tzinfo=UTC)
         event = PriceUpdatedEvent(
-            cryptocurrency="BTC",
-            price=Decimal("50000"),
-            timestamp=timestamp
+            cryptocurrency="BTC", price=Decimal("50000"), timestamp=timestamp
         )
 
         data = event.to_dict()
@@ -41,11 +37,7 @@ class TestPriceUpdatedEvent:
     def test_event_from_dict(self):
         """Test deserialization from dict."""
         timestamp_str = "2023-01-01T00:00:00+00:00"
-        data = {
-            "cryptocurrency": "BTC",
-            "price": "50000",
-            "timestamp": timestamp_str
-        }
+        data = {"cryptocurrency": "BTC", "price": "50000", "timestamp": timestamp_str}
 
         event = PriceUpdatedEvent.from_dict(data)
         assert event.id is not None  # Should be generated
@@ -57,9 +49,7 @@ class TestPriceUpdatedEvent:
     def test_event_immutable(self):
         """Test that PriceUpdatedEvent is immutable."""
         event = PriceUpdatedEvent(
-            cryptocurrency="BTC",
-            price=Decimal("50000"),
-            timestamp=datetime.now(UTC)
+            cryptocurrency="BTC", price=Decimal("50000"), timestamp=datetime.now(UTC)
         )
 
         with pytest.raises(AttributeError):

@@ -81,4 +81,3 @@ class RefreshTokenIssueUseCase:
             raise TokenIssueError(
                 f"Unexpected error during refresh token issuance: {e}"
             ) from e
-

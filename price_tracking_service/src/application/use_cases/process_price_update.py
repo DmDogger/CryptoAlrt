@@ -2,14 +2,16 @@ import structlog
 from decimal import Decimal
 
 from application.use_cases.fetch_and_save_to_database import FetchAndSaveUseCase
-from application.use_cases.publish_price_update_to_broker import PublishPriceUpdateToBrokerUseCase
+from application.use_cases.publish_price_update_to_broker import (
+    PublishPriceUpdateToBrokerUseCase,
+)
 from application.use_cases.check_threshold import CheckThresholdUseCase
 from domain.entities.cryptocurrency import CryptocurrencyEntity
 from domain.exceptions import (
     UnsuccessfullyCoinGeckoAPICall,
     RepositoryError,
     PublishError,
-    UnexpectedError
+    UnexpectedError,
 )
 
 logger = structlog.getLogger(__name__)
@@ -29,12 +31,12 @@ class ProcessPriceUpdateUseCase:
         _publish_price_updated_use_case: Use case for publishing price updates.
         _check_threshold_use_case: Use case for checking alert thresholds.
     """
-    
+
     def __init__(
-            self,
-            fetch_and_save_use_case: FetchAndSaveUseCase,
-            publish_price_updated_use_case: PublishPriceUpdateToBrokerUseCase,
-            check_threshold_use_case: CheckThresholdUseCase,
+        self,
+        fetch_and_save_use_case: FetchAndSaveUseCase,
+        publish_price_updated_use_case: PublishPriceUpdateToBrokerUseCase,
+        check_threshold_use_case: CheckThresholdUseCase,
     ):
         """Initialize the use case with required dependencies.
 
@@ -48,8 +50,8 @@ class ProcessPriceUpdateUseCase:
         self._check_threshold_use_case = check_threshold_use_case
 
     async def execute(
-            self,
-            coin_id: str,
+        self,
+        coin_id: str,
     ) -> tuple[CryptocurrencyEntity, Decimal]:
         """Execute the complete price update workflow.
 
@@ -73,11 +75,14 @@ class ProcessPriceUpdateUseCase:
 
         """
         try:
-            logger.info(f"[ProcessPriceUpdate]: Starting price update workflow for {coin_id}")
-            
+            logger.info(
+                f"[ProcessPriceUpdate]: Starting price update workflow for {coin_id}"
+            )
 
             logger.info(f"[Info]: Fetching price from CoinGecko and saving to database")
-            crypto_entity, current_price = await self._fetch_and_save_use_case.execute(coin_id=coin_id)
+            crypto_entity, current_price = await self._fetch_and_save_use_case.execute(
+                coin_id=coin_id
+            )
             logger.info(
                 f"[Info]: Successfully fetched and saved {crypto_entity.symbol} "
                 f"(ID: {crypto_entity.id}) at ${current_price} USD"
@@ -85,23 +90,23 @@ class ProcessPriceUpdateUseCase:
 
             logger.info(f"[Step 2/3]: Publishing price update event to Kafka")
             await self._publish_price_updated_use_case.execute(
-                cryptocurrency_id=crypto_entity.id,
-                new_price=current_price
+                cryptocurrency_id=crypto_entity.id, new_price=current_price
             )
             logger.info(f"[Info]: Successfully published price update to Kafka")
 
             logger.info(f"[Step 3/3]: Checking alert thresholds")
             await self._check_threshold_use_case.execute(
-                cryptocurrency=crypto_entity.symbol,
-                current_price=current_price
+                cryptocurrency=crypto_entity.symbol, current_price=current_price
             )
-            logger.info(f"[Info]: Successfully checked thresholds for {crypto_entity.symbol}")
+            logger.info(
+                f"[Info]: Successfully checked thresholds for {crypto_entity.symbol}"
+            )
 
             logger.info(
                 f"[ProcessPriceUpdate]: Complete workflow finished for {crypto_entity.symbol} "
                 f"at ${current_price} USD"
             )
-            
+
             return crypto_entity, current_price
 
         except UnsuccessfullyCoinGeckoAPICall as e:
@@ -125,8 +130,8 @@ class ProcessPriceUpdateUseCase:
         except Exception as e:
             logger.error(
                 f"[ProcessPriceUpdate]: Unexpected error during price update workflow for {coin_id}: {e}",
-                exc_info=True
+                exc_info=True,
             )
-            raise UnexpectedError(f"Unexpected error during price update for {coin_id}: {str(e)}") from e
-
-
+            raise UnexpectedError(
+                f"Unexpected error during price update for {coin_id}: {str(e)}"
+            ) from e

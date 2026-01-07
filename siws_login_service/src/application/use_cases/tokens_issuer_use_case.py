@@ -9,7 +9,9 @@ from src.application.use_cases.refresh_token_use_case import RefreshTokenIssueUs
 from src.domain.exceptions import TokenValidationError
 from src.domain.value_objects.token_vo import TokenPairVO
 from src.infrastructures.exceptions import InfrastructureError
-from src.infrastructures.database.repositories.wallet_repository import SQLAlchemyWalletRepository
+from src.infrastructures.database.repositories.wallet_repository import (
+    SQLAlchemyWalletRepository,
+)
 from src.domain.value_objects.wallet_session_vo import WalletSessionVO
 from src.domain.value_objects.wallet_vo import WalletAddressVO
 
@@ -63,9 +65,7 @@ class TokensIssuerUseCase:
             )
 
             wallet_session = WalletSessionVO.initiate(
-                wallet_address=WalletAddressVO.from_string(
-                    value=wallet_address
-                )
+                wallet_address=WalletAddressVO.from_string(value=wallet_address)
             )
 
             access_token = self._access_issuer.execute(wallet_address)
@@ -78,9 +78,9 @@ class TokensIssuerUseCase:
                 "Tokens issued successfully",
                 wallet_address=wallet_address,
             )
-            #TODO: добавить wallet_repo, будем добавлять сессию в репозиторий
-            #TODO: scrypt тоже (хешируем токен)
-            #TODO: добавляем сессию при выпуске токенов
+            # TODO: добавить wallet_repo, будем добавлять сессию в репозиторий
+            # TODO: scrypt тоже (хешируем токен)
+            # TODO: добавляем сессию при выпуске токенов
 
             hashed_bytes = pyscrypt.hash(
                 password=refresh_token.encode(),
@@ -96,7 +96,6 @@ class TokensIssuerUseCase:
             wallet_session_w_hashed_token = wallet_session.set_hashed_refresh(
                 refresh_token_hash=refresh_token_hash,
             )
-
 
             logger.info(
                 "Trying to save session to database",

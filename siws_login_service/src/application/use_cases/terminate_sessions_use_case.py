@@ -1,7 +1,9 @@
 import structlog
 from typing import TYPE_CHECKING
 
-from src.infrastructures.database.repositories.wallet_repository import SQLAlchemyWalletRepository
+from src.infrastructures.database.repositories.wallet_repository import (
+    SQLAlchemyWalletRepository,
+)
 from src.infrastructures.exceptions import (
     WalletNotFoundError,
     SessionError,

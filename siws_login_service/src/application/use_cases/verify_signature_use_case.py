@@ -37,7 +37,7 @@ class VerifySignatureUseCase:
         self,
         nonce_repository: NonceRepositoryProtocol,
         signature_verifier: SignatureVerifier,
-        issuer : TokensIssuerUseCase,
+        issuer: TokensIssuerUseCase,
     ) -> None:
         """Initialize the use case with required dependencies.
 
@@ -118,9 +118,7 @@ class VerifySignatureUseCase:
                     "Signature verification failed",
                     wallet_address=wallet_address,
                 )
-                raise SignatureVerificationFailed(
-                    "Cannot confirm user's signature"
-                )
+                raise SignatureVerificationFailed("Cannot confirm user's signature")
 
             logger.info(
                 "Signature verified successfully",

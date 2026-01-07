@@ -35,15 +35,12 @@ class KafkaEventPublisher(EventPublisherProtocol):
             PublishError: If publishing fails.
         """
         try:
-            await self.broker.publish(
-                message=event,
-                topic=topic
-            )
-            
+            await self.broker.publish(message=event, topic=topic)
+
             logger.info(
                 "Event published successfully",
                 topic=topic,
-                event_type=type(event).__name__
+                event_type=type(event).__name__,
             )
         except Exception as e:
             logger.error(
@@ -51,13 +48,8 @@ class KafkaEventPublisher(EventPublisherProtocol):
                 error=str(e),
                 topic=topic,
                 event_type=type(event).__name__,
-                exc_info=True
+                exc_info=True,
             )
             raise PublishError(
                 f"Failed to publish event to topic '{topic}': {e}"
             ) from e
-
-
-
-
-

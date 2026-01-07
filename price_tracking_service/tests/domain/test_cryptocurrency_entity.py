@@ -16,7 +16,7 @@ class TestCryptocurrencyEntity:
             symbol="BTC",
             name="Bitcoin",
             coingecko_id="bitcoin",
-            created_at=datetime.now(UTC)
+            created_at=datetime.now(UTC),
         )
 
         assert crypto.symbol == "BTC"
@@ -28,9 +28,7 @@ class TestCryptocurrencyEntity:
         # Factory method create() is not implemented in CryptocurrencyEntity
         # Creating directly instead
         crypto = CryptocurrencyEntity(
-            symbol="ETH",
-            name="Ethereum",
-            coingecko_id="ethereum"
+            symbol="ETH", name="Ethereum", coingecko_id="ethereum"
         )
 
         assert crypto.symbol == "ETH"
@@ -45,7 +43,7 @@ class TestCryptocurrencyEntity:
                 symbol="BT",
                 name="Bitcoin",
                 coingecko_id="bitcoin",
-                created_at=datetime.now(UTC)
+                created_at=datetime.now(UTC),
             )
 
     def test_cryptocurrency_invalid_symbol_too_long(self):
@@ -56,7 +54,7 @@ class TestCryptocurrencyEntity:
                 symbol="VERYLONGCRYPTOSYMBOL",
                 name="Bitcoin",
                 coingecko_id="bitcoin",
-                created_at=datetime.now(UTC)
+                created_at=datetime.now(UTC),
             )
 
     def test_cryptocurrency_invalid_symbol_lowercase(self):
@@ -68,18 +66,20 @@ class TestCryptocurrencyEntity:
                 symbol="btc",
                 name="Bitcoin",
                 coingecko_id="bitcoin",
-                created_at=datetime.now(UTC)
+                created_at=datetime.now(UTC),
             )
 
     def test_cryptocurrency_invalid_name_too_short(self):
         """Test that name shorter than 2 characters raises error."""
-        with pytest.raises(DomainValidationError, match="Name must be at least 2 characters"):
+        with pytest.raises(
+            DomainValidationError, match="Name must be at least 2 characters"
+        ):
             CryptocurrencyEntity(
                 id=uuid4(),
                 symbol="BTC",
                 name="B",
                 coingecko_id="bitcoin",
-                created_at=datetime.now(UTC)
+                created_at=datetime.now(UTC),
             )
 
     def test_cryptocurrency_to_dict(self):
@@ -91,7 +91,7 @@ class TestCryptocurrencyEntity:
             symbol="BTC",
             name="Bitcoin",
             coingecko_id="bitcoin",
-            created_at=datetime(2023, 1, 1, tzinfo=UTC)
+            created_at=datetime(2023, 1, 1, tzinfo=UTC),
         )
 
         assert str(crypto.id)  # Can be converted to string
@@ -106,7 +106,7 @@ class TestCryptocurrencyEntity:
             symbol="BTC",
             name="Bitcoin",
             coingecko_id="bitcoin",
-            created_at=datetime.now(UTC)
+            created_at=datetime.now(UTC),
         )
 
         with pytest.raises(AttributeError):

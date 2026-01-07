@@ -9,9 +9,17 @@ from infrastructures.database.models.notification import Notification
 class NotificationDBMapper:
     @staticmethod
     def to_dict(dto: NotificationEntity) -> dict:
-        created_at = dto.created_at.replace(tzinfo=None) if dto.created_at and dto.created_at.tzinfo else dto.created_at
-        sent_at = dto.sent_at.replace(tzinfo=None) if dto.sent_at and dto.sent_at.tzinfo else dto.sent_at
-        
+        created_at = (
+            dto.created_at.replace(tzinfo=None)
+            if dto.created_at and dto.created_at.tzinfo
+            else dto.created_at
+        )
+        sent_at = (
+            dto.sent_at.replace(tzinfo=None)
+            if dto.sent_at and dto.sent_at.tzinfo
+            else dto.sent_at
+        )
+
         return {
             "id": str(dto.id),
             "channel": dto.channel.value,
@@ -38,9 +46,17 @@ class NotificationDBMapper:
 
     @staticmethod
     def to_database_model(dto: NotificationEntity) -> Notification:
-        created_at = dto.created_at.replace(tzinfo=None) if dto.created_at and dto.created_at.tzinfo else dto.created_at
-        sent_at = dto.sent_at.replace(tzinfo=None) if dto.sent_at and dto.sent_at.tzinfo else dto.sent_at
-        
+        created_at = (
+            dto.created_at.replace(tzinfo=None)
+            if dto.created_at and dto.created_at.tzinfo
+            else dto.created_at
+        )
+        sent_at = (
+            dto.sent_at.replace(tzinfo=None)
+            if dto.sent_at and dto.sent_at.tzinfo
+            else dto.sent_at
+        )
+
         return Notification(
             id=dto.id,
             channel=dto.channel.value,

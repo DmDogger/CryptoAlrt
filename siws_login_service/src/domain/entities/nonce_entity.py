@@ -21,11 +21,11 @@ from src.domain.value_objects.message_vo import MessageVO
 @dataclass(frozen=True, slots=True, kw_only=True)
 class NonceEntity:
     """Entity representing a nonce record for SIWE authentication.
-    
+
     This entity encapsulates all the information needed for a SIWE authentication
     session, including the nonce value, wallet address, domain, and timing information.
     It tracks whether the nonce has been used and whether it has expired.
-    
+
     Attributes:
         uuid: Unique identifier for the nonce record.
         wallet_address: Solana address performing the signing.
@@ -39,39 +39,60 @@ class NonceEntity:
         issued_at: ISO 8601 datetime string of the current time when the message was issued.
         chain_id: Chain ID to which the session is bound, and the network where Contract Accounts must be resolved.
     """
+
     uuid: UUID
     wallet_address: WalletAddressVO
-    nonce: NonceVO # Randomized token used to prevent replay attacks, at least 8 alphanumeric
-    domain: str = "cryptoalrt.io" # RFC 4501 dns authority that is requesting the signing.
-    statement: str | None # Human-readable ASCII assertion that the user will sign, and it must not contain newline characters.
-    uri: str # RFC 3986 URI referring to the resource that is the subject of the signing
-    version: str | None # Current version of the message.
-    expiration_time: datetime # ISO 8601 datetime string that, if present, indicates when the signed
+    nonce: NonceVO  # Randomized token used to prevent replay attacks, at least 8 alphanumeric
+    domain: str = (
+        "cryptoalrt.io"  # RFC 4501 dns authority that is requesting the signing.
+    )
+    statement: (
+        str | None
+    )  # Human-readable ASCII assertion that the user will sign, and it must not contain newline characters.
+    uri: (
+        str  # RFC 3986 URI referring to the resource that is the subject of the signing
+    )
+    version: str | None  # Current version of the message.
+    expiration_time: (
+        datetime  # ISO 8601 datetime string that, if present, indicates when the signed
+    )
     used_at: datetime | None = field(default=None)
-    issued_at: datetime = field(default_factory=lambda: datetime.now(UTC)) # ISO 8601 datetime string of the current time.
-    chain_id: str = "mainnet-beta" # Chain ID to which the session is bound, and the network where Contract Accounts must be resolved.
+    issued_at: datetime = field(
+        default_factory=lambda: datetime.now(UTC)
+    )  # ISO 8601 datetime string of the current time.
+    chain_id: str = (
+        "mainnet-beta"  # Chain ID to which the session is bound, and the network where Contract Accounts must be resolved.
+    )
 
     def __post_init__(self):
         """Validates the nonce entity fields.
-        
+
         Ensures that:
         - The nonce is a valid NonceVO instance
         - The wallet address is a valid WalletAddressVO instance
         - The issued_at time is before the expiration_time
-        
+
         Raises:
             NonceValidationError: If the nonce is not a valid NonceVO instance.
             InvalidWalletAddressError: If the wallet address is not a valid WalletAddressVO instance.
             DateValidationError: If issued_at is greater than or equal to expiration_time.
         """
         if not isinstance(self.nonce, NonceVO):
-            raise NonceValidationError(f"Nonce must be an instance of NonceVO, got {type(self.nonce).__name__}")
+            raise NonceValidationError(
+                f"Nonce must be an instance of NonceVO, got {type(self.nonce).__name__}"
+            )
         if not isinstance(self.wallet_address, WalletAddressVO):
-            raise InvalidWalletAddressError(f"Wallet address must be an instance of WalletAddressVO, got {type(self.wallet_address).__name__}")
+            raise InvalidWalletAddressError(
+                f"Wallet address must be an instance of WalletAddressVO, got {type(self.wallet_address).__name__}"
+            )
         if not isinstance(self.statement, str):
-            raise DomainError(f"Statement must be a string, got {type(self.statement).__name__}")
+            raise DomainError(
+                f"Statement must be a string, got {type(self.statement).__name__}"
+            )
         if self.issued_at >= self.expiration_time:
-            raise DateValidationError(f"issued_at ({self.issued_at}) must be before expiration_time ({self.expiration_time})")
+            raise DateValidationError(
+                f"issued_at ({self.issued_at}) must be before expiration_time ({self.expiration_time})"
+            )
 
     @classmethod
     def create(
@@ -85,10 +106,10 @@ class NonceEntity:
         ttl_time: int = 59,
     ) -> "NonceEntity":
         """Creates a new NonceEntity instance with default values for optional fields.
-        
+
         Factory method for creating a nonce entity with automatically generated UUID
         and sensible defaults for domain, URI, version, and expiration time.
-        
+
         Args:
             wallet_address: Solana address performing the signing as a WalletAddressVO.
             nonce: Randomized token used to prevent replay attacks as a NonceVO.
@@ -97,7 +118,7 @@ class NonceEntity:
             version: Optional message version. If None, defaults to "1".
             expiration_time: Optional expiration datetime. If None, defaults to current time + ttl_time minutes.
             ttl_time: Time to live in minutes for expiration time calculation. Defaults to 59 minutes.
-        
+
         Returns:
             A new NonceEntity instance with:
             - Automatically generated UUID (UUID v4)
@@ -110,7 +131,7 @@ class NonceEntity:
             - used_at set to None (not used)
             - issued_at set to current UTC time
             - chain_id set to "mainnet-beta"
-        
+
         Raises:
             NonceValidationError: If the nonce is not a valid NonceVO instance.
             InvalidWalletAddressError: If the wallet address is not a valid WalletAddressVO instance.
@@ -124,15 +145,19 @@ class NonceEntity:
             statement=statement,
             uri=uri if uri is not None else "https://cryptoalrt.io/login/solana",
             version=version if version is not None else "1",
-            expiration_time=expiration_time if expiration_time is not None else datetime.now(UTC) + timedelta(minutes=ttl_time),
+            expiration_time=(
+                expiration_time
+                if expiration_time is not None
+                else datetime.now(UTC) + timedelta(minutes=ttl_time)
+            ),
             used_at=None,
             issued_at=datetime.now(UTC),
-            chain_id="mainnet-beta"
+            chain_id="mainnet-beta",
         )
 
     def is_expired(self) -> bool:
         """Checks if the nonce has expired.
-        
+
         Returns:
             True if the current time is greater than or equal to the expiration time, False otherwise.
         """
@@ -140,7 +165,7 @@ class NonceEntity:
 
     def is_used(self) -> bool:
         """Checks if the nonce has been used.
-        
+
         Returns:
             True if the nonce has been marked as used (used_at is not None), False otherwise.
         """
@@ -148,10 +173,10 @@ class NonceEntity:
 
     def convert_to_message_vo(self) -> MessageVO:
         """Converts the nonce entity to a MessageVO value object.
-        
+
         Creates a MessageVO instance from the nonce entity's data,
         which can be used for generating the message string that users will sign.
-        
+
         Returns:
             A MessageVO instance containing all the message data from this entity.
         """
@@ -169,10 +194,10 @@ class NonceEntity:
 
     def mark_as_used(self) -> "NonceEntity":
         """Marks the nonce as used by creating a new entity with used_at timestamp.
-        
+
         Since the entity is immutable (frozen dataclass), this method returns
         a new NonceEntity instance with the used_at field set to the current time.
-        
+
         Returns:
             A new NonceEntity instance with used_at set to the current timestamp.
 
@@ -194,5 +219,3 @@ class NonceEntity:
             chain_id=self.chain_id,
             used_at=datetime.now(UTC),
         )
-
-

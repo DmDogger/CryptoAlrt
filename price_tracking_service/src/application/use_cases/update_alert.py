@@ -18,19 +18,19 @@ logger = structlog.getLogger(__name__)
 
 class UpdateAlertUseCase:
     """Use case for updating alert fields (email, threshold_price, is_active).
-    
-    Handles partial updates of existing alerts. Retrieves alert by ID, merges 
-    changes from request into entity, persists updates, and publishes events 
+
+    Handles partial updates of existing alerts. Retrieves alert by ID, merges
+    changes from request into entity, persists updates, and publishes events
     for each changed field to Kafka.
-    
+
     Note: Cryptocurrency cannot be updated - requires alert deletion and recreation.
     """
 
     def __init__(
-            self,
-            repository: AlertRepositoryProtocol,
-            broker: EventPublisherProtocol,
-            mapper: AlertPresentationMapper,
+        self,
+        repository: AlertRepositoryProtocol,
+        broker: EventPublisherProtocol,
+        mapper: AlertPresentationMapper,
     ):
         """
         Initialize the UpdateAlertUseCase.
@@ -45,12 +45,12 @@ class UpdateAlertUseCase:
         self._mapper = mapper
 
     async def execute(
-            self,
-            alert_to_update: AlertUpdateRequest,
-            alert_id: uuid.UUID,
+        self,
+        alert_to_update: AlertUpdateRequest,
+        alert_id: uuid.UUID,
     ) -> AlertEntity:
         """Update alert with provided fields and publish change events.
-        
+
         Merges non-None fields from request into existing alert, saves to database,
         and publishes AlertUpdatedEvent for each changed field to Kafka.
 
@@ -70,15 +70,11 @@ class UpdateAlertUseCase:
             alert = await self._repository.get_alert_by_id(alert_id)
 
             if not alert:
-                logger.error(
-                    "Alert not found during update",
-                    alert_id=str(alert_id)
-                )
+                logger.error("Alert not found during update", alert_id=str(alert_id))
                 raise AlertNotFound(f"Alert with ID {alert_id} not found")
 
             model = self._mapper.merge_update_from_pydantic_to_entity(
-                existing=alert,
-                pydantic_model=alert_to_update
+                existing=alert, pydantic_model=alert_to_update
             )
 
             old_email = alert.email
@@ -98,7 +94,7 @@ class UpdateAlertUseCase:
                 email=alert.email,
                 cryptocurrency=str(alert.cryptocurrency),
                 threshold_price=str(alert.threshold_price.value),
-                is_active=alert.is_active
+                is_active=alert.is_active,
             )
 
             events: list[AlertUpdatedEvent] = []
@@ -111,7 +107,7 @@ class UpdateAlertUseCase:
                     new_email=model.email,
                     cryptocurrency_symbol=model.cryptocurrency,
                     threshold_price=model.threshold_price,
-                    created_at=model.created_at
+                    created_at=model.created_at,
                 )
                 events.append(event)
 
@@ -119,7 +115,7 @@ class UpdateAlertUseCase:
                 logger.info(
                     "Changing threshold price",
                     old_threshold=str(old_threshold_price),
-                    new_threshold=str(model.threshold_price)
+                    new_threshold=str(model.threshold_price),
                 )
                 event = AlertUpdatedEvent.on_threshold_price_change(
                     alert_id=model.id,
@@ -127,7 +123,7 @@ class UpdateAlertUseCase:
                     cryptocurrency_symbol=model.cryptocurrency,
                     old_threshold_price=old_threshold_price,
                     new_threshold_price=model.threshold_price,
-                    created_at=model.created_at
+                    created_at=model.created_at,
                 )
                 logger.info("Changed threshold price, resetting trigger")
                 model = model.reset_trigger()
@@ -135,18 +131,21 @@ class UpdateAlertUseCase:
 
             updated_entity = await self._repository.update(model)
 
-            logger.info(f"Created {len(events)} event(s) to publish", alert_id=str(alert_id))
+            logger.info(
+                f"Created {len(events)} event(s) to publish", alert_id=str(alert_id)
+            )
             for event in events:
                 logger.info(
                     "Publishing alert update event",
                     event_id=str(event.event_id),
-                    topic=broker_settings.alert_updated_topic
+                    topic=broker_settings.alert_updated_topic,
                 )
                 await self._broker.publish(
-                    topic=broker_settings.alert_updated_topic,
-                    event=event
+                    topic=broker_settings.alert_updated_topic, event=event
                 )
-                logger.info("Publication sent successfully", event_id=str(event.event_id))
+                logger.info(
+                    "Publication sent successfully", event_id=str(event.event_id)
+                )
 
             logger.info(f"[Info]: Alert ID: {alert_id} updated successfully")
 
@@ -156,7 +155,7 @@ class UpdateAlertUseCase:
             logger.error(
                 "Alert not found during update operation",
                 alert_id=str(alert_id),
-                error=str(e)
+                error=str(e),
             )
             raise
 
@@ -165,7 +164,7 @@ class UpdateAlertUseCase:
                 "Repository error during alert update",
                 alert_id=str(alert_id),
                 error=str(e),
-                exc_info=True
+                exc_info=True,
             )
             raise
 
@@ -174,16 +173,18 @@ class UpdateAlertUseCase:
                 "Database error during alert update",
                 alert_id=str(alert_id),
                 error=str(e),
-                exc_info=True
+                exc_info=True,
             )
-            raise RepositoryError(f"Failed to update alert {alert_id}: database error") from e
+            raise RepositoryError(
+                f"Failed to update alert {alert_id}: database error"
+            ) from e
 
         except DomainValidationError as e:
             logger.error(
                 "Domain validation error during alert update",
                 alert_id=str(alert_id),
                 error=str(e),
-                exc_info=True
+                exc_info=True,
             )
             raise
 
@@ -192,7 +193,8 @@ class UpdateAlertUseCase:
                 "Unexpected error during alert update",
                 alert_id=str(alert_id),
                 error=str(e),
-                exc_info=True
+                exc_info=True,
             )
-            raise RepositoryError(f"Unexpected error while updating alert {alert_id}") from e
-
+            raise RepositoryError(
+                f"Unexpected error while updating alert {alert_id}"
+            ) from e

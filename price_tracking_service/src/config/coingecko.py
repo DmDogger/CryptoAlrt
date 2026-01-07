@@ -8,10 +8,9 @@ from pydantic_settings import BaseSettings
 class CoinGeckoSettings(BaseSettings):
     base_url: str = Field(default="https://api.coingecko.com/api/v3/")
     headers: dict = {
-        'x-cg-demo-api-key': 'CG-popCvCELuaAkMvM6utrfhJwp',
+        "x-cg-demo-api-key": "CG-popCvCELuaAkMvM6utrfhJwp",
     }
-    params: dict = {
-        "vs_currencies": "usd"
-    }
+    params: dict = {"vs_currencies": "usd"}
+
 
 coingecko_settings = CoinGeckoSettings()

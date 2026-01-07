@@ -5,26 +5,25 @@ from uuid import uuid4, UUID
 from domain.events.alert_created import AlertCreatedEvent
 from domain.value_objects.price import PriceValueObject
 
+
 class CreateAlertOnPriceChangeService:
     """Service for creating alerts on cryptocurrency price changes.
 
     Checks if the percentage price change exceeds the specified threshold
     and creates an AlertCreatedEvent if necessary.
     """
-    def __init__(
-            self,
-            price_value_object: PriceValueObject
-    ):
+
+    def __init__(self, price_value_object: PriceValueObject):
         self._price_value_object = price_value_object
 
     def create_alert_on_price_change(
-            self,
-            cryptocurrency_id: UUID,
-            user_email: str,
-            old_price: Decimal,
-            new_price: Decimal,
-            threshold_percent: Decimal,
-            threshold_price: Decimal
+        self,
+        cryptocurrency_id: UUID,
+        user_email: str,
+        old_price: Decimal,
+        new_price: Decimal,
+        threshold_percent: Decimal,
+        threshold_price: Decimal,
     ) -> AlertCreatedEvent | None:
         """Creates an alert if the percentage price change exceeds the threshold.
 
@@ -51,9 +50,6 @@ class CreateAlertOnPriceChangeService:
                 threshold_price=threshold_price,
                 price_change_percent=percent_between,
                 current_price=new_price,
-                timestamp=datetime.now(UTC)
+                timestamp=datetime.now(UTC),
             )
         return None
-
-
-

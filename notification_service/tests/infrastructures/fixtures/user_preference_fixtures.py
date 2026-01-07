@@ -12,6 +12,7 @@ def sample_user_preference_entity():
         telegram_enabled=False,
     )
 
+
 @pytest.fixture
 def sample_user_preference_entity_with_disabled_email():
     return UserPreferenceEntity.create(
@@ -30,4 +31,3 @@ def sample_user_preference_entity_with_enabled_telegram():
         telegram_id=None,
         telegram_enabled=True,
     )
-

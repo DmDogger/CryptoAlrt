@@ -9,7 +9,9 @@ from src.domain.exceptions import NonceNotFoundError, SignatureVerificationFaile
 from src.domain.value_objects.message_vo import MessageVO
 from src.domain.value_objects.signature_vo import SignatureVO
 from src.domain.value_objects.wallet_vo import WalletAddressVO
-from src.infrastructures.database.repositories.nonce_repository import SQLAlchemyNonceRepository
+from src.infrastructures.database.repositories.nonce_repository import (
+    SQLAlchemyNonceRepository,
+)
 
 logger = structlog.getLogger(__name__)
 
@@ -104,8 +106,3 @@ class SignatureVerifier:
             raise SignatureVerificationFailed(
                 f"Signature verification failed for wallet address: {wallet_address}"
             ) from e
-
-
-
-
-

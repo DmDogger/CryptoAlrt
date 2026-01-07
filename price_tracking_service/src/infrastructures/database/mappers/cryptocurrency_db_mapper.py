@@ -5,7 +5,10 @@ from uuid import UUID, uuid4
 
 from domain.entities.cryptocurrency import CryptocurrencyEntity
 from application.dtos.coingecko_object import CoinGeckoDTO
-from infrastructures.database.models.cryptocurrency import Cryptocurrency, CryptocurrencyPrice
+from infrastructures.database.models.cryptocurrency import (
+    Cryptocurrency,
+    CryptocurrencyPrice,
+)
 
 
 @final
@@ -18,7 +21,7 @@ class CryptocurrencyDBMapper:
         created_at = entity.created_at
         if created_at.tzinfo is not None:
             created_at = created_at.replace(tzinfo=None)
-        
+
         return Cryptocurrency(
             id=entity.id,
             symbol=entity.symbol,
@@ -32,7 +35,7 @@ class CryptocurrencyDBMapper:
         created_at = model.created_at
         if created_at.tzinfo is None:
             created_at = created_at.replace(tzinfo=UTC)
-        
+
         return CryptocurrencyEntity(
             id=model.id,
             symbol=model.symbol,
@@ -41,19 +44,15 @@ class CryptocurrencyDBMapper:
             created_at=created_at,
         )
 
-
-
     def from_api_response_to_database_model(
-            self,
-            entity: CoinGeckoDTO,
-            cryptocurrency_id: UUID
+        self, entity: CoinGeckoDTO, cryptocurrency_id: UUID
     ) -> CryptocurrencyPrice:
         """Converts CoinGeckoDTO to CryptocurrencyPrice database model.
-        
+
         Args:
             entity: CoinGeckoDTO with price data from API.
             cryptocurrency_id: UUID of the cryptocurrency (aggregate root).
-        
+
         Returns:
             CryptocurrencyPrice database model instance.
         """

@@ -13,7 +13,10 @@ class TestCryptocurrencyDBMapper:
     @pytest.fixture
     def mapper(self):
         """Create CryptocurrencyDBMapper instance."""
-        from infrastructures.database.mappers.cryptocurrency_db_mapper import CryptocurrencyDBMapper
+        from infrastructures.database.mappers.cryptocurrency_db_mapper import (
+            CryptocurrencyDBMapper,
+        )
+
         return CryptocurrencyDBMapper()
 
     def test_to_database_model(self, mapper):
@@ -23,24 +26,26 @@ class TestCryptocurrencyDBMapper:
             symbol="BTC",
             name="Bitcoin",
             coingecko_id="bitcoin",
-            created_at=datetime(2023, 1, 1, 12, 0, 0, tzinfo=UTC)
+            created_at=datetime(2023, 1, 1, 12, 0, 0, tzinfo=UTC),
         )
 
         # Mock the Cryptocurrency model to avoid SQLAlchemy initialization issues
-        with mock.patch('src.infrastructures.database.mappers.cryptocurrency_db_mapper.Cryptocurrency') as mock_model_class:
+        with mock.patch(
+            "src.infrastructures.database.mappers.cryptocurrency_db_mapper.Cryptocurrency"
+        ) as mock_model_class:
             mock_model = MagicMock()
             mock_model_class.return_value = mock_model
-            
+
             result = mapper.to_database_model(entity)
-            
+
             # Verify the model was created with correct parameters
             mock_model_class.assert_called_once()
             call_kwargs = mock_model_class.call_args[1]
-            assert call_kwargs['id'] == entity.id
-            assert call_kwargs['symbol'] == entity.symbol
-            assert call_kwargs['name'] == entity.name
+            assert call_kwargs["id"] == entity.id
+            assert call_kwargs["symbol"] == entity.symbol
+            assert call_kwargs["name"] == entity.name
             # Timezone should be removed
-            assert call_kwargs['created_at'] == entity.created_at.replace(tzinfo=None)
+            assert call_kwargs["created_at"] == entity.created_at.replace(tzinfo=None)
 
     def test_to_database_model_without_timezone(self, mapper):
         """Test conversion when entity has no timezone."""
@@ -49,13 +54,15 @@ class TestCryptocurrencyDBMapper:
             symbol="ETH",
             name="Ethereum",
             coingecko_id="ethereum",
-            created_at=datetime(2023, 1, 1, 12, 0, 0)  # No timezone
+            created_at=datetime(2023, 1, 1, 12, 0, 0),  # No timezone
         )
 
-        with mock.patch('src.infrastructures.database.mappers.cryptocurrency_db_mapper.Cryptocurrency') as mock_model_class:
+        with mock.patch(
+            "src.infrastructures.database.mappers.cryptocurrency_db_mapper.Cryptocurrency"
+        ) as mock_model_class:
             result = mapper.to_database_model(entity)
             call_kwargs = mock_model_class.call_args[1]
-            assert call_kwargs['created_at'] == entity.created_at
+            assert call_kwargs["created_at"] == entity.created_at
 
     def test_from_database_model(self, mapper):
         """Test conversion from Cryptocurrency database model to CryptocurrencyEntity."""
@@ -80,7 +87,7 @@ class TestCryptocurrencyDBMapper:
     def test_from_database_model_with_timezone(self, mapper):
         """Test conversion when model has timezone."""
         from datetime import timezone
-        
+
         model = MagicMock()
         model.id = uuid4()
         model.symbol = "ETH"

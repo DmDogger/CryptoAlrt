@@ -35,9 +35,11 @@ taskiq_broker = ListQueueBroker(
 container = create_container()
 setup_dishka(container, taskiq_broker)
 
+
 async def startup_kafka_broker():
     """Запускаем Kafka broker для публикации событий."""
     await kafka_broker.start()
+
 
 async def shutdown_kafka_broker():
     """Останавливаем Kafka broker."""
@@ -46,11 +48,11 @@ async def shutdown_kafka_broker():
 
 @taskiq_broker.task(
     task_name="fetch_all_cryptocurrency_prices",
-    schedule=[{"cron": scheduler_settings.fetch_interval_cron}]
+    schedule=[{"cron": scheduler_settings.fetch_interval_cron}],
 )
 @inject
 async def fetch_all_prices_task(
-    use_case: FromDishka[ProcessPriceUpdateUseCase]
+    use_case: FromDishka[ProcessPriceUpdateUseCase],
 ) -> None:
     """Fetch and save cryptocurrency prices for all configured coins.
 
@@ -75,15 +77,20 @@ async def fetch_all_prices_task(
 
     for symbol in coin_symbols:
         try:
-            logger.info(f"[TaskIQ]: Trying to fetch and save this coin (symbol): {symbol} information")
+            logger.info(
+                f"[TaskIQ]: Trying to fetch and save this coin (symbol): {symbol} information"
+            )
             await use_case.execute(coin_id=symbol)
-            logger.info(f"[TaskIQ]: Successfully fetched and saved information for {symbol} in database")
+            logger.info(
+                f"[TaskIQ]: Successfully fetched and saved information for {symbol} in database"
+            )
 
         except UnexpectedError as e:
-            logger.error(f"[Unexpected error]: Unexpected error during fetching from TaskIQ {e}")
+            logger.error(
+                f"[Unexpected error]: Unexpected error during fetching from TaskIQ {e}"
+            )
 
     logger.info(f"[Task]: All fetching successfully done.")
-
 
     await shutdown_kafka_broker()
 
@@ -92,7 +99,5 @@ from taskiq.scheduler.scheduler import TaskiqScheduler
 from taskiq.schedule_sources import LabelScheduleSource
 
 scheduler = TaskiqScheduler(
-    broker=taskiq_broker,
-    sources=[LabelScheduleSource(taskiq_broker)]
+    broker=taskiq_broker, sources=[LabelScheduleSource(taskiq_broker)]
 )
-

@@ -18,8 +18,14 @@ from src.infrastructures.exceptions import (
 
 from src.application.interfaces.repositories import WalletRepositoryProtocol
 from src.domain.value_objects.wallet_session_vo import WalletSessionVO
-from src.infrastructures.database.mappers.wallet_session_mapper import WalletSessionDBMapper
-from src.infrastructures.exceptions import SessionSaveFailed, RevokeSessionError, SessionError
+from src.infrastructures.database.mappers.wallet_session_mapper import (
+    WalletSessionDBMapper,
+)
+from src.infrastructures.exceptions import (
+    SessionSaveFailed,
+    RevokeSessionError,
+    SessionError,
+)
 from src.infrastructures.database.models.wallet_model import WalletSession
 
 logger = structlog.getLogger(__name__)
@@ -33,6 +39,7 @@ class SQLAlchemyWalletRepository(WalletRepositoryProtocol):
     This repository is responsible for database operations (CRUD) only.
     Mapping logic is delegated to WalletDBMapper following SRP.
     """
+
     _session: AsyncSession
     _mapper: WalletDBMapper
     _wallet_session_mapper: WalletSessionDBMapper
@@ -57,10 +64,7 @@ class SQLAlchemyWalletRepository(WalletRepositoryProtocol):
                 "Retrieving wallet by address",
                 wallet_address=wallet_address,
             )
-            stmt = (
-                select(Wallet)
-                .where(Wallet.wallet_address == wallet_address)
-            )
+            stmt = select(Wallet).where(Wallet.wallet_address == wallet_address)
             result = await self._session.scalars(stmt)
             wallet_model = result.first()
 
@@ -317,9 +321,8 @@ class SQLAlchemyWalletRepository(WalletRepositoryProtocol):
                 "Retrieving wallet sessions by wallet address",
                 wallet_address=wallet_address,
             )
-            stmt = (
-                select(WalletSession)
-                .where(WalletSession.wallet_address == wallet_address)
+            stmt = select(WalletSession).where(
+                WalletSession.wallet_address == wallet_address
             )
             result = await self._session.scalars(stmt)
             sessions = result.all()
@@ -375,13 +378,10 @@ class SQLAlchemyWalletRepository(WalletRepositoryProtocol):
                 wallet_address=wallet_address,
                 device_id=device_id,
             )
-            stmt = (
-                select(WalletSession)
-                .where(
-                    WalletSession.wallet_address == wallet_address,
-                    WalletSession.device_id == device_id,
-                    WalletSession.is_revoked == False,
-                )
+            stmt = select(WalletSession).where(
+                WalletSession.wallet_address == wallet_address,
+                WalletSession.device_id == device_id,
+                WalletSession.is_revoked == False,
             )
             result = await self._session.execute(stmt)
             session = result.scalar_one_or_none()
@@ -422,197 +422,196 @@ class SQLAlchemyWalletRepository(WalletRepositoryProtocol):
 
 
 async def revoke_single_session(
-        self,
-        wallet_address: str,
-        device_id: str,
-    ) -> WalletSessionVO:
-        """Revoke a single wallet session by wallet address and device ID.
+    self,
+    wallet_address: str,
+    device_id: str,
+) -> WalletSessionVO:
+    """Revoke a single wallet session by wallet address and device ID.
 
-        Updates the session's is_revoked flag to True in the database.
+    Updates the session's is_revoked flag to True in the database.
 
-        Args:
-            wallet_address: The wallet address of the session to revoke.
-            device_id: The device ID of the session to revoke.
+    Args:
+        wallet_address: The wallet address of the session to revoke.
+        device_id: The device ID of the session to revoke.
 
-        Returns:
-            The revoked WalletSessionVO instance.
+    Returns:
+        The revoked WalletSessionVO instance.
 
-        Raises:
-            RevokeSessionError: If session is not found, database operation fails,
-                or integrity constraint is violated.
-        """
-        try:
-            logger.info(
-                "Revoking wallet session",
+    Raises:
+        RevokeSessionError: If session is not found, database operation fails,
+            or integrity constraint is violated.
+    """
+    try:
+        logger.info(
+            "Revoking wallet session",
+            wallet_address=wallet_address,
+            device_id=device_id,
+        )
+        stmt = (
+            update(WalletSession)
+            .where(
+                WalletSession.wallet_address == wallet_address,
+                WalletSession.device_id == device_id,
+            )
+            .values(is_revoked=True)
+            .returning(WalletSession)
+        )
+        result = await self._session.execute(stmt)
+        revoked_session = result.scalar_one_or_none()
+
+        if revoked_session is None:
+            logger.warning(
+                "Wallet session not found for revocation",
                 wallet_address=wallet_address,
                 device_id=device_id,
-            )
-            stmt = (
-                update(WalletSession)
-                .where(
-                    WalletSession.wallet_address == wallet_address,
-                    WalletSession.device_id == device_id,
-                )
-                .values(is_revoked=True)
-                .returning(WalletSession)
-            )
-            result = await self._session.execute(stmt)
-            revoked_session = result.scalar_one_or_none()
-
-            if revoked_session is None:
-                logger.warning(
-                    "Wallet session not found for revocation",
-                    wallet_address=wallet_address,
-                    device_id=device_id,
-                )
-                raise RevokeSessionError(
-                    f"Failed to revoke wallet session: session with wallet address "
-                    f"{wallet_address} and device_id {device_id} not found"
-                )
-
-            await self._session.commit()
-
-            logger.info(
-                "Wallet session revoked successfully",
-                wallet_address=wallet_address,
-                device_id=device_id,
-            )
-            return self._wallet_session_mapper.from_database_model(revoked_session)
-
-        except RevokeSessionError:
-            await self._session.rollback()
-            raise
-        except IntegrityError as e:
-            await self._session.rollback()
-            logger.error(
-                "Integrity error during wallet session revocation",
-                wallet_address=wallet_address,
-                device_id=device_id,
-                error=str(e),
-                exc_info=True,
             )
             raise RevokeSessionError(
-                f"Failed to revoke wallet session for wallet address "
-                f"{wallet_address} and device_id {device_id}: constraint violated"
-            ) from e
-        except SQLAlchemyError as e:
-            await self._session.rollback()
-            logger.error(
-                "Database error during wallet session revocation",
-                wallet_address=wallet_address,
-                device_id=device_id,
-                error=str(e),
-                exc_info=True,
+                f"Failed to revoke wallet session: session with wallet address "
+                f"{wallet_address} and device_id {device_id} not found"
             )
-            raise RevokeSessionError(
-                f"Failed to revoke wallet session for wallet address "
-                f"{wallet_address} and device_id {device_id}: database operation failed"
-            ) from e
-        except Exception as e:
-            await self._session.rollback()
-            logger.error(
-                "Unexpected error during wallet session revocation",
-                wallet_address=wallet_address,
-                device_id=device_id,
-                error=str(e),
-                exc_info=True,
-            )
-            raise RevokeSessionError(
-                f"Unexpected error while revoking wallet session for wallet address "
-                f"{wallet_address} and device_id {device_id}: {e}"
-            ) from e
+
+        await self._session.commit()
+
+        logger.info(
+            "Wallet session revoked successfully",
+            wallet_address=wallet_address,
+            device_id=device_id,
+        )
+        return self._wallet_session_mapper.from_database_model(revoked_session)
+
+    except RevokeSessionError:
+        await self._session.rollback()
+        raise
+    except IntegrityError as e:
+        await self._session.rollback()
+        logger.error(
+            "Integrity error during wallet session revocation",
+            wallet_address=wallet_address,
+            device_id=device_id,
+            error=str(e),
+            exc_info=True,
+        )
+        raise RevokeSessionError(
+            f"Failed to revoke wallet session for wallet address "
+            f"{wallet_address} and device_id {device_id}: constraint violated"
+        ) from e
+    except SQLAlchemyError as e:
+        await self._session.rollback()
+        logger.error(
+            "Database error during wallet session revocation",
+            wallet_address=wallet_address,
+            device_id=device_id,
+            error=str(e),
+            exc_info=True,
+        )
+        raise RevokeSessionError(
+            f"Failed to revoke wallet session for wallet address "
+            f"{wallet_address} and device_id {device_id}: database operation failed"
+        ) from e
+    except Exception as e:
+        await self._session.rollback()
+        logger.error(
+            "Unexpected error during wallet session revocation",
+            wallet_address=wallet_address,
+            device_id=device_id,
+            error=str(e),
+            exc_info=True,
+        )
+        raise RevokeSessionError(
+            f"Unexpected error while revoking wallet session for wallet address "
+            f"{wallet_address} and device_id {device_id}: {e}"
+        ) from e
+
 
 async def terminate_all_sessions(
-        self,
-        wallet_address: str,
-    ) -> list[WalletSessionVO]:
-        """Terminate all wallet sessions for a given wallet address.
+    self,
+    wallet_address: str,
+) -> list[WalletSessionVO]:
+    """Terminate all wallet sessions for a given wallet address.
 
-        Updates all sessions' is_revoked flag to True in the database for the specified wallet.
+    Updates all sessions' is_revoked flag to True in the database for the specified wallet.
 
-        Args:
-            wallet_address: The wallet address for which to terminate all sessions.
+    Args:
+        wallet_address: The wallet address for which to terminate all sessions.
 
-        Returns:
-            List of revoked WalletSessionVO instances.
+    Returns:
+        List of revoked WalletSessionVO instances.
 
-        Raises:
-            RevokeSessionError: If database operation fails or integrity constraint is violated.
-        """
-        try:
-            logger.info(
-                "Terminating all wallet sessions",
+    Raises:
+        RevokeSessionError: If database operation fails or integrity constraint is violated.
+    """
+    try:
+        logger.info(
+            "Terminating all wallet sessions",
+            wallet_address=wallet_address,
+        )
+        stmt = (
+            update(WalletSession)
+            .where(WalletSession.wallet_address == wallet_address)
+            .values(is_revoked=True)
+            .returning(WalletSession)
+        )
+        result = await self._session.execute(stmt)
+        revoked_sessions = result.scalars().all()
+        logger.debug("revoked sessions executed", debug_len=len(revoked_sessions))
+
+        await self._session.commit()
+        logger.debug("revoked", debug_revs=revoked_sessions)
+
+        if not revoked_sessions:
+            logger.warning(
+                "No wallet sessions found to terminate",
                 wallet_address=wallet_address,
-            )
-            stmt = (
-                update(WalletSession)
-                .where(WalletSession.wallet_address == wallet_address)
-                .values(is_revoked=True)
-                .returning(WalletSession)
-            )
-            result = await self._session.execute(stmt)
-            revoked_sessions = result.scalars().all()
-            logger.debug("revoked sessions executed", debug_len=len(revoked_sessions))
-
-            await self._session.commit()
-            logger.debug("revoked", debug_revs=revoked_sessions)
-
-            if not revoked_sessions:
-                logger.warning(
-                    "No wallet sessions found to terminate",
-                    wallet_address=wallet_address,
-                )
-                raise RevokeSessionError(
-                    f"Failed to terminate wallet sessions: no active sessions found "
-                    f"for wallet address {wallet_address}"
-                )
-
-            logger.info(
-                "All wallet sessions terminated successfully",
-                wallet_address=wallet_address,
-                sessions_count=len(revoked_sessions),
-            )
-
-            return [
-                self._wallet_session_mapper.from_database_model(session)
-                for session in revoked_sessions
-            ]
-
-        except IntegrityError as e:
-            await self._session.rollback()
-            logger.error(
-                "Integrity error during wallet sessions termination",
-                wallet_address=wallet_address,
-                error=str(e),
-                exc_info=True,
             )
             raise RevokeSessionError(
-                f"Failed to terminate all wallet sessions for wallet address "
-                f"{wallet_address}: constraint violated"
-            ) from e
-        except SQLAlchemyError as e:
-            await self._session.rollback()
-            logger.error(
-                "Database error during wallet sessions termination",
-                wallet_address=wallet_address,
-                error=str(e),
-                exc_info=True,
+                f"Failed to terminate wallet sessions: no active sessions found "
+                f"for wallet address {wallet_address}"
             )
-            raise RevokeSessionError(
-                f"Failed to terminate all wallet sessions for wallet address "
-                f"{wallet_address}: database operation failed"
-            ) from e
-        except Exception as e:
-            await self._session.rollback()
-            logger.error(
-                "Unexpected error during wallet sessions termination",
-                wallet_address=wallet_address,
-                error=str(e),
-                exc_info=True,
-            )
-            raise RevokeSessionError(
-                f"Unexpected error while terminating all wallet sessions for wallet address "
-                f"{wallet_address}: {e}"
-            ) from e
 
+        logger.info(
+            "All wallet sessions terminated successfully",
+            wallet_address=wallet_address,
+            sessions_count=len(revoked_sessions),
+        )
 
+        return [
+            self._wallet_session_mapper.from_database_model(session)
+            for session in revoked_sessions
+        ]
+
+    except IntegrityError as e:
+        await self._session.rollback()
+        logger.error(
+            "Integrity error during wallet sessions termination",
+            wallet_address=wallet_address,
+            error=str(e),
+            exc_info=True,
+        )
+        raise RevokeSessionError(
+            f"Failed to terminate all wallet sessions for wallet address "
+            f"{wallet_address}: constraint violated"
+        ) from e
+    except SQLAlchemyError as e:
+        await self._session.rollback()
+        logger.error(
+            "Database error during wallet sessions termination",
+            wallet_address=wallet_address,
+            error=str(e),
+            exc_info=True,
+        )
+        raise RevokeSessionError(
+            f"Failed to terminate all wallet sessions for wallet address "
+            f"{wallet_address}: database operation failed"
+        ) from e
+    except Exception as e:
+        await self._session.rollback()
+        logger.error(
+            "Unexpected error during wallet sessions termination",
+            wallet_address=wallet_address,
+            error=str(e),
+            exc_info=True,
+        )
+        raise RevokeSessionError(
+            f"Unexpected error while terminating all wallet sessions for wallet address "
+            f"{wallet_address}: {e}"
+        ) from e

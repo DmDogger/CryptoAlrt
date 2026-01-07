@@ -11,14 +11,14 @@ from uuid import UUID
 @dataclass(frozen=True, slots=True, kw_only=True)
 class AlertTriggeredEvent:
     """Domain event received when an alert threshold is triggered.
-    
+
     This immutable event is consumed from Kafka when price_tracking_service
     publishes a threshold triggered notification.
-    
+
     Note:
         Price fields accept str | int | float because FastStream serializes
         Decimal as numbers, not strings.
-    
+
     Attributes:
         id: Unique identifier of the event.
         email: Email address of the alert owner.
@@ -29,6 +29,7 @@ class AlertTriggeredEvent:
         threshold_price: The threshold price value that was reached.
         created_at: Timestamp when the event was created.
     """
+
     id: str
     email: str
     alert_id: str
@@ -49,7 +50,7 @@ class AlertTriggeredEvent:
             cryptocurrency=data["cryptocurrency"],
             current_price=data["current_price"],
             threshold_price=data["threshold_price"],
-            created_at=data["created_at"]
+            created_at=data["created_at"],
         )
 
     def to_uuid(self) -> UUID:

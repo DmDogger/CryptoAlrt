@@ -21,9 +21,9 @@ class ProcessAlertTriggeredUseCase:
     """
 
     def __init__(
-            self,
-            check_and_reserve_use_case: CheckAndReserveUseCase,
-            send_email_use_case: SendEmailNotificationUseCase,
+        self,
+        check_and_reserve_use_case: CheckAndReserveUseCase,
+        send_email_use_case: SendEmailNotificationUseCase,
     ):
         """Initialize the use case with required dependencies.
 
@@ -56,9 +56,8 @@ class ProcessAlertTriggeredUseCase:
                 event_id=event.id,
                 email=event.email,
                 alert_id=event.alert_id,
-                cryptocurrency=event.cryptocurrency
+                cryptocurrency=event.cryptocurrency,
             )
-
 
             notifications = await self._check_and_reserve.execute(
                 event=event,
@@ -69,7 +68,7 @@ class ProcessAlertTriggeredUseCase:
                     "No notifications created for alert trigger",
                     event_id=event.id,
                     email=event.email,
-                    alert_id=event.alert_id
+                    alert_id=event.alert_id,
                 )
                 return
 
@@ -77,7 +76,7 @@ class ProcessAlertTriggeredUseCase:
                 "Notifications created, starting email sending",
                 event_id=event.id,
                 email=event.email,
-                notifications_count=len(notifications)
+                notifications_count=len(notifications),
             )
 
             await self._send_email.execute(notifications)
@@ -87,7 +86,7 @@ class ProcessAlertTriggeredUseCase:
                 event_id=event.id,
                 email=event.email,
                 alert_id=event.alert_id,
-                created_at=event.created_at
+                created_at=event.created_at,
             )
 
         except RepositoryError as e:
@@ -97,7 +96,7 @@ class ProcessAlertTriggeredUseCase:
                 email=event.email,
                 alert_id=event.alert_id,
                 error=str(e),
-                exc_info=True
+                exc_info=True,
             )
             raise
 
@@ -108,7 +107,7 @@ class ProcessAlertTriggeredUseCase:
                 email=event.email,
                 alert_id=event.alert_id,
                 error=str(e),
-                exc_info=True
+                exc_info=True,
             )
             raise
 
@@ -120,6 +119,6 @@ class ProcessAlertTriggeredUseCase:
                 alert_id=event.alert_id,
                 error=str(e),
                 error_type=type(e).__name__,
-                exc_info=True
+                exc_info=True,
             )
             raise

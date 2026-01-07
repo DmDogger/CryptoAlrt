@@ -8,6 +8,7 @@ from domain.exceptions import AlertNotFound
 
 logger = structlog.getLogger(__name__)
 
+
 class DeleteAlertUseCase:
     """Use case for deleting an alert that belongs to a specific user."""
 
@@ -15,20 +16,21 @@ class DeleteAlertUseCase:
         self._repository = repository
 
     async def execute(
-            self,
-            alert_id: uuid.UUID,
-            email: str,
+        self,
+        alert_id: uuid.UUID,
+        email: str,
     ):
         """Delete alert by id ensuring it belongs to the provided email."""
         try:
-            logger.info(f"Start to getting information about alert with ID: {alert_id} for {email}")
+            logger.info(
+                f"Start to getting information about alert with ID: {alert_id} for {email}"
+            )
             alert_exist = await self._repository.get_alert_by_id(alert_id)
 
             if not alert_exist:
                 logger.error(f"Alert with ID: {alert_id} for {email} not found")
                 raise AlertNotFound(f"Alert with ID: {alert_id} not found.")
             logger.info(f"Alert with ID: {alert_id} for {email} found")
-
 
             logger.info(f"Trying to delete alert with id {alert_exist.id} for {email}")
             await self._repository.delete_alert_by_id(
@@ -42,7 +44,3 @@ class DeleteAlertUseCase:
                 f"Occurred error ({e}) with deleting alert for {email} with {alert_exist.id}"
             )
             raise
-
-
-
-

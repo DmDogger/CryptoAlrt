@@ -34,7 +34,7 @@ class TestJWTAccessIssuer:
 
         assert decoded["sub"] == "test_sub"
         assert decoded["iss"] == "cryptoalrt.io"
-        assert decoded["exp"] ==  1893484980
+        assert decoded["exp"] == 1893484980
 
 
 class TestJWTRefreshIssuer:
@@ -50,7 +50,9 @@ class TestJWTRefreshIssuer:
         Args:
             mock_refresh_issuer: Fixture providing JWTRefreshIssuer with test settings.
         """
-        result_jwt = mock_refresh_issuer.issue(sub="test_sub_refresh", device_id="str", ttl=3)
+        result_jwt = mock_refresh_issuer.issue(
+            sub="test_sub_refresh", device_id="str", ttl=3
+        )
 
         assert result_jwt is not None
         assert isinstance(result_jwt, str)
@@ -67,6 +69,3 @@ class TestJWTRefreshIssuer:
         assert decoded["exp"] == 1893484980
         assert decoded["jti"] is not None
         assert isinstance(decoded["jti"], str)
-
-
-

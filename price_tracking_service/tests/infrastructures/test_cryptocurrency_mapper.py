@@ -15,7 +15,7 @@ class TestInfrastructureCryptocurrencyMapper:
             id=uuid4(),
             symbol="BTC",
             name="Bitcoin",
-            created_at=datetime(2023, 1, 1, tzinfo=UTC)
+            created_at=datetime(2023, 1, 1, tzinfo=UTC),
         )
 
         mapper = InfrastructureCryptocurrencyMapper()
@@ -32,7 +32,7 @@ class TestInfrastructureCryptocurrencyMapper:
             "id": "12345678-1234-5678-9012-123456789012",
             "symbol": "BTC",
             "name": "Bitcoin",
-            "created_at": "2023-01-01T00:00:00+00:00"
+            "created_at": "2023-01-01T00:00:00+00:00",
         }
 
         mapper = InfrastructureCryptocurrencyMapper()

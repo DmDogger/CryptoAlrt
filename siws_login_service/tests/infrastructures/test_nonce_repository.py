@@ -4,7 +4,9 @@ import pytest
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 
 from src.domain.entities.nonce_entity import NonceEntity
-from src.infrastructures.database.repositories.nonce_repository import SQLAlchemyNonceRepository
+from src.infrastructures.database.repositories.nonce_repository import (
+    SQLAlchemyNonceRepository,
+)
 from src.infrastructures.database.mappers.nonce_mapper import NonceDBMapper
 from src.infrastructures.database.models.nonce_model import Nonce
 from src.infrastructures.exceptions import FailedToSaveNonceError
@@ -37,7 +39,9 @@ class TestNonceRepository:
         mock_async_session.scalars.return_value = mock_result_obj
         mock_nonce_mapper.from_database_model.return_value = sample_nonce_entity
 
-        result = await mock_nonce_repository.find_active_nonce_by_wallet("testbase58pubkey")
+        result = await mock_nonce_repository.find_active_nonce_by_wallet(
+            "testbase58pubkey"
+        )
 
         assert result == sample_nonce_entity
         assert result.used_at is None
@@ -66,7 +70,9 @@ class TestNonceRepository:
         mock_result_obj.first.return_value = None
         mock_async_session.scalars.return_value = mock_result_obj
 
-        result = await mock_nonce_repository.find_active_nonce_by_wallet("testbase58pubkey")
+        result = await mock_nonce_repository.find_active_nonce_by_wallet(
+            "testbase58pubkey"
+        )
 
         assert result is None
         mock_async_session.scalars.assert_called_once()
@@ -130,5 +136,3 @@ class TestNonceRepository:
 
         mock_async_session.rollback.assert_called_once()
         mock_async_session.commit.assert_not_called()
-
-

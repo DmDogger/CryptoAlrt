@@ -29,7 +29,7 @@ class AlertCreatedEvent:
             "threshold_price": str(self.threshold_price),
             "price_change_percent": str(self.price_change_percent),
             "current_price": str(self.current_price),
-            "timestamp": self.timestamp.isoformat()
+            "timestamp": self.timestamp.isoformat(),
         }
 
     @classmethod
@@ -43,6 +43,5 @@ class AlertCreatedEvent:
             threshold_price=Decimal(data["threshold_price"]),
             price_change_percent=Decimal(data["price_change_percent"]),
             current_price=Decimal(data["current_price"]),
-            timestamp=datetime.fromisoformat(data["timestamp"])
+            timestamp=datetime.fromisoformat(data["timestamp"]),
         )
-

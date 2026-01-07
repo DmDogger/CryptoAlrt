@@ -15,21 +15,31 @@ _container = create_container()
 setup_dishka_faststream(_container, app, auto_inject=True)
 
 # Import consumers to register subscribers
-from infrastructures.consumer.alert_triggered_consumer import consume_alert_triggered  # noqa: F401
+from infrastructures.consumer.alert_triggered_consumer import (
+    consume_alert_triggered,
+)  # noqa: F401
 
 # region agent log
 try:
     import json, time
-    with open("/Users/dmitrii/CryptoAlrt/.cursor/debug.log", "a", encoding="utf-8") as f:
-        f.write(json.dumps({
-            "sessionId": "debug-session",
-            "runId": "pre-fix",
-            "hypothesisId": "H1",
-            "location": "infrastructures/broker/broker.py",
-            "message": "Broker module imported (KafkaBroker backend)",
-            "data": {"bootstrap": _settings.bootstrap_servers},
-            "timestamp": int(time.time() * 1000),
-        }) + "\n")
+
+    with open(
+        "/Users/dmitrii/CryptoAlrt/.cursor/debug.log", "a", encoding="utf-8"
+    ) as f:
+        f.write(
+            json.dumps(
+                {
+                    "sessionId": "debug-session",
+                    "runId": "pre-fix",
+                    "hypothesisId": "H1",
+                    "location": "infrastructures/broker/broker.py",
+                    "message": "Broker module imported (KafkaBroker backend)",
+                    "data": {"bootstrap": _settings.bootstrap_servers},
+                    "timestamp": int(time.time() * 1000),
+                }
+            )
+            + "\n"
+        )
 except Exception:
     pass
 # endregion

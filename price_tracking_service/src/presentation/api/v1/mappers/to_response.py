@@ -5,7 +5,11 @@ from uuid import uuid4
 
 from domain.entities.alert import AlertEntity
 from domain.value_objects.threshold import ThresholdValueObject
-from presentation.api.v1.schemas.alert import AlertResponse, AlertCreateRequest, AlertUpdateRequest
+from presentation.api.v1.schemas.alert import (
+    AlertResponse,
+    AlertCreateRequest,
+    AlertUpdateRequest,
+)
 
 
 @final
@@ -19,18 +23,22 @@ class AlertPresentationMapper:
     """
 
     def merge_update_from_pydantic_to_entity(
-            self,
-            existing: AlertEntity,
-            pydantic_model: AlertUpdateRequest,
+        self,
+        existing: AlertEntity,
+        pydantic_model: AlertUpdateRequest,
     ) -> AlertEntity:
         """Merge partial update data into existing alert entity.
-        
+
         Note: Cryptocurrency is never updated - it remains from the existing entity.
         """
         return AlertEntity(
             id=existing.id,
             email=pydantic_model.email or existing.email,
-            telegram_id=pydantic_model.telegram_id if pydantic_model.telegram_id is not None else existing.telegram_id,
+            telegram_id=(
+                pydantic_model.telegram_id
+                if pydantic_model.telegram_id is not None
+                else existing.telegram_id
+            ),
             cryptocurrency=existing.cryptocurrency,
             threshold_price=(
                 ThresholdValueObject(value=pydantic_model.threshold_price)
@@ -49,9 +57,10 @@ class AlertPresentationMapper:
             ),
             created_at=existing.created_at,
         )
+
     def from_pydantic_to_entity(
-            self,
-            pydantic_model: AlertCreateRequest,
+        self,
+        pydantic_model: AlertCreateRequest,
     ) -> AlertEntity:
         """
         Convert a Pydantic API model to a domain entity.
@@ -74,8 +83,8 @@ class AlertPresentationMapper:
         )
 
     def from_entity_to_pydantic(
-            self,
-            entity: AlertEntity,
+        self,
+        entity: AlertEntity,
     ) -> AlertResponse:
         """
         Convert a domain entity to a Pydantic API model.

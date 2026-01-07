@@ -34,7 +34,7 @@ class TestFetchAndSaveUseCase:
         """Create FetchAndSaveUseCase instance with mocks."""
         return FetchAndSaveUseCase(
             coingecko_client=mock_coingecko_client,
-            crypto_repository=mock_crypto_repository
+            crypto_repository=mock_crypto_repository,
         )
 
     @pytest.fixture
@@ -51,17 +51,14 @@ class TestFetchAndSaveUseCase:
             low_24h=Decimal("66000.00"),
             price_change_24h=Decimal("1500.25"),
             price_change_percentage_24h=Decimal("2.29"),
-            last_updated=datetime.now()
+            last_updated=datetime.now(),
         )
 
     @pytest.fixture
     def sample_crypto_entity(self):
         """Create sample CryptocurrencyEntity."""
         return CryptocurrencyEntity(
-            id=uuid4(),
-            symbol="BTC",
-            name="Bitcoin",
-            coingecko_id="bitcoin"
+            id=uuid4(), symbol="BTC", name="Bitcoin", coingecko_id="bitcoin"
         )
 
     @pytest.mark.asyncio
@@ -71,24 +68,27 @@ class TestFetchAndSaveUseCase:
         mock_coingecko_client,
         mock_crypto_repository,
         sample_coingecko_dto,
-        sample_crypto_entity
+        sample_crypto_entity,
     ):
         """Test execute when cryptocurrency already exists in database."""
         # Arrange
         coin_id = "bitcoin"
         mock_coingecko_client.fetch_price.return_value = sample_coingecko_dto
-        mock_crypto_repository.get_cryptocurrency_by_symbol.return_value = sample_crypto_entity
+        mock_crypto_repository.get_cryptocurrency_by_symbol.return_value = (
+            sample_crypto_entity
+        )
 
         # Act
         await use_case.execute(coin_id)
 
         # Assert
         mock_coingecko_client.fetch_price.assert_called_once_with(coin_id)
-        mock_crypto_repository.get_cryptocurrency_by_symbol.assert_called_once_with("BTC")
+        mock_crypto_repository.get_cryptocurrency_by_symbol.assert_called_once_with(
+            "BTC"
+        )
         mock_crypto_repository.save.assert_not_called()  # Should not create new crypto
         mock_crypto_repository.save_price.assert_called_once_with(
-            cryptocurrency_id=sample_crypto_entity.id,
-            price_data=sample_coingecko_dto
+            cryptocurrency_id=sample_crypto_entity.id, price_data=sample_coingecko_dto
         )
 
     @pytest.mark.asyncio
@@ -97,7 +97,7 @@ class TestFetchAndSaveUseCase:
         use_case,
         mock_coingecko_client,
         mock_crypto_repository,
-        sample_coingecko_dto
+        sample_coingecko_dto,
     ):
         """Test execute when cryptocurrency doesn't exist and needs to be created."""
         # Arrange
@@ -110,8 +110,10 @@ class TestFetchAndSaveUseCase:
 
         # Assert
         mock_coingecko_client.fetch_price.assert_called_once_with(coin_id)
-        mock_crypto_repository.get_cryptocurrency_by_symbol.assert_called_once_with("BTC")
-        
+        mock_crypto_repository.get_cryptocurrency_by_symbol.assert_called_once_with(
+            "BTC"
+        )
+
         # Should create new cryptocurrency
         mock_crypto_repository.save.assert_called_once()
         saved_entity = mock_crypto_repository.save.call_args[0][0]
@@ -119,19 +121,16 @@ class TestFetchAndSaveUseCase:
         assert saved_entity.symbol == "BTC"
         assert saved_entity.name == "Bitcoin"
         assert saved_entity.coingecko_id == "bitcoin"
-        
+
         # Should save price with new cryptocurrency ID
         mock_crypto_repository.save_price.assert_called_once()
         call_args = mock_crypto_repository.save_price.call_args
-        assert call_args.kwargs['cryptocurrency_id'] == saved_entity.id
-        assert call_args.kwargs['price_data'] == sample_coingecko_dto
+        assert call_args.kwargs["cryptocurrency_id"] == saved_entity.id
+        assert call_args.kwargs["price_data"] == sample_coingecko_dto
 
     @pytest.mark.asyncio
     async def test_execute_coingecko_returns_none(
-        self,
-        use_case,
-        mock_coingecko_client,
-        mock_crypto_repository
+        self, use_case, mock_coingecko_client, mock_crypto_repository
     ):
         """Test execute raises exception when CoinGecko API returns None."""
         # Arrange
@@ -139,7 +138,9 @@ class TestFetchAndSaveUseCase:
         mock_coingecko_client.fetch_price.return_value = None
 
         # Act & Assert
-        with pytest.raises(UnsuccessfullyCoinGeckoAPICall, match="Coingecko returned None"):
+        with pytest.raises(
+            UnsuccessfullyCoinGeckoAPICall, match="Coingecko returned None"
+        ):
             await use_case.execute(coin_id)
 
         # Should not call repository methods
@@ -149,10 +150,7 @@ class TestFetchAndSaveUseCase:
 
     @pytest.mark.asyncio
     async def test_execute_coingecko_api_fails(
-        self,
-        use_case,
-        mock_coingecko_client,
-        mock_crypto_repository
+        self, use_case, mock_coingecko_client, mock_crypto_repository
     ):
         """Test execute when CoinGecko API call fails."""
         # Arrange
@@ -176,7 +174,7 @@ class TestFetchAndSaveUseCase:
         use_case,
         mock_coingecko_client,
         mock_crypto_repository,
-        sample_coingecko_dto
+        sample_coingecko_dto,
     ):
         """Test execute when repository save operation fails."""
         # Arrange
@@ -200,13 +198,15 @@ class TestFetchAndSaveUseCase:
         mock_coingecko_client,
         mock_crypto_repository,
         sample_coingecko_dto,
-        sample_crypto_entity
+        sample_crypto_entity,
     ):
         """Test execute when save_price operation fails."""
         # Arrange
         coin_id = "bitcoin"
         mock_coingecko_client.fetch_price.return_value = sample_coingecko_dto
-        mock_crypto_repository.get_cryptocurrency_by_symbol.return_value = sample_crypto_entity
+        mock_crypto_repository.get_cryptocurrency_by_symbol.return_value = (
+            sample_crypto_entity
+        )
         mock_crypto_repository.save_price.side_effect = Exception("Price save error")
 
         # Act & Assert
@@ -222,13 +222,13 @@ class TestFetchAndSaveUseCase:
         use_case,
         mock_coingecko_client,
         mock_crypto_repository,
-        sample_crypto_entity
+        sample_crypto_entity,
     ):
         """Test execute works with different coin IDs."""
         # Arrange
         coin_ids = ["bitcoin", "ethereum", "cardano"]
         symbols = ["BTC", "ETH", "ADA"]
-        
+
         for coin_id, symbol in zip(coin_ids, symbols):
             dto = CoinGeckoDTO(
                 id=coin_id,
@@ -241,11 +241,13 @@ class TestFetchAndSaveUseCase:
                 low_24h=Decimal("900.00"),
                 price_change_24h=Decimal("50.00"),
                 price_change_percentage_24h=Decimal("5.00"),
-                last_updated=datetime.now()
+                last_updated=datetime.now(),
             )
-            
+
             mock_coingecko_client.fetch_price.return_value = dto
-            mock_crypto_repository.get_cryptocurrency_by_symbol.return_value = sample_crypto_entity
+            mock_crypto_repository.get_cryptocurrency_by_symbol.return_value = (
+                sample_crypto_entity
+            )
 
             # Act
             await use_case.execute(coin_id)
@@ -260,7 +262,7 @@ class TestFetchAndSaveUseCase:
         use_case,
         mock_coingecko_client,
         mock_crypto_repository,
-        sample_coingecko_dto
+        sample_coingecko_dto,
     ):
         """Test complete flow when creating new cryptocurrency and saving price."""
         # Arrange
@@ -276,9 +278,9 @@ class TestFetchAndSaveUseCase:
             low_24h=Decimal("148.00"),
             price_change_24h=Decimal("5.25"),
             price_change_percentage_24h=Decimal("3.61"),
-            last_updated=datetime.now()
+            last_updated=datetime.now(),
         )
-        
+
         mock_coingecko_client.fetch_price.return_value = sample_coingecko_dto
         mock_crypto_repository.get_cryptocurrency_by_symbol.return_value = None
 
@@ -288,22 +290,24 @@ class TestFetchAndSaveUseCase:
         # Assert - verify complete flow
         # 1. Fetch from API
         mock_coingecko_client.fetch_price.assert_called_once_with("solana")
-        
+
         # 2. Check if crypto exists
-        mock_crypto_repository.get_cryptocurrency_by_symbol.assert_called_once_with("SOL")
-        
+        mock_crypto_repository.get_cryptocurrency_by_symbol.assert_called_once_with(
+            "SOL"
+        )
+
         # 3. Create new crypto
         mock_crypto_repository.save.assert_called_once()
         created_entity = mock_crypto_repository.save.call_args[0][0]
         assert created_entity.symbol == "SOL"
         assert created_entity.name == "Solana"
         assert created_entity.coingecko_id == "solana"
-        
+
         # 4. Save price
         mock_crypto_repository.save_price.assert_called_once()
         price_call = mock_crypto_repository.save_price.call_args
-        assert price_call.kwargs['cryptocurrency_id'] == created_entity.id
-        assert price_call.kwargs['price_data'].symbol == "SOL"
+        assert price_call.kwargs["cryptocurrency_id"] == created_entity.id
+        assert price_call.kwargs["price_data"].symbol == "SOL"
 
     @pytest.mark.asyncio
     async def test_execute_logging(
@@ -313,13 +317,15 @@ class TestFetchAndSaveUseCase:
         mock_crypto_repository,
         sample_coingecko_dto,
         sample_crypto_entity,
-        caplog
+        caplog,
     ):
         """Test that appropriate logging occurs during execution."""
         # Arrange
         coin_id = "bitcoin"
         mock_coingecko_client.fetch_price.return_value = sample_coingecko_dto
-        mock_crypto_repository.get_cryptocurrency_by_symbol.return_value = sample_crypto_entity
+        mock_crypto_repository.get_cryptocurrency_by_symbol.return_value = (
+            sample_crypto_entity
+        )
 
         # Act
         await use_case.execute(coin_id)

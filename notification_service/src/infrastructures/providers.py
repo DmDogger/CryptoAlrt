@@ -2,7 +2,12 @@ from typing import AsyncIterable
 
 import aiosmtplib
 from dishka import Provider, Scope, provide
-from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
 from sqlalchemy.engine.url import make_url
 
 from config.database import db_settings
@@ -13,12 +18,20 @@ from application.interfaces.repositories import (
     PreferenceRepositoryProtocol,
 )
 from application.use_cases.check_and_reserve import CheckAndReserveUseCase
-from application.use_cases.process_alert_triggered_use_case import ProcessAlertTriggeredUseCase
+from application.use_cases.process_alert_triggered_use_case import (
+    ProcessAlertTriggeredUseCase,
+)
 from application.use_cases.send_email_notification import SendEmailNotificationUseCase
 from infrastructures.database.mappers.notification_db_mapper import NotificationDBMapper
-from infrastructures.database.mappers.user_preference_db_mapper import UserPreferenceDBMapper
-from infrastructures.database.repositories.notification import SQLAlchemyNotificationRepository
-from infrastructures.database.repositories.user_preference import SQLAlchemyUserPreferenceRepository
+from infrastructures.database.mappers.user_preference_db_mapper import (
+    UserPreferenceDBMapper,
+)
+from infrastructures.database.repositories.notification import (
+    SQLAlchemyNotificationRepository,
+)
+from infrastructures.database.repositories.user_preference import (
+    SQLAlchemyUserPreferenceRepository,
+)
 from infrastructures.smtp.send_email import SMTPEmailClient
 
 
@@ -35,7 +48,9 @@ class InfrastructureProvider(Provider):
         return async_sessionmaker(engine, expire_on_commit=False)
 
     @provide(scope=Scope.REQUEST)
-    async def get_db_session(self, sessionmaker: async_sessionmaker[AsyncSession]) -> AsyncIterable[AsyncSession]:
+    async def get_db_session(
+        self, sessionmaker: async_sessionmaker[AsyncSession]
+    ) -> AsyncIterable[AsyncSession]:
         async with sessionmaker() as session:
             yield session
 
@@ -62,7 +77,7 @@ class InfrastructureProvider(Provider):
         mapper: UserPreferenceDBMapper,
     ) -> PreferenceRepositoryProtocol:
         return SQLAlchemyUserPreferenceRepository(session=session, mapper=mapper)
-    
+
     @provide(scope=Scope.REQUEST)
     async def get_smtp_client(self) -> AsyncIterable[aiosmtplib.SMTP]:
         """SMTP client для каждого запроса с контекстным менеджером."""

@@ -18,8 +18,9 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 import sys
 import os
+
 # Add src directory to path (alembic.ini prepend_sys_path = . points to notification_service/)
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 # Импортируем все модели, чтобы они зарегистрировались в Base.metadata
 from infrastructures.database.models import Notification, UserPreference  # noqa: F401
@@ -53,7 +54,13 @@ def run_migrations_offline() -> None:
         dialect_opts={"paramstyle": "named"},
         version_table="alembic_version_notification_service",
         include_object=lambda obj, name, type_, reflected, compare_to: (
-            name not in ['alerts', 'cryptocurrency', 'cryptocurrency_price', 'alembic_version']
+            name
+            not in [
+                "alerts",
+                "cryptocurrency",
+                "cryptocurrency_price",
+                "alembic_version",
+            ]
         ),
     )
 
@@ -80,7 +87,13 @@ def run_migrations_online() -> None:
             target_metadata=target_metadata,
             version_table="alembic_version_notification_service",
             include_object=lambda obj, name, type_, reflected, compare_to: (
-                name not in ['alerts', 'cryptocurrency', 'cryptocurrency_price', 'alembic_version']
+                name
+                not in [
+                    "alerts",
+                    "cryptocurrency",
+                    "cryptocurrency_price",
+                    "alembic_version",
+                ]
             ),
         )
 

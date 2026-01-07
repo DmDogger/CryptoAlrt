@@ -15,12 +15,9 @@ class BrokerSettings(BaseSettings):
     """
 
     bootstrap_servers: str = Field(
-        default="localhost:9092",
-        alias="KAFKA_BOOTSTRAP_SERVERS"
+        default="localhost:9092", alias="KAFKA_BOOTSTRAP_SERVERS"
     )
-    wallet_logged_in: str = Field(
-        default="wallet-logged-in",
-        alias="WALLET_LOGGED_IN"
-    )
+    wallet_logged_in: str = Field(default="wallet-logged-in", alias="WALLET_LOGGED_IN")
+
 
 siws_broker_settings = BrokerSettings()

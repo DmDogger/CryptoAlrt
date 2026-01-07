@@ -11,6 +11,7 @@ from ..exceptions import DomainValidationError
 @dataclass(frozen=True, slots=True, kw_only=True)
 class CryptocurrencyEntity:
     """Entity representing a cryptocurrency with identity."""
+
     id: UUID = field(default_factory=uuid4)
     symbol: str
     name: str

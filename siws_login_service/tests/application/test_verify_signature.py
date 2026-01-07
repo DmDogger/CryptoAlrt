@@ -62,7 +62,9 @@ class TestVerifySignature:
     ) -> None:
         """Test error when signature verification fails."""
         created_nonce = await fake_nonce_repository.create_nonce(sample_nonce_entity)
-        asyncmock_signature_verifier.verify_signature.side_effect = SignatureVerificationFailed
+        asyncmock_signature_verifier.verify_signature.side_effect = (
+            SignatureVerificationFailed
+        )
 
         with pytest.raises(SignatureVerificationFailed):
             await asyncmock_verify_signature_uc.execute(
@@ -101,4 +103,3 @@ class TestVerifySignature:
                 signature=sample_signature_vo.value,
                 wallet_address=created_nonce.wallet_address.value,
             )
-

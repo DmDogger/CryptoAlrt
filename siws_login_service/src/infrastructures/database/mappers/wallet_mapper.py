@@ -62,9 +62,17 @@ class WalletDBMapper:
         Returns:
             A dictionary representation of the WalletEntity.
         """
-        last_active = entity.last_active.replace(tzinfo=None) if entity.last_active and entity.last_active.tzinfo else entity.last_active
-        created_at = entity.created_at.replace(tzinfo=None) if entity.created_at and entity.created_at.tzinfo else entity.created_at
-        
+        last_active = (
+            entity.last_active.replace(tzinfo=None)
+            if entity.last_active and entity.last_active.tzinfo
+            else entity.last_active
+        )
+        created_at = (
+            entity.created_at.replace(tzinfo=None)
+            if entity.created_at and entity.created_at.tzinfo
+            else entity.created_at
+        )
+
         return {
             "uuid": str(entity.uuid),
             "wallet_address": entity.wallet_address.value,

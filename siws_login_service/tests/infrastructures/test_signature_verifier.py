@@ -16,17 +16,17 @@ from tests.helpers.fakes import FakeNonceRepository
 class TestSignatureVerifier:
     @pytest.mark.asyncio
     async def test_signature_verifier_works_correct(
-            self,
-            mock_signature_verifier: SignatureVerifier,
-            fake_nonce_repository: FakeNonceRepository,
-            sample_nonce_entity: NonceEntity,
+        self,
+        mock_signature_verifier: SignatureVerifier,
+        fake_nonce_repository: FakeNonceRepository,
+        sample_nonce_entity: NonceEntity,
     ) -> None:
         """Test verifies correct operation of Ed25519 signature verifier.
-        
+
         The test creates a new signing key, generates a nonce entity, forms
         a SIWS message from the nonce, signs it, and verifies that the verifier
         successfully validates the signature.
-        
+
         Args:
             mock_signature_verifier: SignatureVerifier instance for signature verification.
             fake_nonce_repository: Fake repository for storing nonces.
@@ -36,7 +36,7 @@ class TestSignatureVerifier:
         verify_key = signing_key.verify_key
         verify_key_bytes: bytes = verify_key.encode()
 
-        verify_key_base58: str = base58.b58encode(verify_key_bytes).decode('utf-8')
+        verify_key_base58: str = base58.b58encode(verify_key_bytes).decode("utf-8")
         wallet_address_vo: WalletAddressVO = WalletAddressVO(value=verify_key_base58)
 
         nonce_entity: NonceEntity = NonceEntity(
@@ -57,7 +57,7 @@ class TestSignatureVerifier:
         message_bytes: bytes = message_string.encode("utf-8")
 
         signed = signing_key.sign(message_bytes)
-        signature_base58: str = base58.b58encode(signed.signature).decode('utf-8')
+        signature_base58: str = base58.b58encode(signed.signature).decode("utf-8")
 
         await fake_nonce_repository.create_nonce(nonce_entity)
 
@@ -67,4 +67,3 @@ class TestSignatureVerifier:
         )
 
         assert result is True
-

@@ -20,7 +20,7 @@ class TestNonceEntity:
         sample_nonce_entity: NonceEntity,
     ) -> None:
         """Test that a valid NonceEntity can be created from fixture.
-        
+
         Args:
             sample_nonce_entity: Fixture providing a valid NonceEntity instance.
         """
@@ -35,7 +35,7 @@ class TestNonceEntity:
         sample_nonce_entity: NonceEntity,
     ) -> None:
         """Test that mark_as_used() method sets used_at timestamp.
-        
+
         Args:
             sample_nonce_entity: Fixture providing a valid NonceEntity instance.
         """
@@ -49,7 +49,7 @@ class TestNonceEntity:
         sample_nonce_entity: NonceEntity,
     ) -> None:
         """Test that mark_as_used() raises error when nonce is already used.
-        
+
         Args:
             sample_nonce_entity: Fixture providing a valid NonceEntity instance.
         """
@@ -63,7 +63,7 @@ class TestNonceEntity:
         sample_nonce_entity_with_custom_datetime,
     ) -> None:
         """Test that DateValidationError is raised when issued_at >= expiration_time.
-        
+
         Args:
             sample_nonce_entity_with_custom_datetime: Fixture factory for creating NonceEntity
                                                       with custom datetime values.
@@ -83,7 +83,7 @@ class TestNonceEntity:
         sample_wallet_vo: WalletAddressVO,
     ) -> None:
         """Test that is_expired() returns False for non-expired nonce.
-        
+
         Args:
             sample_nonce_vo: Fixture providing a valid NonceVO instance.
             sample_wallet_vo: Fixture providing a valid WalletAddressVO instance.
@@ -110,7 +110,7 @@ class TestNonceEntity:
         sample_nonce_vo: NonceVO,
     ) -> None:
         """Test that is_used() returns True when nonce has been used.
-        
+
         Args:
             sample_wallet_vo: Fixture providing a valid WalletAddressVO instance.
             sample_nonce_vo: Fixture providing a valid NonceVO instance.

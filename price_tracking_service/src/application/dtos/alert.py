@@ -15,6 +15,7 @@ class AlertDTO:
     Used to transfer alert data between application layers without exposing
     domain logic. Contains all necessary fields for alert representation.
     """
+
     id: UUID
     email: str
     cryptocurrency: str

@@ -1,8 +1,6 @@
-import uuid
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from typing import final
-from uuid import uuid4
 
 import jwt
 import structlog
@@ -96,9 +94,7 @@ class JWTAccessIssuer(AccessTokenIssuerProtocol):
                 error=str(e),
                 exc_info=True,
             )
-            raise TokenIssueError(
-                f"Failed to issue access token: {e}"
-            ) from e
+            raise TokenIssueError(f"Failed to issue access token: {e}") from e
 
         except Exception as e:
             logger.error(
@@ -195,9 +191,7 @@ class JWTRefreshIssuer(RefreshTokenIssuerProtocol):
                 error=str(e),
                 exc_info=True,
             )
-            raise TokenIssueError(
-                f"Failed to issue refresh token: {e}"
-            ) from e
+            raise TokenIssueError(f"Failed to issue refresh token: {e}") from e
 
         except Exception as e:
             logger.error(

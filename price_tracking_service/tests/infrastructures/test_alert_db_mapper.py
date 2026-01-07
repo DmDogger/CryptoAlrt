@@ -16,6 +16,7 @@ class TestAlertDBMapper:
     def mapper(self):
         """Create AlertDBMapper instance."""
         from infrastructures.database.mappers.alert_db_mapper import AlertDBMapper
+
         return AlertDBMapper()
 
     def test_to_database_model(self, mapper):
@@ -28,19 +29,21 @@ class TestAlertDBMapper:
             threshold_price=ThresholdValueObject(value=Decimal("50000")),
             is_triggered=False,
             is_active=True,
-            created_at=datetime(2023, 1, 1, 12, 0, 0, tzinfo=UTC)
+            created_at=datetime(2023, 1, 1, 12, 0, 0, tzinfo=UTC),
         )
         cryptocurrency_id = uuid4()
 
-        with mock.patch('src.infrastructures.database.mappers.alert_db_mapper.Alert') as mock_model_class:
+        with mock.patch(
+            "src.infrastructures.database.mappers.alert_db_mapper.Alert"
+        ) as mock_model_class:
             result = mapper.to_database_model(entity, cryptocurrency_id)
             call_kwargs = mock_model_class.call_args[1]
-            assert call_kwargs['id'] == entity.id
-            assert call_kwargs['email'] == entity.email
-            assert call_kwargs['cryptocurrency_id'] == cryptocurrency_id
-            assert call_kwargs['threshold_price'] == entity.threshold_price.value
-            assert call_kwargs['is_active'] == entity.is_active
-            assert call_kwargs['created_at'] == entity.created_at
+            assert call_kwargs["id"] == entity.id
+            assert call_kwargs["email"] == entity.email
+            assert call_kwargs["cryptocurrency_id"] == cryptocurrency_id
+            assert call_kwargs["threshold_price"] == entity.threshold_price.value
+            assert call_kwargs["is_active"] == entity.is_active
+            assert call_kwargs["created_at"] == entity.created_at
 
     def test_from_database_model(self, mapper):
         """Test conversion from Alert database model to AlertEntity."""
@@ -76,5 +79,7 @@ class TestAlertDBMapper:
         model.created_at = datetime(2023, 1, 1, 12, 0, 0)
         model.cryptocurrency = None  # Relationship not loaded
 
-        with pytest.raises(ValueError, match="Cryptocurrency relationship must be loaded"):
+        with pytest.raises(
+            ValueError, match="Cryptocurrency relationship must be loaded"
+        ):
             mapper.from_database_model(model)

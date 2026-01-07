@@ -19,9 +19,7 @@ class RedisSettings(BaseSettings):
         redis_cache_prefix (str): Prefix for Redis cache keys.
     """
 
-    redis_url: RedisDsn = Field(
-        RedisDsn("redis://localhost:6379/0"), alias="REDIS_URL"
-    )
+    redis_url: RedisDsn = Field(RedisDsn("redis://localhost:6379/0"), alias="REDIS_URL")
     redis_password: str = Field("", alias="REDIS_PASSWORD")
     redis_port: int = Field(6379, alias="REDIS_PORT")
     redis_host: str = Field("localhost", alias="REDIS_HOST")

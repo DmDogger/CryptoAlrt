@@ -5,7 +5,7 @@ from typing import Any, Protocol
 class EventPublisherProtocol(Protocol):
     """
     Protocol for event publishing.
-    
+
     Defines methods for publishing domain events to external systems (e.g., Kafka).
     This interface allows the Application layer to publish events without
     depending on Infrastructure implementations.

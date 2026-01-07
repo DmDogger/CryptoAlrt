@@ -49,7 +49,10 @@ class SendUserLoggedUseCase:
                 pubkey=wallet_address,
             )
 
-            logger.info("Publishing wallet logged in event", topic=siws_broker_settings.wallet_logged_in)
+            logger.info(
+                "Publishing wallet logged in event",
+                topic=siws_broker_settings.wallet_logged_in,
+            )
             await self._broker.publish(
                 topic=siws_broker_settings.wallet_logged_in,
                 event=wallet_logged_in_event,
@@ -75,5 +78,7 @@ class SendUserLoggedUseCase:
             raise PublicationError(f"Cannot to send message to broker #3") from e
 
         except Exception as e:
-            logger.error(f"Occurred error during event publication. Type: Unknown: {e} ")
+            logger.error(
+                f"Occurred error during event publication. Type: Unknown: {e} "
+            )
             raise PublicationError(f"Cannot to send message to broker #4") from e

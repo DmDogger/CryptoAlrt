@@ -4,10 +4,16 @@ import pytest
 from sqlalchemy import ScalarResult
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.infrastructures.database.repositories.wallet_repository import SQLAlchemyWalletRepository
+from src.infrastructures.database.repositories.wallet_repository import (
+    SQLAlchemyWalletRepository,
+)
 from src.infrastructures.database.mappers.wallet_mapper import WalletDBMapper
-from src.infrastructures.database.mappers.wallet_session_mapper import WalletSessionDBMapper
-from src.infrastructures.database.repositories.nonce_repository import SQLAlchemyNonceRepository
+from src.infrastructures.database.mappers.wallet_session_mapper import (
+    WalletSessionDBMapper,
+)
+from src.infrastructures.database.repositories.nonce_repository import (
+    SQLAlchemyNonceRepository,
+)
 from src.infrastructures.database.mappers.nonce_mapper import NonceDBMapper
 from src.infrastructures.crypto.ed25519_verifier import SignatureVerifier
 
@@ -29,6 +35,7 @@ def mock_wallet_mapper():
     mapper.from_database = MagicMock()
     return mapper
 
+
 @pytest.fixture
 def mock_wallet_session_mapper():
     mapper = MagicMock(spec=WalletSessionDBMapper)
@@ -36,12 +43,14 @@ def mock_wallet_session_mapper():
     mapper.from_database_model = MagicMock()
     return mapper
 
+
 @pytest.fixture
 def mock_nonce_mapper():
     mapper = MagicMock(spec=NonceDBMapper)
     mapper.to_database = MagicMock()
     mapper.from_database = MagicMock()
     return mapper
+
 
 @pytest.fixture
 def mock_result_obj():
@@ -51,6 +60,7 @@ def mock_result_obj():
     result.scalar_one_or_none = MagicMock()
     result.scalars = MagicMock()
     return result
+
 
 @pytest.fixture
 def mock_async_session() -> AsyncMock:
@@ -65,17 +75,21 @@ def mock_async_session() -> AsyncMock:
     session.add = MagicMock()
     return session
 
+
 @pytest.fixture
 def fake_nonce_repository():
     return FakeNonceRepository()
+
 
 @pytest.fixture
 def fake_wallet_repository():
     return FakeWalletRepository()
 
+
 @pytest.fixture
 def mock_signature_verifier(fake_nonce_repository):
     return SignatureVerifier(_nonce_repository=fake_nonce_repository)
+
 
 @pytest.fixture
 def mock_wallet_repository(
@@ -90,32 +104,35 @@ def mock_wallet_repository(
         _wallet_session_mapper=mock_wallet_session_mapper,
     )
 
+
 @pytest.fixture
 def mock_nonce_repository(
-        mock_async_session: AsyncMock,
-        mock_nonce_mapper: MagicMock,
+    mock_async_session: AsyncMock,
+    mock_nonce_mapper: MagicMock,
 ):
     return SQLAlchemyNonceRepository(
-        _session=mock_async_session,
-        _mapper=mock_nonce_mapper
+        _session=mock_async_session, _mapper=mock_nonce_mapper
     )
+
 
 @pytest.fixture
 def mock_access_issuer():
     """Fixture providing JWTAccessIssuer with test JWT settings.
-    
+
     Uses real JWTSettings with a test Ed25519 private key for token issuance.
     """
-    
+
     return JWTAccessIssuer(
         _jwt_settings=jwt_settings,
     )
+
 
 @pytest.fixture
 def mock_refresh_issuer():
     return JWTRefreshIssuer(
         _jwt_settings=jwt_settings,
     )
+
 
 @pytest.fixture
 def mock_revoke_session_uc(fake_wallet_repository):

@@ -22,9 +22,9 @@ class SendEmailNotificationUseCase:
     """
 
     def __init__(
-            self,
-            email_client: EmailClientProtocol,
-            repository: NotificationRepositoryProtocol,
+        self,
+        email_client: EmailClientProtocol,
+        repository: NotificationRepositoryProtocol,
     ):
         """Initialize the use case with required dependencies.
 
@@ -36,8 +36,8 @@ class SendEmailNotificationUseCase:
         self._repository = repository
 
     async def execute(
-            self,
-            notifications: list[NotificationEntity],
+        self,
+        notifications: list[NotificationEntity],
     ) -> None:
         """Execute email notification sending process.
 
@@ -59,9 +59,7 @@ class SendEmailNotificationUseCase:
               notification do not stop processing of others.
         """
         if not notifications:
-            logger.warning(
-                "Notifications are empty"
-            )
+            logger.warning("Notifications are empty")
             return
 
         for notification in notifications:
@@ -71,12 +69,12 @@ class SendEmailNotificationUseCase:
                         "Processing email notification",
                         notification_id=str(notification.id),
                         recipient=notification.recipient,
-                        status=notification.status.value
+                        status=notification.status.value,
                     )
 
                     await self._email_client.send(
                         to=notification.recipient,
-                        from_="noreply@cryptoalrt.io", # poka vremenno zdes
+                        from_="noreply@cryptoalrt.io",  # poka vremenno zdes
                         subject="Cryptocurrency Alert Notification",
                         body=notification.message.text,
                     )
@@ -87,7 +85,7 @@ class SendEmailNotificationUseCase:
                     logger.info(
                         "Email notification sent successfully",
                         notification_id=str(notification.id),
-                        recipient=notification.recipient
+                        recipient=notification.recipient,
                     )
 
                 except EmailSendingError as e:
@@ -96,7 +94,7 @@ class SendEmailNotificationUseCase:
                         notification_id=str(notification.id),
                         recipient=notification.recipient,
                         error=str(e),
-                        exc_info=True
+                        exc_info=True,
                     )
                     try:
                         failed_notification = notification.mark_failed()
@@ -105,7 +103,7 @@ class SendEmailNotificationUseCase:
                         logger.error(
                             "Failed to mark notification as FAILED after email error",
                             notification_id=str(notification.id),
-                            exc_info=True
+                            exc_info=True,
                         )
                     continue
 
@@ -116,7 +114,7 @@ class SendEmailNotificationUseCase:
                         recipient=notification.recipient,
                         error=str(e),
                         error_type=type(e).__name__,
-                        exc_info=True
+                        exc_info=True,
                     )
                     try:
                         failed_notification = notification.mark_failed()
@@ -125,6 +123,6 @@ class SendEmailNotificationUseCase:
                         logger.error(
                             "Failed to mark notification as FAILED after unexpected error",
                             notification_id=str(notification.id),
-                            exc_info=True
+                            exc_info=True,
                         )
                     continue

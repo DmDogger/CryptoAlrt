@@ -12,7 +12,7 @@ from application.use_cases.check_and_reserve import CheckAndReserveUseCase
 from tests.infrastructures.fixtures.notification_fixtures import (
     sample_notification_entity_marked_as_failed,
     sample_notification_entity,
-    sample_notification_entity_marked_as_sent
+    sample_notification_entity_marked_as_sent,
 )
 from tests.infrastructures.fixtures.user_preference_fixtures import (
     sample_user_preference_entity,
@@ -39,6 +39,7 @@ def mock_async_session() -> AsyncMock:
     session.add = MagicMock()
     return session
 
+
 @pytest.fixture
 def repository(
     mock_async_session: AsyncMock,
@@ -49,6 +50,7 @@ def repository(
         session=mock_async_session,
         mapper=mock_notification_mapper,
     )
+
 
 @pytest.fixture
 def mock_notification_repository() -> AsyncMock:
@@ -83,6 +85,7 @@ def notification_repository(
         mapper=mock_notification_mapper,
     )
 
+
 @pytest.fixture
 def mock_smtp() -> AsyncMock:
     """Мок SMTP клиента для тестов email отправки."""
@@ -110,6 +113,7 @@ def mock_send_email_use_case(
         repository=mock_fake_repository,
     )
 
+
 @pytest.fixture
 def mock_fake_repository(
     sample_notification_entity_marked_as_sent,
@@ -124,6 +128,7 @@ def mock_fake_repository(
             # sample_notification_entity_marked_as_failed,
         )
     )
+
 
 @pytest.fixture
 def mock_fake_preference_repository(
@@ -161,5 +166,3 @@ def mock_check_and_reserve_use_case(
         notification_repository=mock_fake_repository,
         preference_repository=mock_fake_preference_repository,
     )
-
-

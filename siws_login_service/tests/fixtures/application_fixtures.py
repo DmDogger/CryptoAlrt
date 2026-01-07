@@ -3,7 +3,9 @@ from unittest.mock import AsyncMock
 import pytest
 
 from src.application.use_cases.send_request_use_case import SendRequestUseCase
-from src.infrastructures.database.repositories.nonce_repository import SQLAlchemyNonceRepository
+from src.infrastructures.database.repositories.nonce_repository import (
+    SQLAlchemyNonceRepository,
+)
 from src.application.use_cases.verify_signature_use_case import VerifySignatureUseCase
 from src.infrastructures.crypto.ed25519_verifier import SignatureVerifier
 
@@ -23,14 +25,18 @@ def mock_request_signature(fake_nonce_repository, fake_wallet_repository):
         wallet_repository=fake_wallet_repository,
     )
 
+
 @pytest.fixture
 def asyncmock_signature_verifier():
     verifier = AsyncMock(spec=SignatureVerifier)
     verifier.verify_signature = AsyncMock()
     return verifier
 
+
 @pytest.fixture
-def asyncmock_verify_signature_uc(fake_nonce_repository, asyncmock_signature_verifier, mock_tokens_issuer):
+def asyncmock_verify_signature_uc(
+    fake_nonce_repository, asyncmock_signature_verifier, mock_tokens_issuer
+):
     return VerifySignatureUseCase(
         nonce_repository=fake_nonce_repository,
         signature_verifier=asyncmock_signature_verifier,
@@ -39,13 +45,15 @@ def asyncmock_verify_signature_uc(fake_nonce_repository, asyncmock_signature_ver
 
 
 @pytest.fixture
-def mock_verify_signature_uc(fake_nonce_repository, mock_signature_verifier, mock_tokens_issuer):
+def mock_verify_signature_uc(
+    fake_nonce_repository, mock_signature_verifier, mock_tokens_issuer
+):
     return VerifySignatureUseCase(
         nonce_repository=fake_nonce_repository,
         signature_verifier=AsyncMock(spec=SignatureVerifier),
         issuer=mock_tokens_issuer,
-
     )
+
 
 @pytest.fixture
 def mock_nonce_repo():
@@ -54,12 +62,14 @@ def mock_nonce_repo():
     repo.find_active_nonce_by_wallet = AsyncMock()
     return repo
 
+
 @pytest.fixture
 def mock_request_signature_with_mock_repo(mock_nonce_repo, fake_wallet_repository):
     return SendRequestUseCase(
         nonce_repository=mock_nonce_repo,
         wallet_repository=fake_wallet_repository,
     )
+
 
 @pytest.fixture
 def mock_access_token_use_case(mock_access_issuer):
@@ -103,7 +113,6 @@ def mock_refresh_token_use_case_mock():
     return mock
 
 
-
 @pytest.fixture
 def mock_tokens_issuer(
     fake_wallet_repository,
@@ -117,9 +126,7 @@ def mock_tokens_issuer(
         wallet_repository=fake_wallet_repository,
     )
 
+
 @pytest.fixture
 def mock_terminate_sessions_uc(fake_wallet_repository):
-    return TerminateSessionsUseCase(
-        repository=fake_wallet_repository
-
-    )
+    return TerminateSessionsUseCase(repository=fake_wallet_repository)

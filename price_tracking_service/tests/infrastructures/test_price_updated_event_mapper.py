@@ -14,7 +14,7 @@ class TestInfrastructurePriceUpdatedEventMapper:
         dto = PriceUpdatedEventDTO(
             cryptocurrency="BTC",
             price=Decimal("50000"),
-            timestamp=datetime(2023, 1, 1, tzinfo=UTC)
+            timestamp=datetime(2023, 1, 1, tzinfo=UTC),
         )
 
         mapper = InfrastructurePriceUpdatedEventMapper()
@@ -29,7 +29,7 @@ class TestInfrastructurePriceUpdatedEventMapper:
         data = {
             "cryptocurrency": "BTC",
             "price": "50000",
-            "timestamp": "2023-01-01T00:00:00+00:00"
+            "timestamp": "2023-01-01T00:00:00+00:00",
         }
 
         mapper = InfrastructurePriceUpdatedEventMapper()

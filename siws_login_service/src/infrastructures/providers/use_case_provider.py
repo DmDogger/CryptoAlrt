@@ -15,7 +15,9 @@ from src.application.use_cases.access_token_use_case import AccessTokenIssueUseC
 from src.application.use_cases.refresh_token_use_case import RefreshTokenIssueUseCase
 from src.application.use_cases.send_message_to_broker import SendUserLoggedUseCase
 from src.application.use_cases.send_request_use_case import SendRequestUseCase
-from src.application.use_cases.terminate_sessions_use_case import TerminateSessionsUseCase
+from src.application.use_cases.terminate_sessions_use_case import (
+    TerminateSessionsUseCase,
+)
 from src.application.use_cases.tokens_issuer_use_case import TokensIssuerUseCase
 from src.application.use_cases.verify_signature_use_case import VerifySignatureUseCase
 from src.infrastructures.crypto.ed25519_verifier import SignatureVerifier

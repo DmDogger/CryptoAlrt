@@ -28,9 +28,9 @@ class SQLAlchemyNonceRepository:
     This repository is responsible for database operations (CRUD) only.
     Mapping logic is delegated to NonceDBMapper following SRP.
     """
+
     _session: AsyncSession
     _mapper: NonceDBMapper
-
 
     async def find_active_nonce_by_wallet(
         self,
@@ -57,13 +57,10 @@ class SQLAlchemyNonceRepository:
                 wallet_address=wallet_address,
             )
             current_time = datetime.now(UTC)
-            stmt = (
-                select(Nonce)
-                .where(
-                    Nonce.wallet_address == wallet_address,
-                    Nonce.used_at.is_(None),
-                    Nonce.expiration_time > current_time,
-                )
+            stmt = select(Nonce).where(
+                Nonce.wallet_address == wallet_address,
+                Nonce.used_at.is_(None),
+                Nonce.expiration_time > current_time,
             )
             result = await self._session.scalars(stmt)
             nonce_model = result.first()
@@ -111,10 +108,7 @@ class SQLAlchemyNonceRepository:
                 "Retrieving nonce by wallet address",
                 wallet_address=wallet_address,
             )
-            stmt = (
-                select(Nonce)
-                .where(Nonce.wallet_address == wallet_address)
-            )
+            stmt = select(Nonce).where(Nonce.wallet_address == wallet_address)
             result = await self._session.scalars(stmt)
             nonce_model = result.first()
 
@@ -288,4 +282,3 @@ class SQLAlchemyNonceRepository:
             raise FailedToUpdateNonceError(
                 f"Failed to update nonce with UUID: {nonce_uuid}"
             ) from e
-

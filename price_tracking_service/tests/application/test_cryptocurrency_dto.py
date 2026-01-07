@@ -11,10 +11,7 @@ class TestCryptocurrencyDTO:
     def test_create_valid_cryptocurrency_dto(self):
         """Test creating a valid CryptocurrencyDTO."""
         dto = CryptocurrencyDTO(
-            id=uuid4(),
-            symbol="BTC",
-            name="Bitcoin",
-            created_at=datetime.now(UTC)
+            id=uuid4(), symbol="BTC", name="Bitcoin", created_at=datetime.now(UTC)
         )
 
         assert dto.symbol == "BTC"
@@ -23,10 +20,7 @@ class TestCryptocurrencyDTO:
     def test_cryptocurrency_dto_immutable(self):
         """Test that CryptocurrencyDTO is immutable."""
         dto = CryptocurrencyDTO(
-            id=uuid4(),
-            symbol="BTC",
-            name="Bitcoin",
-            created_at=datetime.now(UTC)
+            id=uuid4(), symbol="BTC", name="Bitcoin", created_at=datetime.now(UTC)
         )
 
         with pytest.raises(AttributeError):

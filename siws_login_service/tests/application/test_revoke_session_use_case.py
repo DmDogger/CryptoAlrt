@@ -3,7 +3,13 @@ import pytest
 
 class TestRevokeSessionUC:
     @pytest.mark.asyncio
-    async def test_session_terminates_correct(self, mock_revoke_session_uc, fake_wallet_repository, sample_wallet_entity, sample_wallet_session_vo):
+    async def test_session_terminates_correct(
+        self,
+        mock_revoke_session_uc,
+        fake_wallet_repository,
+        sample_wallet_entity,
+        sample_wallet_session_vo,
+    ):
 
         wallet_address = sample_wallet_entity.wallet_address.value
         await fake_wallet_repository.create_wallet(sample_wallet_entity)

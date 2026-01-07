@@ -11,9 +11,7 @@ class TestPriceUpdatedEventDTO:
     def test_create_valid_price_updated_event_dto(self):
         """Test creating a valid PriceUpdatedEventDTO."""
         dto = PriceUpdatedEventDTO(
-            cryptocurrency="BTC",
-            price=Decimal("50000"),
-            timestamp=datetime.now(UTC)
+            cryptocurrency="BTC", price=Decimal("50000"), timestamp=datetime.now(UTC)
         )
 
         assert dto.cryptocurrency == "BTC"
@@ -22,9 +20,7 @@ class TestPriceUpdatedEventDTO:
     def test_price_updated_event_dto_immutable(self):
         """Test that PriceUpdatedEventDTO is immutable."""
         dto = PriceUpdatedEventDTO(
-            cryptocurrency="BTC",
-            price=Decimal("50000"),
-            timestamp=datetime.now(UTC)
+            cryptocurrency="BTC", price=Decimal("50000"), timestamp=datetime.now(UTC)
         )
 
         with pytest.raises(AttributeError):

@@ -15,7 +15,7 @@ class TestSignatureVO:
         sample_signature_vo: SignatureVO,
     ) -> None:
         """Test that a valid SignatureVO can be created from fixture.
-        
+
         Args:
             sample_signature_vo: Fixture providing a valid SignatureVO instance.
         """
@@ -27,7 +27,7 @@ class TestSignatureVO:
         sample_signature_vo: SignatureVO,
     ) -> None:
         """Test that from_string() factory method creates valid SignatureVO instance.
-        
+
         Args:
             sample_signature_vo: Fixture providing a valid SignatureVO instance (unused but required).
         """
@@ -42,7 +42,7 @@ class TestSignatureVO:
         sample_signature_vo: SignatureVO,
     ) -> None:
         """Test that to_bytes() method returns correct byte representation.
-        
+
         Args:
             sample_signature_vo: Fixture providing a valid SignatureVO instance.
         """
@@ -65,7 +65,7 @@ class TestSignatureVO:
         invalid_length: str,
     ) -> None:
         """Test that from_string() raises error for invalid signature length.
-        
+
         Args:
             invalid_length: Invalid signature string (wrong decoded length, not 64 bytes).
         """
@@ -88,9 +88,9 @@ class TestSignatureVO:
         invalid_alphabet_letters: str,
     ) -> None:
         """Test that from_string() raises ValueError for invalid base58 alphabet characters.
-        
+
         Base58 alphabet excludes: 0, O, I, l, +, / to avoid visual confusion.
-        
+
         Args:
             invalid_alphabet_letters: String containing characters not in base58 alphabet.
         """
@@ -112,10 +112,9 @@ class TestSignatureVO:
         invalid_value: Any,
     ) -> None:
         """Test that from_string() raises error when called with non-string value.
-        
+
         Args:
             invalid_value: Non-string value to test (bool, None, int, list, etc.).
         """
         with pytest.raises(SignatureValidationError):
             SignatureVO.from_string(invalid_value)
-

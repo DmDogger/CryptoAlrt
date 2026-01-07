@@ -14,9 +14,7 @@ from infrastructures.database.mappers import NotificationDBMapper
 
 @pytest.fixture
 def sample_notification_entity(
-        sample_message_value_object,
-        sample_email_channel,
-        sample_idempotency_key
+    sample_message_value_object, sample_email_channel, sample_idempotency_key
 ) -> NotificationEntity:
     """Базовая фикстура для создания NotificationEntity."""
     return NotificationEntity.create(
@@ -26,21 +24,25 @@ def sample_notification_entity(
         idempotency_key=sample_idempotency_key,
     )
 
+
 @pytest.fixture
 def sample_notification_db_model(sample_notification_entity):
     return NotificationDBMapper.to_database_model(sample_notification_entity)
+
 
 @pytest.fixture
 def sample_notification_to_dict(sample_notification_entity):
     return NotificationDBMapper.to_dict(sample_notification_entity)
 
+
 @pytest.fixture
 def sample_notification_entity_with_params(sample_event_id):
     """Фабрика для создания NotificationEntity с кастомными параметрами."""
+
     def _create(
-            channel: ChannelEnum = ChannelEnum.EMAIL,
-            msg_text: str = "Text message is already here! Please, change me :)",
-            recipient: str = "cryptodmitrii@cryptoalertov.com",
+        channel: ChannelEnum = ChannelEnum.EMAIL,
+        msg_text: str = "Text message is already here! Please, change me :)",
+        recipient: str = "cryptodmitrii@cryptoalertov.com",
     ):
         return NotificationEntity.create(
             channel=channel,
@@ -51,33 +53,30 @@ def sample_notification_entity_with_params(sample_event_id):
                 channel=channel,
             ),
         )
+
     return _create
 
 
 @pytest.fixture
 def sample_notification_entity_marked_as_failed(
-        sample_email_channel,
-        sample_message_value_object,
-        sample_idempotency_key
+    sample_email_channel, sample_message_value_object, sample_idempotency_key
 ):
     """Фикстура для NotificationEntity со статусом FAILED."""
     return NotificationEntity(
-                id="1563c91c-d189-4748-a160-94cd175dc51d",
-                channel=sample_email_channel,
-                message=sample_message_value_object,
-                recipient="failed-notification@cryptoalertov.com",
-                idempotency_key=sample_idempotency_key,
-                status=StatusEnum.FAILED,
-                sent_at=None,
-                created_at=datetime.now(UTC)
+        id="1563c91c-d189-4748-a160-94cd175dc51d",
+        channel=sample_email_channel,
+        message=sample_message_value_object,
+        recipient="failed-notification@cryptoalertov.com",
+        idempotency_key=sample_idempotency_key,
+        status=StatusEnum.FAILED,
+        sent_at=None,
+        created_at=datetime.now(UTC),
     )
 
 
 @pytest.fixture
 def sample_notification_entity_marked_as_sent(
-        sample_email_channel,
-        sample_message_value_object,
-        sample_idempotency_key
+    sample_email_channel, sample_message_value_object, sample_idempotency_key
 ):
     """Фикстура для NotificationEntity со статусом SENT."""
     return NotificationEntity(
@@ -88,7 +87,7 @@ def sample_notification_entity_marked_as_sent(
         idempotency_key=sample_idempotency_key,
         status=StatusEnum.SENT,
         sent_at=None,
-        created_at=datetime.now(UTC)
+        created_at=datetime.now(UTC),
     )
 
 
@@ -96,6 +95,5 @@ def sample_notification_entity_marked_as_sent(
 def sample_idempotency_key(sample_event_id, sample_email_channel):
     """Фикстура для создания IdempotencyKeyVO."""
     return IdempotencyKeyVO.build(
-        event_id=sample_event_id,
-        channel=sample_email_channel
+        event_id=sample_event_id, channel=sample_email_channel
     )

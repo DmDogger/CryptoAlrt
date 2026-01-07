@@ -10,10 +10,10 @@ class PriceUpdateDomainService:
 
     @staticmethod
     async def create_price_updated_event(
-            cryptocurrency_id: UUID,
-            cryptocurrency_symbol: str,
-            cryptocurrency_name: str,
-            new_price: Decimal,
+        cryptocurrency_id: UUID,
+        cryptocurrency_symbol: str,
+        cryptocurrency_name: str,
+        new_price: Decimal,
     ) -> PriceUpdatedEvent:
         """Create a price updated event for the specified cryptocurrency.
 
@@ -31,9 +31,5 @@ class PriceUpdateDomainService:
             cryptocurrency=cryptocurrency_symbol,
             name=cryptocurrency_name,
             price=new_price,
-            timestamp=datetime.now()
+            timestamp=datetime.now(),
         )
-
-
-
-

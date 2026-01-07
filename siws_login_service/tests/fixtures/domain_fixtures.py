@@ -18,13 +18,13 @@ from domain.value_objects.wallet_session_vo import WalletSessionVO
 
 @pytest.fixture
 def sample_wallet_vo():
-    return WalletAddressVO(
-        value="5cRypRAdKEUtMCyFdqtEifWER5GMCfVnhZ8EUtcB7Sc3"
-    )
+    return WalletAddressVO(value="5cRypRAdKEUtMCyFdqtEifWER5GMCfVnhZ8EUtcB7Sc3")
+
 
 @pytest.fixture
 def sample_nonce_vo():
     return NonceVO.generate()
+
 
 @pytest.fixture
 def sample_signature_vo():
@@ -40,11 +40,12 @@ def sample_nonce_entity(sample_wallet_vo, sample_nonce_vo) -> NonceEntity:
         statement="Statement is not empty.",
     )
 
+
 @pytest.fixture
 def custom_wallet_entity(sample_uuid, sample_wallet_vo):
     def _create(
-            last_active: datetime | None = None,
-            created_at: datetime | None = None,
+        last_active: datetime | None = None,
+        created_at: datetime | None = None,
     ) -> WalletEntity:
         if last_active is None:
             last_active = datetime.now(UTC)
@@ -56,11 +57,14 @@ def custom_wallet_entity(sample_uuid, sample_wallet_vo):
             created_at=created_at,
             last_active=last_active,
         )
+
     return _create
 
 
 @pytest.fixture
-def sample_nonce_entity_with_custom_datetime(sample_uuid, sample_wallet_vo, sample_nonce_vo):
+def sample_nonce_entity_with_custom_datetime(
+    sample_uuid, sample_wallet_vo, sample_nonce_vo
+):
     def _create(
         expiration_time: datetime | None = None,
         used_at: datetime | None = None,
@@ -70,7 +74,7 @@ def sample_nonce_entity_with_custom_datetime(sample_uuid, sample_wallet_vo, samp
             issued_at = datetime.now(UTC)
         if expiration_time is None:
             expiration_time = issued_at + timedelta(minutes=5)
-        
+
         return NonceEntity(
             uuid=sample_uuid,
             wallet_address=sample_wallet_vo,
@@ -83,8 +87,9 @@ def sample_nonce_entity_with_custom_datetime(sample_uuid, sample_wallet_vo, samp
             used_at=used_at,
             issued_at=issued_at,
         )
-    
+
     return _create
+
 
 @pytest.fixture
 def sample_wallet_entity(sample_wallet_vo):
@@ -92,9 +97,11 @@ def sample_wallet_entity(sample_wallet_vo):
         wallet_address=sample_wallet_vo,
     )
 
+
 @pytest.fixture
 def sample_message_vo(sample_nonce_entity):
     return MessageVO.from_record(record=sample_nonce_entity)
+
 
 @pytest.fixture
 def sample_wallet_logged_in_event(sample_wallet_vo):
@@ -103,6 +110,7 @@ def sample_wallet_logged_in_event(sample_wallet_vo):
         device_id=999,
     )
 
+
 @pytest.fixture
 def sample_token_vo():
     return TokenPairVO.from_string(
@@ -110,22 +118,22 @@ def sample_token_vo():
         refresh_token="refresh.token.test",
     )
 
+
 @pytest.fixture
 def sample_wallet_session_vo(sample_wallet_vo):
     return WalletSessionVO.initiate(
         wallet_address=sample_wallet_vo,
     )
 
+
 @pytest.fixture
 def wallet_session_with_custom_fields():
     def _create(
-            wallet_address: str,
-            refresh_token_hash: str,
-            device_id: int,
-            is_revoked: bool | None = None,
-            created_at: datetime | None = None,
-
-
+        wallet_address: str,
+        refresh_token_hash: str,
+        device_id: int,
+        is_revoked: bool | None = None,
+        created_at: datetime | None = None,
     ):
         return WalletSessionVO(
             wallet_address=WalletAddressVO(value=wallet_address),
@@ -134,4 +142,5 @@ def wallet_session_with_custom_fields():
             is_revoked=is_revoked if is_revoked else False,
             created_at=created_at if created_at else datetime.now(UTC),
         )
+
     return _create

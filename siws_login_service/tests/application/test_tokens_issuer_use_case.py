@@ -8,16 +8,15 @@ from src.infrastructures.exceptions import InfrastructureError
 class TestTokensIssuerUC:
     @pytest.mark.asyncio
     async def test_correct(
-        self,
-        mock_tokens_issuer,
-        fake_wallet_repository,
-        sample_wallet_entity
+        self, mock_tokens_issuer, fake_wallet_repository, sample_wallet_entity
     ):
         await fake_wallet_repository.create_wallet(
             wallet_entity=sample_wallet_entity,
         )
 
-        tokens = await mock_tokens_issuer.execute(wallet_address=sample_wallet_entity.wallet_address.value)
+        tokens = await mock_tokens_issuer.execute(
+            wallet_address=sample_wallet_entity.wallet_address.value
+        )
 
         assert tokens.access_token is not None
         assert tokens.refresh_token is not None

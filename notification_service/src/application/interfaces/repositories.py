@@ -9,60 +9,48 @@ from domain.enums.status import StatusEnum
 
 class NotificationRepositoryProtocol(Protocol):
     """Protocol for a notification repository.
-    
+
     Defines methods for retrieving and saving notification entities.
     """
-    
+
     @abstractmethod
-    async def get_by_id(
-        self,
-        notification_id: UUID
-    ) -> NotificationEntity | None:
+    async def get_by_id(self, notification_id: UUID) -> NotificationEntity | None:
         """Get notification by its ID.
-        
+
         Args:
             notification_id: Unique identifier of the notification.
-            
+
         Returns:
             NotificationEntity if found, None otherwise.
         """
         ...
-    
+
     @abstractmethod
-    async def save(
-        self,
-        notification: NotificationEntity
-    ) -> NotificationEntity:
+    async def save(self, notification: NotificationEntity) -> NotificationEntity:
         """Save a new notification entity.
-        
+
         Args:
             notification: Notification entity to save.
-            
+
         Returns:
             Saved notification entity.
         """
         ...
-    
+
     @abstractmethod
-    async def update(
-        self,
-        notification: NotificationEntity
-    ) -> NotificationEntity:
+    async def update(self, notification: NotificationEntity) -> NotificationEntity:
         """Update an existing notification entity.
-        
+
         Args:
             notification: Notification entity with updated data.
-            
+
         Returns:
             Updated notification entity.
         """
         ...
-    
+
     @abstractmethod
-    async def get_by_status(
-        self,
-        status: StatusEnum
-    ) -> list[NotificationEntity]:
+    async def get_by_status(self, status: StatusEnum) -> list[NotificationEntity]:
         """Get all notifications with specified status.
 
         Args:
@@ -75,8 +63,7 @@ class NotificationRepositoryProtocol(Protocol):
 
     @abstractmethod
     async def get_by_idempotency_key(
-        self,
-        idempotency_key: str
+        self, idempotency_key: str
     ) -> NotificationEntity | None:
         """Get notification by its idempotency key.
 
@@ -96,10 +83,7 @@ class PreferenceRepositoryProtocol(Protocol):
     """
 
     @abstractmethod
-    async def get_by_id(
-        self,
-        preference_id: UUID
-    ) -> UserPreferenceEntity | None:
+    async def get_by_id(self, preference_id: UUID) -> UserPreferenceEntity | None:
         """Get user preference by its ID.
 
         Args:
@@ -111,10 +95,7 @@ class PreferenceRepositoryProtocol(Protocol):
         ...
 
     @abstractmethod
-    async def get_by_email(
-        self,
-        email: str
-    ) -> UserPreferenceEntity | None:
+    async def get_by_email(self, email: str) -> UserPreferenceEntity | None:
         """Get user preference by email address.
 
         Args:
@@ -126,10 +107,7 @@ class PreferenceRepositoryProtocol(Protocol):
         ...
 
     @abstractmethod
-    async def get_by_telegram_id(
-        self,
-        telegram_id: int
-    ) -> UserPreferenceEntity | None:
+    async def get_by_telegram_id(self, telegram_id: int) -> UserPreferenceEntity | None:
         """Get user preference by Telegram ID.
 
         Args:
@@ -141,10 +119,7 @@ class PreferenceRepositoryProtocol(Protocol):
         ...
 
     @abstractmethod
-    async def save(
-        self,
-        preference: UserPreferenceEntity
-    ) -> UserPreferenceEntity:
+    async def save(self, preference: UserPreferenceEntity) -> UserPreferenceEntity:
         """Save a new user preference entity.
 
         Args:
@@ -156,10 +131,7 @@ class PreferenceRepositoryProtocol(Protocol):
         ...
 
     @abstractmethod
-    async def update(
-        self,
-        preference: UserPreferenceEntity
-    ) -> UserPreferenceEntity:
+    async def update(self, preference: UserPreferenceEntity) -> UserPreferenceEntity:
         """Update an existing user preference entity.
 
         Args:

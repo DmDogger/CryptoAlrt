@@ -46,4 +46,3 @@ class TestMessageVO:
             f"{sample_message_vo.domain} wants you to sign in with your Solana account"
             in string_message
         )
-

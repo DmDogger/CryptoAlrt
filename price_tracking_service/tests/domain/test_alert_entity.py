@@ -22,7 +22,7 @@ class TestAlertEntity:
             threshold_price=threshold,
             is_triggered=False,
             is_active=True,
-            created_at=datetime.now(UTC)
+            created_at=datetime.now(UTC),
         )
 
         assert alert.email == "user@example.com"
@@ -44,14 +44,17 @@ class TestAlertEntity:
                 threshold_price=threshold,
                 is_triggered=False,
                 is_active=True,
-                created_at=datetime.now(UTC)
+                created_at=datetime.now(UTC),
             )
 
     def test_alert_with_short_cryptocurrency(self):
         """Test that cryptocurrency shorter than 3 characters raises error."""
         threshold = ThresholdValueObject(value=Decimal("50000"))
 
-        with pytest.raises(DomainValidationError, match="Cryptocurrency symbol must be between 3 and 100 characters"):
+        with pytest.raises(
+            DomainValidationError,
+            match="Cryptocurrency symbol must be between 3 and 100 characters",
+        ):
             AlertEntity(
                 id=uuid4(),
                 email="user@example.com",
@@ -60,7 +63,7 @@ class TestAlertEntity:
                 threshold_price=threshold,
                 is_triggered=False,
                 is_active=True,
-                created_at=datetime.now(UTC)
+                created_at=datetime.now(UTC),
             )
 
     def test_alert_with_long_cryptocurrency(self):
@@ -68,7 +71,10 @@ class TestAlertEntity:
         threshold = ThresholdValueObject(value=Decimal("50000"))
         long_crypto = "A" * 101
 
-        with pytest.raises(DomainValidationError, match="Cryptocurrency symbol must be between 3 and 100 characters"):
+        with pytest.raises(
+            DomainValidationError,
+            match="Cryptocurrency symbol must be between 3 and 100 characters",
+        ):
             AlertEntity(
                 id=uuid4(),
                 email="user@example.com",
@@ -77,7 +83,7 @@ class TestAlertEntity:
                 threshold_price=threshold,
                 is_triggered=False,
                 is_active=True,
-                created_at=datetime.now(UTC)
+                created_at=datetime.now(UTC),
             )
 
     def test_alert_immutable(self):
@@ -91,12 +97,11 @@ class TestAlertEntity:
             threshold_price=threshold,
             is_triggered=False,
             is_active=True,
-            created_at=datetime.now(UTC)
+            created_at=datetime.now(UTC),
         )
 
         with pytest.raises(AttributeError):
             alert.is_active = False
-
 
     def test_alert_created_at_default(self):
         """Test that created_at has default value."""
@@ -108,7 +113,7 @@ class TestAlertEntity:
             cryptocurrency="BTC",
             threshold_price=threshold,
             is_triggered=False,
-            is_active=True
+            is_active=True,
             # created_at not provided, should use default
         )
 

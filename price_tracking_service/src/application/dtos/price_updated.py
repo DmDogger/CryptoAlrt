@@ -13,6 +13,7 @@ class PriceUpdatedEventDTO:
     Used to transfer price update data between application layers
     without exposing domain logic.
     """
+
     cryptocurrency: str
     price: Decimal
     timestamp: datetime

@@ -26,6 +26,4 @@ class JWTSettings(BaseSettings):
     )
 
 
-
-
 jwt_settings = JWTSettings()

@@ -6,7 +6,9 @@ from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from unittest.mock import AsyncMock, MagicMock
 
 from src.infrastructures.exceptions import FailedToSaveWalletError
-from src.infrastructures.database.repositories.wallet_repository import SQLAlchemyWalletRepository
+from src.infrastructures.database.repositories.wallet_repository import (
+    SQLAlchemyWalletRepository,
+)
 from src.domain.entities.wallet_entity import WalletEntity
 from src.infrastructures.database.models.wallet_model import Wallet, WalletSession
 
@@ -108,8 +110,7 @@ class TestWalletRepository:
         mock_wallet_repository: SQLAlchemyWalletRepository,
         sample_wallet_entity: WalletEntity,
     ) -> None:
-        """Test that create_wallet raises FailedToSaveWalletError on database exceptions.
-        """
+        """Test that create_wallet raises FailedToSaveWalletError on database exceptions."""
         mock_async_session.add.side_effect = exception_
 
         with pytest.raises(FailedToSaveWalletError):
@@ -128,8 +129,7 @@ class TestWalletRepository:
         wallet_db_model: Wallet,
         mock_wallet_mapper: MagicMock,
     ) -> None:
-        """Test that update_values updates wallet entity and commits transaction.
-        """
+        """Test that update_values updates wallet entity and commits transaction."""
         mock_result_obj.scalar_one_or_none.return_value = wallet_db_model
         mock_async_session.execute.return_value = mock_result_obj
         mock_wallet_mapper.from_database_model.return_value = sample_wallet_entity
@@ -157,26 +157,25 @@ class TestWalletRepository:
 
     @pytest.mark.asyncio
     async def test_revoke_session_works(
-            self,
-            mock_wallet_repository,
-            mock_wallet_session_mapper,
-            sample_wallet_session_vo,
-            sample_wallet_vo,
-            mock_async_session,
-            mock_result_obj,
+        self,
+        mock_wallet_repository,
+        mock_wallet_session_mapper,
+        sample_wallet_session_vo,
+        sample_wallet_vo,
+        mock_async_session,
+        mock_result_obj,
     ):
 
         mock_result_obj.scalar_one_or_none.return_value = sample_wallet_session_vo
         mock_async_session.execute.return_value = mock_result_obj
-        mock_wallet_session_mapper.from_database_model.return_value = sample_wallet_session_vo.revoke()
-
+        mock_wallet_session_mapper.from_database_model.return_value = (
+            sample_wallet_session_vo.revoke()
+        )
 
         revoked = await mock_wallet_repository.revoke_single_session(
             wallet_address=sample_wallet_vo.value,
             device_id=sample_wallet_session_vo.device_id,
         )
-
-
 
         assert revoked.is_revoked is True
         assert revoked.device_id is not None
@@ -184,21 +183,22 @@ class TestWalletRepository:
 
     @pytest.mark.asyncio
     async def test_terminate_sessions_works_correct(
-            self,
-            mock_result_obj: MagicMock,
-            sample_wallet_vo: "WalletAddressVO",
-            mock_async_session: AsyncMock,
-            mock_wallet_repository: SQLAlchemyWalletRepository,
-            sample_wallet_session_vo: "WalletSessionVO",
-            mock_wallet_session_mapper: MagicMock,
+        self,
+        mock_result_obj: MagicMock,
+        sample_wallet_vo: "WalletAddressVO",
+        mock_async_session: AsyncMock,
+        mock_wallet_repository: SQLAlchemyWalletRepository,
+        sample_wallet_session_vo: "WalletSessionVO",
+        mock_wallet_session_mapper: MagicMock,
     ) -> None:
         mock_result_obj.scalars.return_value.all.return_value = [
             sample_wallet_session_vo.revoke(),
             sample_wallet_session_vo.revoke(),
         ]
         mock_async_session.execute.return_value = mock_result_obj
-        mock_wallet_session_mapper.from_database_model.return_value = sample_wallet_session_vo.revoke()
-
+        mock_wallet_session_mapper.from_database_model.return_value = (
+            sample_wallet_session_vo.revoke()
+        )
 
         result = await mock_wallet_repository.terminate_all_sessions(
             wallet_address=sample_wallet_vo
@@ -208,8 +208,3 @@ class TestWalletRepository:
         assert len(result) == 2
         assert all(res.is_revoked is True for res in result)
         mock_async_session.rollback.assert_not_called()
-
-
-
-
-

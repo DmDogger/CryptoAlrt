@@ -48,4 +48,3 @@ class TestTokenPairVO:
                 access_token=access,
                 refresh_token=refresh,
             )
-

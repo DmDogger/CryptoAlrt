@@ -18,7 +18,9 @@ from src.application.interfaces.repositories import (
 from src.config.database import db_settings
 from src.infrastructures.database.mappers.nonce_mapper import NonceDBMapper
 from src.infrastructures.database.mappers.wallet_mapper import WalletDBMapper
-from src.infrastructures.database.mappers.wallet_session_mapper import WalletSessionDBMapper
+from src.infrastructures.database.mappers.wallet_session_mapper import (
+    WalletSessionDBMapper,
+)
 from src.infrastructures.database.repositories.nonce_repository import (
     SQLAlchemyNonceRepository,
 )
@@ -33,9 +35,7 @@ class DatabaseProvider(Provider):
     @provide(scope=Scope.APP)
     def provide_db_engine(self) -> AsyncEngine:
         """Provide database engine instance."""
-        return create_async_engine(
-            str(make_url(db_settings.database_url)), echo=False
-        )
+        return create_async_engine(str(make_url(db_settings.database_url)), echo=False)
 
     @provide(scope=Scope.APP)
     def provide_sessionmaker(
@@ -97,7 +97,7 @@ class DatabaseProvider(Provider):
         mapper: NonceDBMapper,
     ) -> SQLAlchemyNonceRepository:
         """Provide SQLAlchemyNonceRepository instance (concrete type).
-        
+
         This is needed for SignatureVerifier which requires the concrete type
         rather than the protocol.
         """
@@ -111,7 +111,7 @@ class DatabaseProvider(Provider):
         wallet_session_mapper: WalletSessionDBMapper,
     ) -> SQLAlchemyWalletRepository:
         """Provide SQLAlchemyWalletRepository instance (concrete type).
-        
+
         This is needed for TerminateSessionsUseCase which requires the concrete type
         rather than the protocol.
         """

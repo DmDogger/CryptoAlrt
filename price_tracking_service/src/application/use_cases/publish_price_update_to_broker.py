@@ -11,13 +11,14 @@ from domain.services.update_price import PriceUpdateDomainService
 
 logger = structlog.getLogger(__name__)
 
+
 class PublishPriceUpdateToBrokerUseCase:
     """Use case for publishing cryptocurrency price updates to message broker."""
 
     def __init__(
-            self,
-            broker: EventPublisherProtocol,
-            repository: CryptocurrencyRepositoryProtocol,
+        self,
+        broker: EventPublisherProtocol,
+        repository: CryptocurrencyRepositoryProtocol,
     ):
         """Initialize the use case with required dependencies.
 
@@ -29,9 +30,9 @@ class PublishPriceUpdateToBrokerUseCase:
         self._repository = repository
 
     async def execute(
-            self,
-            cryptocurrency_id: uuid.UUID,
-            new_price: Decimal,
+        self,
+        cryptocurrency_id: uuid.UUID,
+        new_price: Decimal,
     ) -> None:
         """Execute price update publishing workflow.
 
@@ -47,23 +48,29 @@ class PublishPriceUpdateToBrokerUseCase:
             PublishError: If publishing to broker fails.
         """
         try:
-            cryptocurrency = await self._repository.get_by_cryptocurrency_id(cryptocurrency_id)
+            cryptocurrency = await self._repository.get_by_cryptocurrency_id(
+                cryptocurrency_id
+            )
             if not cryptocurrency:
-                logger.error(f"Occurred error during retrieving cryptocurrency from database")
+                logger.error(
+                    f"Occurred error during retrieving cryptocurrency from database"
+                )
                 raise CryptocurrencyNotFound(f"Cryptocurrency with this ID not found")
 
             event = await PriceUpdateDomainService.create_price_updated_event(
                 cryptocurrency_id=cryptocurrency.id,
                 cryptocurrency_symbol=cryptocurrency.symbol,
                 cryptocurrency_name=cryptocurrency.name,
-                new_price=new_price
+                new_price=new_price,
             )
-            logger.info(f'Event was created successfully. Event ID: {event.id}')
+            logger.info(f"Event was created successfully. Event ID: {event.id}")
             await self._broker.publish(
                 topic=broker_settings.price_updates_topic,
                 event=event.to_dict(),  # ← Конвертируем в dict для JSON сериализации
             )
-            logger.info(f"Event was successfully published into topic {broker_settings.price_updates_topic}, Event ID: {event.id}")
+            logger.info(
+                f"Event was successfully published into topic {broker_settings.price_updates_topic}, Event ID: {event.id}"
+            )
 
         except Exception as e:
             logger.error(f"Occurred error during publishing event, error: {e}")

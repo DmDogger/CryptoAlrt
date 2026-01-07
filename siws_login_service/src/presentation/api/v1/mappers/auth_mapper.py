@@ -25,7 +25,7 @@ class AuthMapper:
 
     @staticmethod
     def to_verify_signature_dto(
-            request: VerifySignatureRequest,
+        request: VerifySignatureRequest,
     ) -> tuple[str, str]:
         """Convert Pydantic request to use case inputs.
 
@@ -50,9 +50,7 @@ class AuthMapper:
         return RequestSignatureResponse(message=message)
 
     @staticmethod
-    def to_verify_signature_response(
-            wallet_address: str
-    ) -> VerifySignatureResponse:
+    def to_verify_signature_response(wallet_address: str) -> VerifySignatureResponse:
         """Convert use case output to API response.
 
         Args:

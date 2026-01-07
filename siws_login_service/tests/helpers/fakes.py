@@ -23,8 +23,8 @@ class FakeNonceRepository:
         self._by_uuid: Dict[UUID, NonceEntity] = {}
 
     async def find_active_nonce_by_wallet(
-            self,
-            wallet_address: str,
+        self,
+        wallet_address: str,
     ) -> NonceEntity | None:
         nonce = self._by_wallet.get(wallet_address)
         if nonce is None:
@@ -35,14 +35,14 @@ class FakeNonceRepository:
         return nonce
 
     async def find_nonce_by_wallet(
-            self,
-            wallet_address: str,
+        self,
+        wallet_address: str,
     ) -> NonceEntity | None:
         return self._by_wallet.get(wallet_address)
 
     async def create_nonce(
-            self,
-            nonce_entity: NonceEntity,
+        self,
+        nonce_entity: NonceEntity,
     ) -> NonceEntity:
         wallet_address = nonce_entity.wallet_address.value
         if nonce_entity.uuid in self._by_uuid:
@@ -55,9 +55,9 @@ class FakeNonceRepository:
         return nonce_entity
 
     async def update_nonce(
-            self,
-            nonce_uuid: str,
-            nonce_entity: NonceEntity,
+        self,
+        nonce_uuid: str,
+        nonce_entity: NonceEntity,
     ) -> NonceEntity:
         uuid_obj = UUID(nonce_uuid) if isinstance(nonce_uuid, str) else nonce_uuid
         if uuid_obj not in self._by_uuid:
@@ -76,14 +76,14 @@ class FakeWalletRepository:
         self._sessions: Dict[Tuple[str, int], WalletSessionVO] = {}
 
     async def get_wallet_by_address(
-            self,
-            wallet_address: str,
+        self,
+        wallet_address: str,
     ) -> WalletEntity | None:
         return self._storage.get(wallet_address)
 
     async def create_wallet(
-            self,
-            wallet_entity: WalletEntity,
+        self,
+        wallet_entity: WalletEntity,
     ) -> WalletEntity:
         wallet_address = wallet_entity.wallet_address.value
         if wallet_address in self._storage:
@@ -95,9 +95,9 @@ class FakeWalletRepository:
         return wallet_entity
 
     async def update_values(
-            self,
-            wallet_address: str,
-            wallet_entity: WalletEntity,
+        self,
+        wallet_address: str,
+        wallet_entity: WalletEntity,
     ) -> WalletEntity:
         if wallet_address not in self._storage:
             raise WalletNotFoundError(
@@ -108,8 +108,8 @@ class FakeWalletRepository:
         return wallet_entity
 
     async def save_session(
-            self,
-            wallet_vo: WalletSessionVO,
+        self,
+        wallet_vo: WalletSessionVO,
     ) -> WalletSessionVO:
         """Save a wallet session (fake implementation).
 
@@ -133,8 +133,8 @@ class FakeWalletRepository:
         return wallet_vo
 
     async def get_sessions_by_wallet(
-            self,
-            wallet_address: str,
+        self,
+        wallet_address: str,
     ) -> list[WalletSessionVO]:
         """Retrieve all wallet sessions for a given wallet address (fake implementation).
 
@@ -153,9 +153,9 @@ class FakeWalletRepository:
         return sessions
 
     async def revoke_single_session(
-            self,
-            wallet_address: str,
-            device_id: int,
+        self,
+        wallet_address: str,
+        device_id: int,
     ) -> WalletSessionVO:
         """Revoke a single wallet session by wallet address and device ID (fake implementation).
 
@@ -181,8 +181,8 @@ class FakeWalletRepository:
         return revoked_session
 
     async def terminate_all_sessions(
-            self,
-            wallet_address: str,
+        self,
+        wallet_address: str,
     ) -> list[WalletSessionVO]:
         """Terminate all wallet sessions for a given wallet address (fake implementation).
 

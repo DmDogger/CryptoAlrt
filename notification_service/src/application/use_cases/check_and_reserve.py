@@ -27,9 +27,9 @@ class CheckAndReserveUseCase:
     """
 
     def __init__(
-            self,
-            notification_repository: NotificationRepositoryProtocol,
-            preference_repository: PreferenceRepositoryProtocol,
+        self,
+        notification_repository: NotificationRepositoryProtocol,
+        preference_repository: PreferenceRepositoryProtocol,
     ):
         """Initialize the use case with required repositories.
 
@@ -41,8 +41,8 @@ class CheckAndReserveUseCase:
         self._preference_repository = preference_repository
 
     async def execute(
-            self,
-            event: AlertTriggeredEvent,
+        self,
+        event: AlertTriggeredEvent,
     ) -> list[NotificationEntity] | None:
         """Execute the check and reserve process for alert trigger notifications.
 
@@ -75,24 +75,27 @@ class CheckAndReserveUseCase:
                 "Starting check and reserve process",
                 event_id=event.id,
                 email=event.email,
-                alert_id=event.alert_id
+                alert_id=event.alert_id,
             )
 
-            user_preference = await self._preference_repository.get_by_email(event.email)
+            user_preference = await self._preference_repository.get_by_email(
+                event.email
+            )
 
             if not user_preference:
                 logger.warning(
-                    "User preference not found",
-                    email=event.email,
-                    event_id=event.id
+                    "User preference not found", email=event.email, event_id=event.id
                 )
                 return None
 
-            if not user_preference.email_enabled and not user_preference.telegram_enabled:
+            if (
+                not user_preference.email_enabled
+                and not user_preference.telegram_enabled
+            ):
                 logger.info(
                     "All notification channels disabled for user",
                     email=event.email,
-                    event_id=event.id
+                    event_id=event.id,
                 )
                 return None
 
@@ -102,7 +105,7 @@ class CheckAndReserveUseCase:
                 logger.info(
                     "Processing email notification",
                     email=user_preference.email,
-                    event_id=event.id
+                    event_id=event.id,
                 )
 
                 idempotency_key_for_email = IdempotencyKeyVO.build(
@@ -110,11 +113,13 @@ class CheckAndReserveUseCase:
                     channel=ChannelEnum.EMAIL,
                 )
 
-                if await self._notification_repository.get_by_idempotency_key(idempotency_key_for_email.key):
+                if await self._notification_repository.get_by_idempotency_key(
+                    idempotency_key_for_email.key
+                ):
                     logger.warning(
                         "Email notification already exists",
                         idempotency_key=idempotency_key_for_email.key,
-                        event_id=event.id
+                        event_id=event.id,
                     )
                     return None
 
@@ -124,7 +129,7 @@ class CheckAndReserveUseCase:
                         text=f"Threshold notification: {event.cryptocurrency} reached {event.current_price}"
                     ),
                     recipient=user_preference.email,
-                    idempotency_key=idempotency_key_for_email
+                    idempotency_key=idempotency_key_for_email,
                 )
 
                 entity = await self._notification_repository.save(notification)
@@ -134,26 +139,27 @@ class CheckAndReserveUseCase:
                     "Email notification created successfully",
                     notification_id=str(entity.id),
                     email=user_preference.email,
-                    event_id=event.id
+                    event_id=event.id,
                 )
 
             if user_preference.telegram_enabled and user_preference.telegram_id:
                 logger.info(
                     "Processing telegram notification",
                     telegram_id=user_preference.telegram_id,
-                    event_id=event.id
+                    event_id=event.id,
                 )
 
                 idempotency_key_for_telegram = IdempotencyKeyVO.build(
-                    event_id=event.id,
-                    channel=ChannelEnum.TELEGRAM
+                    event_id=event.id, channel=ChannelEnum.TELEGRAM
                 )
 
-                if await self._notification_repository.get_by_idempotency_key(idempotency_key_for_telegram.key):
+                if await self._notification_repository.get_by_idempotency_key(
+                    idempotency_key_for_telegram.key
+                ):
                     logger.warning(
                         "Telegram notification already exists",
                         idempotency_key=idempotency_key_for_telegram.key,
-                        event_id=event.id
+                        event_id=event.id,
                     )
                     return None
 
@@ -163,7 +169,7 @@ class CheckAndReserveUseCase:
                         text=f"Threshold notification: {event.cryptocurrency} reached {event.current_price}"
                     ),
                     recipient=str(user_preference.telegram_id),
-                    idempotency_key=idempotency_key_for_telegram
+                    idempotency_key=idempotency_key_for_telegram,
                 )
 
                 entity = await self._notification_repository.save(notification)
@@ -173,13 +179,13 @@ class CheckAndReserveUseCase:
                     "Telegram notification created successfully",
                     notification_id=str(entity.id),
                     telegram_id=user_preference.telegram_id,
-                    event_id=event.id
+                    event_id=event.id,
                 )
 
             logger.info(
                 "Check and reserve process completed",
                 event_id=event.id,
-                notifications_created=len(entities_list)
+                notifications_created=len(entities_list),
             )
 
             return entities_list if entities_list else None
@@ -190,7 +196,7 @@ class CheckAndReserveUseCase:
                 event_id=event.id,
                 email=event.email,
                 error=str(e),
-                exc_info=True
+                exc_info=True,
             )
             raise
 
@@ -201,23 +207,6 @@ class CheckAndReserveUseCase:
                 email=event.email,
                 error=str(e),
                 error_type=type(e).__name__,
-                exc_info=True
+                exc_info=True,
             )
             raise
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

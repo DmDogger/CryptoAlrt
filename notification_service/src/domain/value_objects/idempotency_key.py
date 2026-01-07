@@ -15,6 +15,7 @@ class IdempotencyKeyVO:
     Ensures that the key is a string with length between 15 and 100 characters.
     Used to prevent notification duplication.
     """
+
     key: str
 
     def __post_init__(self):

@@ -8,7 +8,6 @@ pytest_plugins = [
     "tests.fixtures.domain_fixtures",
     "tests.fixtures.infra_fixtures",
     "tests.fixtures.application_fixtures",
-
 ]
 
 

@@ -19,7 +19,7 @@ class TestAlertDTO:
             cryptocurrency="BTC",
             threshold_price=threshold,
             is_active=True,
-            created_at=datetime.now(UTC)
+            created_at=datetime.now(UTC),
         )
 
         assert dto.email == "user@example.com"
@@ -36,7 +36,7 @@ class TestAlertDTO:
             cryptocurrency="BTC",
             threshold_price=threshold,
             is_active=True,
-            created_at=datetime.now(UTC)
+            created_at=datetime.now(UTC),
         )
 
         with pytest.raises(AttributeError):

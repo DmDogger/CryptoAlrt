@@ -9,6 +9,7 @@ from ..exceptions import DomainValidationError
 @dataclass(frozen=True, slots=True, kw_only=True)
 class ThresholdValueObject:
     """Value object for price threshold with validation and comparison methods."""
+
     value: Decimal
 
     def __post_init__(self) -> None:

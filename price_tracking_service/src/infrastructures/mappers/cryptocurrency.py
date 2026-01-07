@@ -33,9 +33,8 @@ class InfrastructureCryptocurrencyMapper(SerializationMapperProtocol):
         Converts dictionary back to CryptocurrencyDTO for deserialization.
         """
         return CryptocurrencyDTO(
-            id=UUID(data['id']),
-            symbol=data['symbol'],
-            name=data['name'],
-            created_at=datetime.fromisoformat(data['created_at']),
+            id=UUID(data["id"]),
+            symbol=data["symbol"],
+            name=data["name"],
+            created_at=datetime.fromisoformat(data["created_at"]),
         )
-

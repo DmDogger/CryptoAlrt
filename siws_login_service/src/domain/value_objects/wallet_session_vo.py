@@ -10,7 +10,7 @@ from src.domain.exceptions import (
     InvalidWalletAddressError,
     DeviceValidationError,
     DateValidationError,
-    TokenValidationError
+    TokenValidationError,
 )
 
 
@@ -30,6 +30,7 @@ class WalletSessionVO:
         is_revoked: Session revocation flag (default: False)
         created_at: Session creation timestamp (cannot be in the future)
     """
+
     wallet_address: WalletAddressVO
     device_id: str
     refresh_token_hash: str | None
@@ -112,7 +113,6 @@ class WalletSessionVO:
             created_at=datetime.now(UTC),
         )
 
-
     def revoke(self) -> "WalletSessionVO":
         """
         Revokes the current wallet session.
@@ -130,4 +130,3 @@ class WalletSessionVO:
             is_revoked=True,
             created_at=datetime.now(UTC),
         )
-

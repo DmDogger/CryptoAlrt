@@ -6,6 +6,7 @@ from decimal import Decimal
 from typing import final
 from uuid import uuid4
 
+
 @final
 @dataclass(frozen=True, slots=True)
 class CoinGeckoDTO:
@@ -34,7 +35,7 @@ class CoinGeckoDTO:
             low_24h=data["low_24h"],
             price_change_24h=data["price_change_24h"],
             price_change_percentage_24h=data["price_change_percentage_24h"],
-            last_updated=data["last_updated"]
+            last_updated=data["last_updated"],
         )
 
     def to_dict(self, dto: "CoinGeckoDTO") -> dict:
@@ -49,5 +50,5 @@ class CoinGeckoDTO:
             "low_24h": dto.low_24h,
             "price_change_24h": dto.price_change_24h,
             "price_change_percentage_24h": dto.price_change_percentage_24h,
-            "last_updated": dto.last_updated
+            "last_updated": dto.last_updated,
         }

@@ -27,11 +27,7 @@ class FakeRepository(NotificationRepositoryProtocol):
         self, idempotency_key: str
     ) -> NotificationEntity | None:
         return next(
-            (
-                p
-                for p in self._preferences
-                if p.idempotency_key.key == idempotency_key
-            ),
+            (p for p in self._preferences if p.idempotency_key.key == idempotency_key),
             None,
         )
 
@@ -56,7 +52,6 @@ class FakeUserPreferenceRepository(PreferenceRepositoryProtocol):
         return next((p for p in self._preferences if p.email == email), None)
 
     async def get_by_telegram_id(self, telegram_id: int):
-        return next((p for p in self._preferences if p.telegram_id == telegram_id), None)
-
-
-
+        return next(
+            (p for p in self._preferences if p.telegram_id == telegram_id), None
+        )

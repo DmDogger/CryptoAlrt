@@ -9,17 +9,14 @@ logger = get_logger(__name__)
 
 class GetAlertsUseCase:
     """Use case for retrieving alerts list by user email.
-    
+
     This use case encapsulates the business logic for fetching
     all active alerts associated with a specific email address.
     """
-    
-    def __init__(
-            self,
-            repository: AlertRepositoryProtocol
-    ):
+
+    def __init__(self, repository: AlertRepositoryProtocol):
         """Initialize the use case with required dependencies.
-        
+
         Args:
             repository: Alert repository implementation for data access.
         """
@@ -27,57 +24,53 @@ class GetAlertsUseCase:
 
     async def execute(self, email: str) -> list[AlertEntity]:
         """Retrieve all active alerts for a given email address.
-        
+
         Args:
             email: User's email address to filter alerts.
-            
+
         Returns:
             List of active AlertEntity objects. Returns empty list if no alerts found.
-            
+
         Raises:
             RepositoryError: If a database error occurs during retrieval.
             ValueError: If email format is invalid.
         """
         try:
             logger.info("Executing GetAlertsUseCase", email=email)
-            
+
             if not email or not isinstance(email, str):
                 logger.warning("Invalid email provided", email=email)
                 raise ValueError("Email must be a non-empty string")
-            
+
             logger.info(f"Calling repository method with email: {email}")
-            logger.info(f"Repository object: {self._repository}, type: {type(self._repository)}")
+            logger.info(
+                f"Repository object: {self._repository}, type: {type(self._repository)}"
+            )
             alerts = await self._repository.get_active_alerts_list_by_email(email=email)
             logger.info(f"Repository returned {len(alerts)} alerts")
-            
+
             logger.info(
-                "Successfully retrieved alerts", 
-                email=email, 
-                alerts_count=len(alerts)
+                "Successfully retrieved alerts", email=email, alerts_count=len(alerts)
             )
             return alerts
-            
+
         except RepositoryError as e:
             logger.error(
-                "Repository error while retrieving alerts",
-                email=email,
-                error=str(e)
+                "Repository error while retrieving alerts", email=email, error=str(e)
             )
             raise
-            
+
         except ValueError as e:
             logger.error(
-                "Validation error in GetAlertsUseCase",
-                email=email,
-                error=str(e)
+                "Validation error in GetAlertsUseCase", email=email, error=str(e)
             )
             raise
-            
+
         except Exception as e:
             logger.error(
                 "Unexpected error in GetAlertsUseCase",
                 email=email,
                 error=str(e),
-                error_type=type(e).__name__
+                error_type=type(e).__name__,
             )
             raise

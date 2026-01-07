@@ -32,7 +32,7 @@ class InfrastructurePriceUpdatedEventMapper(SerializationMapperProtocol):
         Converts dictionary back to PriceUpdatedEventDTO for deserialization.
         """
         return PriceUpdatedEventDTO(
-            cryptocurrency=data['cryptocurrency'],
-            price=Decimal(data['price']),
-            timestamp=datetime.fromisoformat(data['timestamp']),
+            cryptocurrency=data["cryptocurrency"],
+            price=Decimal(data["price"]),
+            timestamp=datetime.fromisoformat(data["timestamp"]),
         )

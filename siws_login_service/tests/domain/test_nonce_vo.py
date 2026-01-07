@@ -13,7 +13,7 @@ class TestNonceVO:
         sample_nonce_vo: NonceVO,
     ) -> None:
         """Test that a valid NonceVO can be created from fixture.
-        
+
         Args:
             sample_nonce_vo: Fixture providing a valid NonceVO instance.
         """
@@ -34,7 +34,7 @@ class TestNonceVO:
         sample_nonce_vo: NonceVO,
     ) -> None:
         """Test that creating NonceVO with length < 8 characters raises error.
-        
+
         Args:
             invalid_length: Nonce value shorter than 8 characters.
             sample_nonce_vo: Fixture providing a valid NonceVO instance (unused but required).
@@ -44,12 +44,9 @@ class TestNonceVO:
 
     def test_nonce_creates_unique_values(
         self,
-        sample_nonce_vo: NonceVO,
     ) -> None:
         """Test that generate() method creates unique nonce values.
-        
-        Args:
-            sample_nonce_vo: Fixture providing a valid NonceVO instance.
+
         """
         is_unique = NonceVO.generate()
         is_unique_too = NonceVO.generate()
@@ -62,7 +59,7 @@ class TestNonceVO:
         sample_nonce_vo: NonceVO,
     ) -> None:
         """Test that creating NonceVO with empty value raises error.
-        
+
         Args:
             sample_nonce_vo: Fixture providing a valid NonceVO instance (unused but required).
         """
@@ -74,7 +71,7 @@ class TestNonceVO:
         sample_nonce_vo: NonceVO,
     ) -> None:
         """Test that generate() method creates a valid NonceVO instance.
-        
+
         Args:
             sample_nonce_vo: Fixture providing a valid NonceVO instance (unused but required).
         """
@@ -89,7 +86,7 @@ class TestNonceVO:
         sample_nonce_vo: NonceVO,
     ) -> None:
         """Test that generate() method creates nonce with length >= 8 characters.
-        
+
         Args:
             sample_nonce_vo: Fixture providing a valid NonceVO instance (unused but required).
         """
