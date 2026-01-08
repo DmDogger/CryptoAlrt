@@ -27,7 +27,7 @@ class PortfolioEntity:
     """
 
     wallet_address: str
-    assets: list[AssetEntity]
+    assets: list[AssetEntity] | None
     total_value: Decimal | None
     weight: Decimal | None
     portfolio_total: Decimal | None
