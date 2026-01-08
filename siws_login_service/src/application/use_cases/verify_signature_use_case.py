@@ -1,3 +1,7 @@
+"""Use case for verifying wallet signature and issuing tokens.
+
+Validates Ed25519 signature against message and nonce, then issues access/refresh tokens.
+"""
 import structlog
 
 from src.application.interfaces.repositories import NonceRepositoryProtocol

@@ -105,19 +105,19 @@ except Exception:
 
 # Добавляем пути к src директориям каждого сервиса
 # Важно: порядок имеет значение - более специфичные пути должны быть первыми
-portfolio_tracker_src = project_root / "CryptoAlrt" / "portfolio_tracker" / "src"
+portfolio_tracker_src = project_root / "portfolio_tracker" / "src"
 if portfolio_tracker_src.exists():
     sys.path.insert(0, str(portfolio_tracker_src))
     
-siws_src = project_root / "CryptoAlrt" / "siws_login_service" / "src"
+siws_src = project_root / "siws_login_service" / "src"
 if siws_src.exists():
     sys.path.insert(0, str(siws_src))
     
-notification_src = project_root / "CryptoAlrt" / "notification_service" / "src"
+notification_src = project_root / "notification_service" / "src"
 if notification_src.exists():
     sys.path.insert(0, str(notification_src))
     
-price_tracking_src = project_root / "CryptoAlrt" / "price_tracking_service" / "src"
+price_tracking_src = project_root / "price_tracking_service" / "src"
 if price_tracking_src.exists():
     sys.path.insert(0, str(price_tracking_src))
 '''
@@ -207,6 +207,7 @@ disable = [
     "too-many-instance-attributes",
     "too-many-arguments",
     "too-many-positional-arguments",
+    "import-error",
 ]
 
 [tool.pylint.method_args]

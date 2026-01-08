@@ -1,3 +1,7 @@
+"""Use case for publishing wallet login events to Kafka.
+
+Sends wallet logged-in events to message broker for downstream services.
+"""
 import structlog
 from aiokafka.errors import (
     KafkaConnectionError,

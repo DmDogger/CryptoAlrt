@@ -1,3 +1,7 @@
+"""Use case for issuing token pairs (access + refresh).
+
+Orchestrates creation of both access and refresh tokens for authenticated wallet sessions.
+"""
 import secrets
 import uuid
 

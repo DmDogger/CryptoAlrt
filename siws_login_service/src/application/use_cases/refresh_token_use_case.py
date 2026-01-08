@@ -1,3 +1,7 @@
+"""Use case for issuing JWT refresh tokens.
+
+Creates long-lived refresh tokens for wallet session renewal.
+"""
 import structlog
 
 from src.application.interfaces.token_issuer import RefreshTokenIssuerProtocol

@@ -1,3 +1,7 @@
+"""Use case for revoking a single wallet session.
+
+Marks specific session as revoked, preventing further token refresh.
+"""
 import structlog
 from sqlalchemy.exc import IntegrityError
 

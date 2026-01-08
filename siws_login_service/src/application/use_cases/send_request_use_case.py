@@ -1,3 +1,7 @@
+"""Use case for handling SIWS authentication request.
+
+Generates nonce for wallet signature challenge and creates wallet entity if needed.
+"""
 import structlog
 
 from src.application.interfaces.repositories import (

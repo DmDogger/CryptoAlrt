@@ -1,3 +1,7 @@
+"""Use case for terminating all wallet sessions.
+
+Revokes all active sessions for a wallet, forcing re-authentication.
+"""
 import structlog
 from typing import TYPE_CHECKING
 

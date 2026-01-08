@@ -1,3 +1,7 @@
+"""Use case for issuing JWT access tokens.
+
+Creates short-lived access tokens for authenticated wallet sessions.
+"""
 import structlog
 
 from src.application.interfaces.token_issuer import AccessTokenIssuerProtocol
