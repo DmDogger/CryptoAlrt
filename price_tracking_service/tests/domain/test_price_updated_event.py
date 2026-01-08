@@ -11,9 +11,7 @@ class TestPriceUpdatedEvent:
     def test_create_valid_event(self):
         """Test creating a valid price updated event."""
         timestamp = datetime.now(UTC)
-        event = PriceUpdatedEvent(
-            cryptocurrency="BTC", price=Decimal("50000"), timestamp=timestamp
-        )
+        event = PriceUpdatedEvent(cryptocurrency="BTC", price=Decimal("50000"), timestamp=timestamp)
 
         assert event.cryptocurrency == "BTC"
         assert event.price == Decimal("50000")
@@ -22,9 +20,7 @@ class TestPriceUpdatedEvent:
     def test_event_to_dict(self):
         """Test serialization to dict."""
         timestamp = datetime(2023, 1, 1, tzinfo=UTC)
-        event = PriceUpdatedEvent(
-            cryptocurrency="BTC", price=Decimal("50000"), timestamp=timestamp
-        )
+        event = PriceUpdatedEvent(cryptocurrency="BTC", price=Decimal("50000"), timestamp=timestamp)
 
         data = event.to_dict()
         assert "id" in data

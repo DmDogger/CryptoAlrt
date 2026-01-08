@@ -1,3 +1,8 @@
+"""Use case for fetching cryptocurrency price from CoinGecko API and saving to database.
+
+Fetches current price for specified coin and persists it to the database.
+"""
+
 from decimal import Decimal
 from sys import exc_info
 
@@ -56,16 +61,15 @@ class FetchAndSaveUseCase:
 
         """
         try:
-            logger.info(f"[Info]: Preparing to fetch with coin_id: {coin_id}")
+            logger.debug(
+                "Preparing to fetch prices",
+                coin_id=coin_id,
+            )
             coingecko_dto = await self._coingecko_client.fetch_price(coin_id)
 
             if coingecko_dto is None:
-                logger.error(
-                    f"[Error]: Unsuccessfully fetching. Coingecko returned None."
-                )
-                raise UnsuccessfullyCoinGeckoAPICall(
-                    f"[Error]: Unsuccessfully fetching. Coingecko returned None."
-                )
+                logger.error("Coingecko cannot fetch, returned None")
+                raise UnsuccessfullyCoinGeckoAPICall(f"Cannot to fetch prices from external API")
 
             crypto_entity = await self._crypto_repository.get_cryptocurrency_by_symbol(
                 coingecko_dto.symbol.upper()

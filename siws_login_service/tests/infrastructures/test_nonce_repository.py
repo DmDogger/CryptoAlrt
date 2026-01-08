@@ -39,9 +39,7 @@ class TestNonceRepository:
         mock_async_session.scalars.return_value = mock_result_obj
         mock_nonce_mapper.from_database_model.return_value = sample_nonce_entity
 
-        result = await mock_nonce_repository.find_active_nonce_by_wallet(
-            "testbase58pubkey"
-        )
+        result = await mock_nonce_repository.find_active_nonce_by_wallet("testbase58pubkey")
 
         assert result == sample_nonce_entity
         assert result.used_at is None
@@ -70,9 +68,7 @@ class TestNonceRepository:
         mock_result_obj.first.return_value = None
         mock_async_session.scalars.return_value = mock_result_obj
 
-        result = await mock_nonce_repository.find_active_nonce_by_wallet(
-            "testbase58pubkey"
-        )
+        result = await mock_nonce_repository.find_active_nonce_by_wallet("testbase58pubkey")
 
         assert result is None
         mock_async_session.scalars.assert_called_once()

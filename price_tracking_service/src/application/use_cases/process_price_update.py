@@ -1,3 +1,9 @@
+"""Use case for processing cryptocurrency price updates.
+
+Orchestrates the complete workflow: fetching price from API, saving to database,
+publishing event to Kafka, and checking alert triggers.
+"""
+
 import structlog
 from decimal import Decimal
 
@@ -75,61 +81,72 @@ class ProcessPriceUpdateUseCase:
 
         """
         try:
-            logger.info(
-                f"[ProcessPriceUpdate]: Starting price update workflow for {coin_id}"
+            logger.debug(
+                "Starting price update workflow",
+                coin_id=coin_id,
             )
 
-            logger.info(f"[Info]: Fetching price from CoinGecko and saving to database")
+            logger.info("Fetching price from CoinGecko and saving to database")
             crypto_entity, current_price = await self._fetch_and_save_use_case.execute(
                 coin_id=coin_id
             )
             logger.info(
-                f"[Info]: Successfully fetched and saved {crypto_entity.symbol} "
-                f"(ID: {crypto_entity.id}) at ${current_price} USD"
+                "Successfully fetched and saved",
+                symbol=crypto_entity.symbol,
+                crypto_id=crypto_entity.id,
+                curr_price=current_price,
             )
 
-            logger.info(f"[Step 2/3]: Publishing price update event to Kafka")
+            logger.info("Publishing price update event to Kafka")
             await self._publish_price_updated_use_case.execute(
                 cryptocurrency_id=crypto_entity.id, new_price=current_price
             )
-            logger.info(f"[Info]: Successfully published price update to Kafka")
+            logger.info("Successfully published price update to Kafka")
 
-            logger.info(f"[Step 3/3]: Checking alert thresholds")
             await self._check_threshold_use_case.execute(
                 cryptocurrency=crypto_entity.symbol, current_price=current_price
             )
             logger.info(
-                f"[Info]: Successfully checked thresholds for {crypto_entity.symbol}"
-            )
-
-            logger.info(
-                f"[ProcessPriceUpdate]: Complete workflow finished for {crypto_entity.symbol} "
-                f"at ${current_price} USD"
+                "Successfully checked thresholds",
+                symbol=crypto_entity.symbol,
             )
 
             return crypto_entity, current_price
 
         except UnsuccessfullyCoinGeckoAPICall as e:
             logger.error(
-                f"[ProcessPriceUpdate]: Failed to fetch price from CoinGecko for {coin_id}: {e}"
+                "Failed to fetch price from CoinGecko",
+                coint_id=coin_id,
+                error=str(e),
+                exc_info=True,
+                error_type=type(e).__name__,
             )
             raise
 
         except RepositoryError as e:
             logger.error(
-                f"[ProcessPriceUpdate]: Failed to save price to database for {coin_id}: {e}"
+                "Failed to save fetched prices to database",
+                coint_id=coin_id,
+                error=str(e),
+                exc_info=True,
+                error_type=type(e).__name__,
             )
             raise
 
         except PublishError as e:
             logger.error(
-                f"[ProcessPriceUpdate]: Failed to publish price update to Kafka for {coin_id}: {e}"
+                "Failed to publish message into broker",
+                coint_id=coin_id,
+                error=str(e),
+                exc_info=True,
+                error_type=type(e).__name__,
             )
             raise
 
         except Exception as e:
             logger.error(
-                f"[ProcessPriceUpdate]: Unexpected error during price update workflow for {coin_id}: {e}",
+                "Unexpected error occurred",
+                error=str(e),
                 exc_info=True,
             )
             raise UnexpectedError(

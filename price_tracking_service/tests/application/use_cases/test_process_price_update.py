@@ -99,8 +99,8 @@ class TestProcessPriceUpdateUseCase:
         """Test when fetching from CoinGecko fails."""
         # Arrange
         coin_id = "bitcoin"
-        mock_fetch_and_save_use_case.execute.side_effect = (
-            UnsuccessfullyCoinGeckoAPICall("API error")
+        mock_fetch_and_save_use_case.execute.side_effect = UnsuccessfullyCoinGeckoAPICall(
+            "API error"
         )
 
         # Act & Assert
@@ -117,9 +117,7 @@ class TestProcessPriceUpdateUseCase:
         """Test when saving to database fails."""
         # Arrange
         coin_id = "bitcoin"
-        mock_fetch_and_save_use_case.execute.side_effect = RepositoryError(
-            "Database error"
-        )
+        mock_fetch_and_save_use_case.execute.side_effect = RepositoryError("Database error")
 
         # Act & Assert
         with pytest.raises(RepositoryError):
@@ -161,9 +159,7 @@ class TestProcessPriceUpdateUseCase:
         """Test when unexpected error occurs."""
         # Arrange
         coin_id = "bitcoin"
-        mock_fetch_and_save_use_case.execute.side_effect = ValueError(
-            "Unexpected error"
-        )
+        mock_fetch_and_save_use_case.execute.side_effect = ValueError("Unexpected error")
 
         # Act & Assert
         with pytest.raises(UnexpectedError):

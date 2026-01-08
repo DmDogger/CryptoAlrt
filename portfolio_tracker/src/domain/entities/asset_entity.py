@@ -39,8 +39,7 @@ class AssetEntity:
             )
         if not isinstance(self.amount, Decimal):
             raise DomainValidationError(
-                f"Asset's amount must be decimal"
-                f"But got: {type(self.amount).__name__}"
+                f"Asset's amount must be decimal" f"But got: {type(self.amount).__name__}"
             )
         if self.amount < 0:
             raise DomainValidationError(

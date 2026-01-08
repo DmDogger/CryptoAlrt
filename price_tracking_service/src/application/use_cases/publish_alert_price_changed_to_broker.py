@@ -1,3 +1,8 @@
+"""Use case for publishing price change alert to Kafka.
+
+Checks price change against threshold and publishes alert creation event.
+"""
+
 from decimal import Decimal
 from uuid import UUID
 
@@ -46,13 +51,12 @@ class PublishAlertPriceChangedToBrokerUseCase:
             threshold_price: The threshold price.
         """
         try:
-            cryptocurrency = await self._repository.get_by_cryptocurrency_id(
-                cryptocurrency_id
-            )
+            cryptocurrency = await self._repository.get_by_cryptocurrency_id(cryptocurrency_id)
 
             if cryptocurrency is None:
                 logger.error(
-                    f"[Not found]: Cryptocurrency with ID {cryptocurrency_id} not exist"
+                    "Cryptocurrency not exist",
+                    cryptocurrency_id=cryptocurrency_id,
                 )
                 raise CryptocurrencyNotFound(
                     f"Cryptocurrency with ID {cryptocurrency_id} not found"
@@ -71,14 +75,10 @@ class PublishAlertPriceChangedToBrokerUseCase:
                 await self._broker.publish(
                     topic=broker_settings.alert_created_topic, event=alert_event
                 )
-                logger.info(f"[Broker]: Successfully sent message into broker.")
+                logger.info(f"Successfully sent message into broker.")
             else:
-                logger.error(
-                    f"[Not found]: Old price fot this cryptocurrency not found."
-                )
+                logger.error("Old price fot this cryptocurrency not found.")
 
         except Exception as e:
-            logger.exception(
-                "[Unexpected]: Unexpected error during alert publishing", exc_info=e
-            )
+            logger.exception("Unexpected error during alert publishing", exc_info=e)
             raise PublishError("Occurred error during publishing event.")

@@ -50,4 +50,3 @@ class Portfolio(Base):
         lazy="selectin",
         cascade="all, delete-orphan",
     )
-

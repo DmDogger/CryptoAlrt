@@ -89,9 +89,7 @@ class VerifySignatureUseCase:
                 wallet_address=wallet_address,
             )
 
-            active_nonce = await self._repository.find_active_nonce_by_wallet(
-                wallet_address
-            )
+            active_nonce = await self._repository.find_active_nonce_by_wallet(wallet_address)
 
             if active_nonce is None:
                 logger.warning(
@@ -198,6 +196,4 @@ class VerifySignatureUseCase:
                 error=str(e),
                 exc_info=True,
             )
-            raise InfrastructureError(
-                f"Unexpected error during signature verification: {e}"
-            ) from e
+            raise InfrastructureError(f"Unexpected error during signature verification: {e}") from e

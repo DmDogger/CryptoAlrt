@@ -16,16 +16,12 @@ class TestThresholdValueObject:
 
     def test_threshold_invalid_negative_value(self):
         """Test that negative value raises error."""
-        with pytest.raises(
-            DomainValidationError, match="Threshold value must be positive"
-        ):
+        with pytest.raises(DomainValidationError, match="Threshold value must be positive"):
             ThresholdValueObject(value=Decimal("-100"))
 
     def test_threshold_invalid_zero_value(self):
         """Test that zero value raises error."""
-        with pytest.raises(
-            DomainValidationError, match="Threshold value must be positive"
-        ):
+        with pytest.raises(DomainValidationError, match="Threshold value must be positive"):
             ThresholdValueObject(value=Decimal("0"))
 
     def test_threshold_is_above_true(self):

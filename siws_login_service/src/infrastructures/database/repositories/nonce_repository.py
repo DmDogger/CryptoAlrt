@@ -186,8 +186,7 @@ class SQLAlchemyNonceRepository:
                 exc_info=True,
             )
             raise FailedToSaveNonceError(
-                f"Nonce with UUID {nonce_entity.uuid} already exists "
-                f"or constraint violated"
+                f"Nonce with UUID {nonce_entity.uuid} already exists " f"or constraint violated"
             ) from e
 
         except SQLAlchemyError as e:
@@ -230,10 +229,7 @@ class SQLAlchemyNonceRepository:
             )
             dict_entity = self._mapper.to_dict(nonce_entity)
             stmt = (
-                update(Nonce)
-                .where(Nonce.uuid == nonce_uuid)
-                .values(dict_entity)
-                .returning(Nonce)
+                update(Nonce).where(Nonce.uuid == nonce_uuid).values(dict_entity).returning(Nonce)
             )
             result = await self._session.execute(stmt)
             updated_nonce = result.scalar_one_or_none()
@@ -279,6 +275,4 @@ class SQLAlchemyNonceRepository:
                 error=str(e),
                 exc_info=True,
             )
-            raise FailedToUpdateNonceError(
-                f"Failed to update nonce with UUID: {nonce_uuid}"
-            ) from e
+            raise FailedToUpdateNonceError(f"Failed to update nonce with UUID: {nonce_uuid}") from e

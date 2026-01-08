@@ -46,9 +46,7 @@ class AlertEntity:
             DomainValidationError: If email has invalid format or
                 cryptocurrency symbol has invalid length.
         """
-        if not re.match(
-            r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", self.email
-        ):
+        if not re.match(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", self.email):
             raise DomainValidationError("Invalid email format")
         if len(self.cryptocurrency) < 3 or len(self.cryptocurrency) > 100:
             raise DomainValidationError(

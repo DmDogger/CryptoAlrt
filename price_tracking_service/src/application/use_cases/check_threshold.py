@@ -1,3 +1,9 @@
+"""Use case for checking alert thresholds and publishing trigger events.
+
+Checks if current price meets threshold conditions for active alerts
+and publishes trigger events to Kafka.
+"""
+
 from decimal import Decimal
 
 import structlog
@@ -50,7 +56,7 @@ class CheckThresholdUseCase:
             PublishError: If publishing event to broker fails.
         """
         try:
-            logger.info(
+            logger.debug(
                 "Starting threshold check for cryptocurrency",
                 cryptocurrency=cryptocurrency,
                 current_price=str(current_price),
@@ -61,19 +67,20 @@ class CheckThresholdUseCase:
             )
 
             if not alerts:
-                logger.info(
+                logger.warning(
                     "No active alerts found for cryptocurrency",
                     cryptocurrency=cryptocurrency,
                 )
                 return
 
             logger.info(
-                f"Checking {len(alerts)} active alert(s)",
+                f"Checking active alert(s)",
                 cryptocurrency=cryptocurrency,
                 alerts_count=len(alerts),
             )
 
             triggered_count = 0
+
             for alert in alerts:
                 if CheckThresholdService.check_threshold(
                     alert_entity=alert, price_to_check=current_price
@@ -106,9 +113,6 @@ class CheckThresholdUseCase:
                     )
                     triggered_alert = alert.mark_as_triggered()
                     await self._alert_repository.update(triggered_alert)
-                    logger.info(
-                        f"Successfully saved alert as triggered (ID: {triggered_alert.id}"
-                    )
 
                     triggered_count += 1
 

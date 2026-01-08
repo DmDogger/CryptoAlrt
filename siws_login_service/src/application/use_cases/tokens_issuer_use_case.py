@@ -127,6 +127,4 @@ class TokensIssuerUseCase:
                 error=str(e),
                 exc_info=True,
             )
-            raise InfrastructureError(
-                f"Unexpected error during token issuance: {e}"
-            ) from e
+            raise InfrastructureError(f"Unexpected error during token issuance: {e}") from e

@@ -7,9 +7,7 @@ from src.infrastructures.exceptions import InfrastructureError
 
 class TestTokensIssuerUC:
     @pytest.mark.asyncio
-    async def test_correct(
-        self, mock_tokens_issuer, fake_wallet_repository, sample_wallet_entity
-    ):
+    async def test_correct(self, mock_tokens_issuer, fake_wallet_repository, sample_wallet_entity):
         await fake_wallet_repository.create_wallet(
             wallet_entity=sample_wallet_entity,
         )

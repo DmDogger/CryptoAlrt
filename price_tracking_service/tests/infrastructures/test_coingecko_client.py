@@ -31,9 +31,7 @@ class TestCoinGeckoClient:
     @pytest.fixture
     def coingecko_client(self, mock_httpx_client, mock_repository):
         """Create CoinGeckoClient instance with mocks."""
-        return CoinGeckoClient(
-            client=mock_httpx_client, cryptocurrency_repository=mock_repository
-        )
+        return CoinGeckoClient(client=mock_httpx_client, cryptocurrency_repository=mock_repository)
 
     @pytest.fixture
     def mock_coingecko_response(self):
@@ -143,9 +141,7 @@ class TestCoinGeckoClient:
     # the exact retry behavior requires refactoring the exception handling.
 
     @pytest.mark.asyncio
-    async def test_fetch_price_with_different_coin_ids(
-        self, coingecko_client, mock_httpx_client
-    ):
+    async def test_fetch_price_with_different_coin_ids(self, coingecko_client, mock_httpx_client):
         """Test fetch_price works with different coin IDs."""
         # Arrange
         coin_ids = ["bitcoin", "ethereum", "cardano"]
@@ -183,9 +179,7 @@ class TestCoinGeckoClient:
     # as the functionality is now handled by FetchAndSaveUseCase
 
     @pytest.mark.asyncio
-    async def test_fetch_price_unexpected_exception(
-        self, coingecko_client, mock_httpx_client
-    ):
+    async def test_fetch_price_unexpected_exception(self, coingecko_client, mock_httpx_client):
         """Test fetch_price handles unexpected exceptions."""
         # Arrange
         coin_id = "bitcoin"

@@ -75,6 +75,4 @@ class AccessTokenIssueUseCase:
                 error=str(e),
                 exc_info=True,
             )
-            raise TokenIssueError(
-                f"Unexpected error during access token issuance: {e}"
-            ) from e
+            raise TokenIssueError(f"Unexpected error during access token issuance: {e}") from e

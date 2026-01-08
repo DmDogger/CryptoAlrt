@@ -27,9 +27,7 @@ class TestCryptocurrencyEntity:
         """Test creating cryptocurrency - factory method not implemented."""
         # Factory method create() is not implemented in CryptocurrencyEntity
         # Creating directly instead
-        crypto = CryptocurrencyEntity(
-            symbol="ETH", name="Ethereum", coingecko_id="ethereum"
-        )
+        crypto = CryptocurrencyEntity(symbol="ETH", name="Ethereum", coingecko_id="ethereum")
 
         assert crypto.symbol == "ETH"
         assert crypto.name == "Ethereum"
@@ -71,9 +69,7 @@ class TestCryptocurrencyEntity:
 
     def test_cryptocurrency_invalid_name_too_short(self):
         """Test that name shorter than 2 characters raises error."""
-        with pytest.raises(
-            DomainValidationError, match="Name must be at least 2 characters"
-        ):
+        with pytest.raises(DomainValidationError, match="Name must be at least 2 characters"):
             CryptocurrencyEntity(
                 id=uuid4(),
                 symbol="BTC",

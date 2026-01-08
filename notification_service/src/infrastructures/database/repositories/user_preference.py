@@ -61,9 +61,7 @@ class SQLAlchemyUserPreferenceRepository(PreferenceRepositoryProtocol):
             result = res.first()
 
             if result is None:
-                logger.warning(
-                    "User preference not found", preference_id=str(preference_id)
-                )
+                logger.warning("User preference not found", preference_id=str(preference_id))
                 return None
 
             logger.info(
@@ -149,20 +147,14 @@ class SQLAlchemyUserPreferenceRepository(PreferenceRepositoryProtocol):
             UserPreferenceEntity if found, None otherwise.
         """
         try:
-            logger.info(
-                "Retrieving user preference by telegram_id", telegram_id=telegram_id
-            )
+            logger.info("Retrieving user preference by telegram_id", telegram_id=telegram_id)
 
-            stmt = select(UserPreference).where(
-                UserPreference.telegram_id == telegram_id
-            )
+            stmt = select(UserPreference).where(UserPreference.telegram_id == telegram_id)
             res = await self.session.scalars(stmt)
             result = res.first()
 
             if result is None:
-                logger.warning(
-                    "User preference not found by telegram_id", telegram_id=telegram_id
-                )
+                logger.warning("User preference not found by telegram_id", telegram_id=telegram_id)
                 return None
 
             logger.info(
@@ -218,9 +210,7 @@ class SQLAlchemyUserPreferenceRepository(PreferenceRepositoryProtocol):
             self.session.add(db_model)
             await self.session.commit()
 
-            logger.info(
-                "User preference saved successfully", preference_id=str(preference.id)
-            )
+            logger.info("User preference saved successfully", preference_id=str(preference.id))
             return preference
 
         except IntegrityError as e:
@@ -291,9 +281,7 @@ class SQLAlchemyUserPreferenceRepository(PreferenceRepositoryProtocol):
             result = await self.session.execute(upd_stmt)
             updated_model = result.scalar_one()
 
-            logger.info(
-                "User preference updated successfully", preference_id=str(preference.id)
-            )
+            logger.info("User preference updated successfully", preference_id=str(preference.id))
             return self._mapper.from_database_model(updated_model)
 
         except IntegrityError as e:

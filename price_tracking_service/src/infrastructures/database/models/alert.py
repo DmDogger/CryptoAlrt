@@ -34,14 +34,10 @@ class Alert(Base):
     cryptocurrency_id: Mapped[uuid.UUID] = mapped_column(
         PG_UUID(as_uuid=True), ForeignKey("cryptocurrency.id"), nullable=False
     )
-    threshold_price: Mapped[Decimal] = mapped_column(
-        Numeric(precision=10, scale=2), nullable=False
-    )
+    threshold_price: Mapped[Decimal] = mapped_column(Numeric(precision=10, scale=2), nullable=False)
     is_triggered: Mapped[bool] = mapped_column(Boolean, nullable=True, default=False)
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     cryptocurrency: Mapped["Cryptocurrency"] = relationship(
         "Cryptocurrency", back_populates="alerts"

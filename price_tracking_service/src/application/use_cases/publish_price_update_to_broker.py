@@ -1,3 +1,8 @@
+"""Use case for publishing cryptocurrency price updates to Kafka.
+
+Creates price update event and sends it to the message broker.
+"""
+
 import uuid
 from decimal import Decimal
 
@@ -48,13 +53,9 @@ class PublishPriceUpdateToBrokerUseCase:
             PublishError: If publishing to broker fails.
         """
         try:
-            cryptocurrency = await self._repository.get_by_cryptocurrency_id(
-                cryptocurrency_id
-            )
+            cryptocurrency = await self._repository.get_by_cryptocurrency_id(cryptocurrency_id)
             if not cryptocurrency:
-                logger.error(
-                    f"Occurred error during retrieving cryptocurrency from database"
-                )
+                logger.error(f"Occurred error during retrieving cryptocurrency from database")
                 raise CryptocurrencyNotFound(f"Cryptocurrency with this ID not found")
 
             event = await PriceUpdateDomainService.create_price_updated_event(
@@ -63,15 +64,24 @@ class PublishPriceUpdateToBrokerUseCase:
                 cryptocurrency_name=cryptocurrency.name,
                 new_price=new_price,
             )
-            logger.info(f"Event was created successfully. Event ID: {event.id}")
+            logger.info(
+                "Event was created successfully",
+                event_id=event.id,
+            )
             await self._broker.publish(
                 topic=broker_settings.price_updates_topic,
-                event=event.to_dict(),  # ← Конвертируем в dict для JSON сериализации
+                event=event.to_dict(),
             )
             logger.info(
-                f"Event was successfully published into topic {broker_settings.price_updates_topic}, Event ID: {event.id}"
+                "Event was successfully published",
+                topic=broker_settings.price_updates_topic,
+                event_id=event.id,
             )
 
         except Exception as e:
-            logger.error(f"Occurred error during publishing event, error: {e}")
+            logger.error(
+                f"Occurred error during publishing event, error",
+                error=str(e),
+                exc_info=True,
+            )
             raise PublishError("Occurred error during publishing event.")

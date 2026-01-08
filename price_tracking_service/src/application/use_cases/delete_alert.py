@@ -1,3 +1,8 @@
+"""Use case for deleting user alert.
+
+Deletes alert by ID, ensuring it belongs to the specified email.
+"""
+
 import uuid
 
 import structlog
@@ -22,25 +27,38 @@ class DeleteAlertUseCase:
     ):
         """Delete alert by id ensuring it belongs to the provided email."""
         try:
-            logger.info(
-                f"Start to getting information about alert with ID: {alert_id} for {email}"
+            logger.debug(
+                "Starting to get information about alert",
+                alert_id=alert_id,
+                email=email,
             )
             alert_exist = await self._repository.get_alert_by_id(alert_id)
 
             if not alert_exist:
-                logger.error(f"Alert with ID: {alert_id} for {email} not found")
-                raise AlertNotFound(f"Alert with ID: {alert_id} not found.")
-            logger.info(f"Alert with ID: {alert_id} for {email} found")
+                logger.error(
+                    "Alert not found",
+                    alert_id=alert_id,
+                    email=email,
+                )
 
-            logger.info(f"Trying to delete alert with id {alert_exist.id} for {email}")
+                raise AlertNotFound(f"Alert with ID: {alert_id} not found.")
+
+            logger.info(
+                "Deleting alert",
+                alert_id=alert_id,
+                email=email,
+            )
+
             await self._repository.delete_alert_by_id(
                 email=email,
                 alert_id=alert_exist.id,
             )
-            logger.info(f"Alert deleted successfully")
 
         except (SQLAlchemyError, Exception) as e:
             logger.error(
-                f"Occurred error ({e}) with deleting alert for {email} with {alert_exist.id}"
+                "Error occurred during deleting alert",
+                error=str(e),
+                exc_info=True,
+                error_type=type(e).__name__,
             )
             raise

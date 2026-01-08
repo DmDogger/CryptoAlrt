@@ -94,6 +94,4 @@ def sample_notification_entity_marked_as_sent(
 @pytest.fixture
 def sample_idempotency_key(sample_event_id, sample_email_channel):
     """Фикстура для создания IdempotencyKeyVO."""
-    return IdempotencyKeyVO.build(
-        event_id=sample_event_id, channel=sample_email_channel
-    )
+    return IdempotencyKeyVO.build(event_id=sample_event_id, channel=sample_email_channel)

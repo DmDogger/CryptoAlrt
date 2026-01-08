@@ -78,6 +78,4 @@ class RefreshTokenIssueUseCase:
                 error=str(e),
                 exc_info=True,
             )
-            raise TokenIssueError(
-                f"Unexpected error during refresh token issuance: {e}"
-            ) from e
+            raise TokenIssueError(f"Unexpected error during refresh token issuance: {e}") from e

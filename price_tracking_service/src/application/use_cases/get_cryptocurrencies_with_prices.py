@@ -1,3 +1,8 @@
+"""Use case for retrieving cryptocurrencies with their latest prices.
+
+Returns all cryptocurrencies from database along with their current prices.
+"""
+
 import structlog
 from typing import final
 
@@ -36,7 +41,7 @@ class GetCryptocurrenciesWithPricesUseCase:
             RepositoryError: If database operation fails.
         """
         try:
-            logger.info("Fetching cryptocurrencies with prices")
+            logger.debug("Fetching cryptocurrencies with prices")
 
             cryptocurrencies = (
                 await self._repository.get_sorted_cryptocurrencies_by_created_at_time()
@@ -60,9 +65,7 @@ class GetCryptocurrenciesWithPricesUseCase:
                     }
                 )
 
-            logger.info(
-                "Successfully retrieved cryptocurrencies with prices", count=len(result)
-            )
+            logger.info("Successfully retrieved cryptocurrencies with prices", count=len(result))
 
             return result
 

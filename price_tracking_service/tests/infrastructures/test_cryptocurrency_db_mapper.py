@@ -1,8 +1,9 @@
-import pytest
 from datetime import UTC, datetime
 from uuid import uuid4
 from unittest import mock
 from unittest.mock import MagicMock
+
+import pytest
 
 from domain.entities.cryptocurrency import CryptocurrencyEntity
 
@@ -29,7 +30,6 @@ class TestCryptocurrencyDBMapper:
             created_at=datetime(2023, 1, 1, 12, 0, 0, tzinfo=UTC),
         )
 
-        # Mock the Cryptocurrency model to avoid SQLAlchemy initialization issues
         with mock.patch(
             "src.infrastructures.database.mappers.cryptocurrency_db_mapper.Cryptocurrency"
         ) as mock_model_class:
@@ -66,12 +66,10 @@ class TestCryptocurrencyDBMapper:
 
     def test_from_database_model(self, mapper):
         """Test conversion from Cryptocurrency database model to CryptocurrencyEntity."""
-        # Create mock model
         model = MagicMock()
         model.id = uuid4()
         model.symbol = "BTC"
         model.name = "Bitcoin"
-        # Create datetime without timezone
         naive_dt = datetime(2023, 1, 1, 12, 0, 0)
         model.created_at = naive_dt
 

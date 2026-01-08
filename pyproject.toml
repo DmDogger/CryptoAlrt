@@ -72,6 +72,12 @@ ignore = ["CVS"]
 
 ignore-patterns = ["^\\.#"]
 
+ignore-paths = [
+    "^\\.venv/",
+    ".*/site-packages/",
+    ".*/\\.venv/",
+]
+
 init-hook = '''
 import sys
 import os

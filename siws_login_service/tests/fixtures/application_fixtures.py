@@ -45,9 +45,7 @@ def asyncmock_verify_signature_uc(
 
 
 @pytest.fixture
-def mock_verify_signature_uc(
-    fake_nonce_repository, mock_signature_verifier, mock_tokens_issuer
-):
+def mock_verify_signature_uc(fake_nonce_repository, mock_signature_verifier, mock_tokens_issuer):
     return VerifySignatureUseCase(
         nonce_repository=fake_nonce_repository,
         signature_verifier=AsyncMock(spec=SignatureVerifier),

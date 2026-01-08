@@ -142,8 +142,7 @@ class SQLAlchemyWalletRepository(WalletRepositoryProtocol):
                 exc_info=True,
             )
             raise FailedToSaveWalletError(
-                f"Failed to create wallet with address: "
-                f"{wallet_entity.wallet_address.value}"
+                f"Failed to create wallet with address: " f"{wallet_entity.wallet_address.value}"
             ) from e
 
     async def update_values(
@@ -186,8 +185,7 @@ class SQLAlchemyWalletRepository(WalletRepositoryProtocol):
                     wallet_address=wallet_address,
                 )
                 raise WalletNotFoundError(
-                    f"Cannot update wallet: wallet with address "
-                    f"{wallet_address} not found"
+                    f"Cannot update wallet: wallet with address " f"{wallet_address} not found"
                 )
 
             await self._session.commit()
@@ -221,8 +219,7 @@ class SQLAlchemyWalletRepository(WalletRepositoryProtocol):
                 exc_info=True,
             )
             raise FailedToUpdateWalletError(
-                f"Failed to update wallet with address: "
-                f"{wallet_entity.wallet_address.value}"
+                f"Failed to update wallet with address: " f"{wallet_entity.wallet_address.value}"
             ) from e
 
     async def save_session(
@@ -321,9 +318,7 @@ class SQLAlchemyWalletRepository(WalletRepositoryProtocol):
                 "Retrieving wallet sessions by wallet address",
                 wallet_address=wallet_address,
             )
-            stmt = select(WalletSession).where(
-                WalletSession.wallet_address == wallet_address
-            )
+            stmt = select(WalletSession).where(WalletSession.wallet_address == wallet_address)
             result = await self._session.scalars(stmt)
             sessions = result.all()
 
@@ -341,8 +336,7 @@ class SQLAlchemyWalletRepository(WalletRepositoryProtocol):
             )
 
             return [
-                self._wallet_session_mapper.from_database_model(session_)
-                for session_ in sessions
+                self._wallet_session_mapper.from_database_model(session_) for session_ in sessions
             ]
         except SQLAlchemyError as e:
             logger.error(
@@ -575,8 +569,7 @@ async def terminate_all_sessions(
         )
 
         return [
-            self._wallet_session_mapper.from_database_model(session)
-            for session in revoked_sessions
+            self._wallet_session_mapper.from_database_model(session) for session in revoked_sessions
         ]
 
     except IntegrityError as e:

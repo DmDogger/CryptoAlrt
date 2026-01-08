@@ -1,3 +1,8 @@
+"""Use case for saving new alert to database.
+
+Creates and persists user alert with specified parameters (cryptocurrency, threshold, email).
+"""
+
 from decimal import Decimal
 from uuid import UUID
 
@@ -29,17 +34,12 @@ class SaveAlertToDBUseCase:
         self,
         alert_pydantic: AlertCreateRequest,
     ) -> None:
-        """Creates and saves alert entity to database.
-
-        Args:
-
-
-        Raises:
-            AlertSavingError: If saving fails.
-        """
+        """Creates and saves alert entity to database."""
         try:
-            cryptocurrency = await self._cryptocurrency_repository.get_cryptocurrency_by_coingecko_id(
-                alert_pydantic.cryptocurrency_slug
+            cryptocurrency = (
+                await self._cryptocurrency_repository.get_cryptocurrency_by_coingecko_id(
+                    alert_pydantic.cryptocurrency_slug
+                )
             )
 
             if not cryptocurrency:
@@ -48,15 +48,17 @@ class SaveAlertToDBUseCase:
                 )
 
             alert = self._mapper.from_pydantic_to_entity(alert_pydantic)
-            await self._alert_repository.save(
-                cryptocurrency_id=cryptocurrency.id, alert=alert
-            )
+            await self._alert_repository.save(cryptocurrency_id=cryptocurrency.id, alert=alert)
             logger.info(
-                f"[Success]: Alert with email: {alert_pydantic.email} saved successfully"
+                "Alert saved",
+                email=alert_pydantic.email,
             )
 
         except Exception as e:
             logger.error(
-                f"[Error]: Failed to save alert with ID {alert_pydantic.email}: {e}"
+                "Failed to save alert",
+                email=alert_pydantic.email,
+                error=str(e),
+                exc_info=True,
             )
             raise AlertSavingError(f"Failed to save alert: {e}") from e

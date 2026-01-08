@@ -14,9 +14,7 @@ class BrokerSettings(BaseSettings):
             Example: "localhost:9092" or "kafka1:9092,kafka2:9092"
     """
 
-    bootstrap_servers: str = Field(
-        default="localhost:9092", alias="KAFKA_BOOTSTRAP_SERVERS"
-    )
+    bootstrap_servers: str = Field(default="localhost:9092", alias="KAFKA_BOOTSTRAP_SERVERS")
     wallet_logged_in: str = Field(default="wallet-logged-in", alias="WALLET_LOGGED_IN")
 
 

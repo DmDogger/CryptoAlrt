@@ -68,9 +68,7 @@ def register_exception_handlers(app: FastAPI) -> None:
         )
 
     @app.exception_handler(DomainNonceNotFoundError)
-    async def domain_nonce_not_found_handler(
-        request: Request, exc: DomainNonceNotFoundError
-    ):
+    async def domain_nonce_not_found_handler(request: Request, exc: DomainNonceNotFoundError):
         """Handle domain nonce not found errors."""
         logger.warning(
             "Nonce not found (domain)",

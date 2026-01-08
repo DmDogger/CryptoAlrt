@@ -38,9 +38,7 @@ class DatabaseProvider(Provider):
         return create_async_engine(str(make_url(db_settings.database_url)), echo=False)
 
     @provide(scope=Scope.APP)
-    def provide_sessionmaker(
-        self, engine: AsyncEngine
-    ) -> async_sessionmaker[AsyncSession]:
+    def provide_sessionmaker(self, engine: AsyncEngine) -> async_sessionmaker[AsyncSession]:
         """Provide sessionmaker instance."""
         return async_sessionmaker(engine, expire_on_commit=False)
 

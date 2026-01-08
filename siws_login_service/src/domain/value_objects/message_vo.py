@@ -32,13 +32,9 @@ class MessageVO:
     statement: (
         str | None
     )  # Human-readable ASCII assertion that the user will sign, and it must not contain newline characters.
-    uri: (
-        str  # RFC 3986 URI referring to the resource that is the subject of the signing
-    )
+    uri: str  # RFC 3986 URI referring to the resource that is the subject of the signing
     version: str | None  # Current version of the message.
-    nonce: (
-        str  # Randomized token used to prevent replay attacks, at least 8 alphanumeric
-    )
+    nonce: str  # Randomized token used to prevent replay attacks, at least 8 alphanumeric
     expiration_time: (
         datetime  # ISO 8601 datetime string that, if present, indicates when the signed
     )

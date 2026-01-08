@@ -69,9 +69,7 @@ class TerminateSessionsUseCase:
                     "Wallet not found to terminate sessions",
                     wallet_address=wallet_address,
                 )
-                raise WalletNotFoundError(
-                    f"Wallet not found with address: {wallet_address}"
-                )
+                raise WalletNotFoundError(f"Wallet not found with address: {wallet_address}")
 
             sessions = await self._repository.get_sessions_by_wallet(
                 wallet_address=wallet.wallet_address.value,
@@ -95,9 +93,7 @@ class TerminateSessionsUseCase:
                     "No sessions terminated",
                     wallet_address=wallet_address,
                 )
-                raise SessionError(
-                    f"Failed to terminate sessions for wallet: {wallet_address}"
-                )
+                raise SessionError(f"Failed to terminate sessions for wallet: {wallet_address}")
 
             logger.info(
                 "All wallet sessions terminated successfully",
@@ -115,8 +111,7 @@ class TerminateSessionsUseCase:
                 exc_info=True,
             )
             raise SessionError(
-                f"Error occurred during sessions termination "
-                f"for address: {wallet_address}"
+                f"Error occurred during sessions termination " f"for address: {wallet_address}"
             ) from e
 
         except Exception as e:

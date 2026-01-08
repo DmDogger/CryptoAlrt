@@ -86,9 +86,7 @@ async def fetch_all_prices_task(
             )
 
         except UnexpectedError as e:
-            logger.error(
-                f"[Unexpected error]: Unexpected error during fetching from TaskIQ {e}"
-            )
+            logger.error(f"[Unexpected error]: Unexpected error during fetching from TaskIQ {e}")
 
     logger.info(f"[Task]: All fetching successfully done.")
 
@@ -98,6 +96,4 @@ async def fetch_all_prices_task(
 from taskiq.scheduler.scheduler import TaskiqScheduler
 from taskiq.schedule_sources import LabelScheduleSource
 
-scheduler = TaskiqScheduler(
-    broker=taskiq_broker, sources=[LabelScheduleSource(taskiq_broker)]
-)
+scheduler = TaskiqScheduler(broker=taskiq_broker, sources=[LabelScheduleSource(taskiq_broker)])

@@ -60,8 +60,7 @@ class WalletSessionVO:
             )
         if not isinstance(self.device_id, str):
             raise DeviceValidationError(
-                f"Expected device_id to be a string, "
-                f"but got {type(self.device_id).__name__}"
+                f"Expected device_id to be a string, " f"but got {type(self.device_id).__name__}"
             )
 
         if self.created_at > datetime.now(UTC):

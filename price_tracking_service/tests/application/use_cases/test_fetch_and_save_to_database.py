@@ -74,18 +74,14 @@ class TestFetchAndSaveUseCase:
         # Arrange
         coin_id = "bitcoin"
         mock_coingecko_client.fetch_price.return_value = sample_coingecko_dto
-        mock_crypto_repository.get_cryptocurrency_by_symbol.return_value = (
-            sample_crypto_entity
-        )
+        mock_crypto_repository.get_cryptocurrency_by_symbol.return_value = sample_crypto_entity
 
         # Act
         await use_case.execute(coin_id)
 
         # Assert
         mock_coingecko_client.fetch_price.assert_called_once_with(coin_id)
-        mock_crypto_repository.get_cryptocurrency_by_symbol.assert_called_once_with(
-            "BTC"
-        )
+        mock_crypto_repository.get_cryptocurrency_by_symbol.assert_called_once_with("BTC")
         mock_crypto_repository.save.assert_not_called()  # Should not create new crypto
         mock_crypto_repository.save_price.assert_called_once_with(
             cryptocurrency_id=sample_crypto_entity.id, price_data=sample_coingecko_dto
@@ -110,9 +106,7 @@ class TestFetchAndSaveUseCase:
 
         # Assert
         mock_coingecko_client.fetch_price.assert_called_once_with(coin_id)
-        mock_crypto_repository.get_cryptocurrency_by_symbol.assert_called_once_with(
-            "BTC"
-        )
+        mock_crypto_repository.get_cryptocurrency_by_symbol.assert_called_once_with("BTC")
 
         # Should create new cryptocurrency
         mock_crypto_repository.save.assert_called_once()
@@ -138,9 +132,7 @@ class TestFetchAndSaveUseCase:
         mock_coingecko_client.fetch_price.return_value = None
 
         # Act & Assert
-        with pytest.raises(
-            UnsuccessfullyCoinGeckoAPICall, match="Coingecko returned None"
-        ):
+        with pytest.raises(UnsuccessfullyCoinGeckoAPICall, match="Coingecko returned None"):
             await use_case.execute(coin_id)
 
         # Should not call repository methods
@@ -155,9 +147,7 @@ class TestFetchAndSaveUseCase:
         """Test execute when CoinGecko API call fails."""
         # Arrange
         coin_id = "bitcoin"
-        mock_coingecko_client.fetch_price.side_effect = UnsuccessfullyCoinGeckoAPICall(
-            "API error"
-        )
+        mock_coingecko_client.fetch_price.side_effect = UnsuccessfullyCoinGeckoAPICall("API error")
 
         # Act & Assert
         with pytest.raises(UnsuccessfullyCoinGeckoAPICall):
@@ -204,9 +194,7 @@ class TestFetchAndSaveUseCase:
         # Arrange
         coin_id = "bitcoin"
         mock_coingecko_client.fetch_price.return_value = sample_coingecko_dto
-        mock_crypto_repository.get_cryptocurrency_by_symbol.return_value = (
-            sample_crypto_entity
-        )
+        mock_crypto_repository.get_cryptocurrency_by_symbol.return_value = sample_crypto_entity
         mock_crypto_repository.save_price.side_effect = Exception("Price save error")
 
         # Act & Assert
@@ -245,9 +233,7 @@ class TestFetchAndSaveUseCase:
             )
 
             mock_coingecko_client.fetch_price.return_value = dto
-            mock_crypto_repository.get_cryptocurrency_by_symbol.return_value = (
-                sample_crypto_entity
-            )
+            mock_crypto_repository.get_cryptocurrency_by_symbol.return_value = sample_crypto_entity
 
             # Act
             await use_case.execute(coin_id)
@@ -292,9 +278,7 @@ class TestFetchAndSaveUseCase:
         mock_coingecko_client.fetch_price.assert_called_once_with("solana")
 
         # 2. Check if crypto exists
-        mock_crypto_repository.get_cryptocurrency_by_symbol.assert_called_once_with(
-            "SOL"
-        )
+        mock_crypto_repository.get_cryptocurrency_by_symbol.assert_called_once_with("SOL")
 
         # 3. Create new crypto
         mock_crypto_repository.save.assert_called_once()
@@ -323,9 +307,7 @@ class TestFetchAndSaveUseCase:
         # Arrange
         coin_id = "bitcoin"
         mock_coingecko_client.fetch_price.return_value = sample_coingecko_dto
-        mock_crypto_repository.get_cryptocurrency_by_symbol.return_value = (
-            sample_crypto_entity
-        )
+        mock_crypto_repository.get_cryptocurrency_by_symbol.return_value = sample_crypto_entity
 
         # Act
         await use_case.execute(coin_id)

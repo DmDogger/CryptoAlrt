@@ -37,32 +37,20 @@ class NotificationEntity:
         if not isinstance(self.channel, ChannelEnum):
             raise DomainValidationError("Channel must be a value from ChannelEnum")
         if not isinstance(self.idempotency_key, IdempotencyKeyVO):
-            raise DomainValidationError(
-                "Idempotency key must be an IdempotencyKeyVO instance"
-            )
+            raise DomainValidationError("Idempotency key must be an IdempotencyKeyVO instance")
         if len(self.message.text) < 5 or len(self.message.text) > 100:
-            raise DomainValidationError(
-                "Message length must be between 1 and 100 characters"
-            )
+            raise DomainValidationError("Message length must be between 1 and 100 characters")
         if len(self.recipient) < 5 or len(self.recipient) > 100:
-            raise DomainValidationError(
-                "Recipient length must be between 1 and 100 characters"
-            )
+            raise DomainValidationError("Recipient length must be between 1 and 100 characters")
         if self.sent_at:
             sent_at_naive = (
-                self.sent_at.replace(tzinfo=None)
-                if self.sent_at.tzinfo
-                else self.sent_at
+                self.sent_at.replace(tzinfo=None) if self.sent_at.tzinfo else self.sent_at
             )
             created_at_naive = (
-                self.created_at.replace(tzinfo=None)
-                if self.created_at.tzinfo
-                else self.created_at
+                self.created_at.replace(tzinfo=None) if self.created_at.tzinfo else self.created_at
             )
             if sent_at_naive <= created_at_naive:
-                raise DomainValidationError(
-                    "Sent at date cannot be later than created_at"
-                )
+                raise DomainValidationError("Sent at date cannot be later than created_at")
 
     @classmethod
     def create(

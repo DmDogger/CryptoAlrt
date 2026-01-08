@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from decimal import Decimal
+from sys import exc_info
 from typing import final
 from uuid import UUID
 
@@ -77,18 +78,24 @@ class SQLAlchemyCryptocurrencyRepository(CryptocurrencyRepositoryProtocol):
 
             if not models:
                 logger.info(
-                    f"[Not found]: No cryptocurrencies found with coingecko_id: {coingecko_id}"
+                    f"No cryptocurrencies found",
+                    coingecko_id=coingecko_id,
                 )
                 return []
 
             logger.info(
-                f"[Success]: Found {len(models)} cryptocurrency(ies) with coingecko_id: {coingecko_id}"
+                "Successfully found cryptocurrency(ies)",
+                len_=len(models),
+                coingecko_id=coingecko_id,
             )
             return [self._mapper.from_database_model(model) for model in models]
 
         except SQLAlchemyError as e:
             logger.error(
-                f"[SQLAlchemyError]: Error retrieving cryptocurrencies by coingecko_id={coingecko_id}: {e}"
+                "Error retrieving cryptocurrencies",
+                error=str(e),
+                error_type=type(e).__name__,
+                exc_info=True,
             )
             raise RepositoryError(
                 f"Error occurred while retrieving cryptocurrencies with coingecko_id: {coingecko_id}"
@@ -118,29 +125,37 @@ class SQLAlchemyCryptocurrencyRepository(CryptocurrencyRepositoryProtocol):
                 return None
             return self._mapper.from_database_model(model)
         except SQLAlchemyError as e:
-            logger.error(f"Error: {e}, ID: {cryptocurrency_id}")
+            logger.error(
+                "Occurred error",
+                error=str(e),
+                error_type=type(e).__name__,
+                exc_info=True,
+            )
             raise RepositoryError(
                 f"Occurred error during retrieving cryptocurrency information with ID: {cryptocurrency_id}"
             )
 
     async def get_cryptocurrency_by_coingecko_id(self, coingecko_id: str):
         try:
-            stmt = select(Cryptocurrency).where(
-                Cryptocurrency.coingecko_id == coingecko_id
-            )
+            stmt = select(Cryptocurrency).where(Cryptocurrency.coingecko_id == coingecko_id)
             res = await self.session.scalars(stmt)
             result = res.first()
 
             if result is None:
-                logger.error(
-                    f"[Not found]: Not found cryptocurrency with coingecko_id: {coingecko_id}"
+                logger.warning(
+                    "Cryptocurrency not found",
+                    coingecko_id=coingecko_id,
                 )
                 return None
+
             return self._mapper.from_database_model(result)
 
         except SQLAlchemyError as e:
             logger.error(
-                f"[SQLAlchemyError]: Occurred error during retrieving from database {e}"
+                "Occurred error during retrieving from database",
+                error=str(e),
+                error_type=type(e).__name__,
+                exc_info=True,
             )
             raise RepositoryError(
                 f"Database error occurred while retrieving crypto with coingecko_id: {coingecko_id}"
@@ -153,15 +168,17 @@ class SQLAlchemyCryptocurrencyRepository(CryptocurrencyRepositoryProtocol):
             result = res.first()
 
             if result is None:
-                logger.error(
-                    f"[Not found]: Not found cryptocurrency with symbol: {symbol}"
-                )
+                logger.warning("Not found cryptocurrency", symbol=symbol)
                 return None
+
             return self._mapper.from_database_model(result)
 
         except SQLAlchemyError as e:
             logger.error(
-                f"[SQLAlchemyError]: Occurred error during retrieving from database {e}"
+                "Occurred error during retrieving from database",
+                error=str(e),
+                error_type=type(e).__name__,
+                exc_info=True,
             )
             raise RepositoryError(
                 f"Database error occurred while retrieving crypto with symbol: {symbol}"
@@ -188,13 +205,14 @@ class SQLAlchemyCryptocurrencyRepository(CryptocurrencyRepositoryProtocol):
                 .limit(1)
             )
             result = await self.session.scalars(stmt)
-            logger.info(
-                f"Successfully got last price by crypto id: {cryptocurrency_id}"
-            )
+            logger.info(f"Successfully got last price", cryptocurrency_id=cryptocurrency_id)
             return result.first()
         except SQLAlchemyError as e:
             logger.error(
-                f"Unexpected SQLAlchemy Error: {e}, crypto-id: {cryptocurrency_id}"
+                "Unexptected error during retrieving from database",
+                error=str(e),
+                error_type=type(e).__name__,
+                exc_info=True,
             )
             raise RepositoryError(
                 f"Occurred error during retrieving of cryptocurrency price information"
@@ -219,7 +237,12 @@ class SQLAlchemyCryptocurrencyRepository(CryptocurrencyRepositoryProtocol):
             models = result.all()
             return [self._mapper.from_database_model(model) for model in models]
         except SQLAlchemyError as e:
-            logger.error(f"Error: {e}")
+            logger.error(
+                "Error during retrieving from database",
+                error=str(e),
+                error_type=type(e).__name__,
+                exc_info=True,
+            )
             raise RepositoryError(
                 "Occurred error during retrieving list of cryptocurrency information"
             )
@@ -241,21 +264,31 @@ class SQLAlchemyCryptocurrencyRepository(CryptocurrencyRepositoryProtocol):
 
         except IntegrityError as e:
             await self.session.rollback()
-            logger.error(f"IntegrityError: {e}, entity: {cryptocurrency_entity}")
+            logger.error(
+                "Integrity error occurred",
+                error=str(e),
+                error_type=type(e).__name__,
+                exc_info=True,
+            )
             raise RepositoryError(
                 f"Occurred error during saving cryptocurrency information with ID: {cryptocurrency_entity.id}"
             )
 
         except SQLAlchemyError as e:
             await self.session.rollback()
-            logger.error(f"SQLAlchemyError: {e}, entity: {cryptocurrency_entity}")
+            logger.error(
+                "SQLAlchemy Error",
+                error=str(e),
+                error_type=type(e).__name__,
+                exc_info=True,
+            )
             raise RepositoryError(
                 f"Occurred error during saving cryptocurrency information with ID: {cryptocurrency_entity.id}"
             )
 
     async def save_price(
         self, cryptocurrency_id: UUID, price_data: CoinGeckoDTO
-    ) -> None:
+    ) -> CryptocurrencyEntity | None:
         """Save price for cryptocurrency aggregate.
 
         If cryptocurrency doesn't exist, it will be created first.
@@ -270,12 +303,11 @@ class SQLAlchemyCryptocurrencyRepository(CryptocurrencyRepositoryProtocol):
         try:
             crypto = await self.session.get(Cryptocurrency, cryptocurrency_id)
             if not crypto:
-                logger.error(f"[Error]:Cryptocurrency {cryptocurrency_id} not found...")
-                raise CryptocurrencyNotFound(
-                    f"Cryptocurrency {cryptocurrency_id} not found..."
+                logger.warning(
+                    "Cryptocurrency not found",
+                    cryptocurrency_id=cryptocurrency_id,
                 )
-
-            logger.info(f"[Info]: Saving price for cryptocurrency {cryptocurrency_id}")
+                raise CryptocurrencyNotFound(f"Cryptocurrency {cryptocurrency_id} not found...")
 
             price_model = self._mapper.from_api_response_to_database_model(
                 entity=price_data, cryptocurrency_id=cryptocurrency_id
@@ -283,27 +315,25 @@ class SQLAlchemyCryptocurrencyRepository(CryptocurrencyRepositoryProtocol):
 
             self.session.add(price_model)
             await self.session.commit()
-
-            logger.info(
-                f"[Success]: Price saved for cryptocurrency {cryptocurrency_id}"
-            )
             added_obj = await self.session.get(Cryptocurrency, cryptocurrency_id)
             return self._mapper.from_database_model(added_obj)
 
         except IntegrityError as e:
             await self.session.rollback()
             logger.error(
-                f"[IntegrityError]: {e}, cryptocurrency_id: {cryptocurrency_id}"
+                "Integrity error occurred",
+                error=str(e),
+                error_type=type(e).__name__,
+                exc_info=True,
             )
-            raise RepositoryError(
-                f"Failed to save price for {cryptocurrency_id}: integrity error"
-            )
+            raise RepositoryError(f"Failed to save price for {cryptocurrency_id}: integrity error")
 
         except SQLAlchemyError as e:
             await self.session.rollback()
             logger.error(
-                f"[SQLAlchemyError]: {e}, cryptocurrency_id: {cryptocurrency_id}"
+                "SQLAlchemy Error",
+                error=str(e),
+                error_type=type(e).__name__,
+                exc_info=True,
             )
-            raise RepositoryError(
-                f"Failed to save price for {cryptocurrency_id}: database error"
-            )
+            raise RepositoryError(f"Failed to save price for {cryptocurrency_id}: database error")

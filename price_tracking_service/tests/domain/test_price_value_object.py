@@ -29,9 +29,7 @@ class TestPriceValueObject:
     def test_price_invalid_zero_price(self):
         """Test that zero price raises error."""
         with pytest.raises(DomainValidationError, match="Price must be positive"):
-            PriceValueObject(
-                cryptocurrency="BTC", price=Decimal("0"), timestamp=datetime.now(UTC)
-            )
+            PriceValueObject(cryptocurrency="BTC", price=Decimal("0"), timestamp=datetime.now(UTC))
 
     def test_price_invalid_short_cryptocurrency(self):
         """Test that short cryptocurrency raises error."""
@@ -47,16 +45,12 @@ class TestPriceValueObject:
         """Test that future timestamp raises error."""
         future_time = datetime.now(UTC).replace(year=2030)
         with pytest.raises(DomainValidationError, match="Timestamp can't be in future"):
-            PriceValueObject(
-                cryptocurrency="BTC", price=Decimal("50000"), timestamp=future_time
-            )
+            PriceValueObject(cryptocurrency="BTC", price=Decimal("50000"), timestamp=future_time)
 
     def test_price_to_dict(self):
         """Test serialization to dict."""
         timestamp = datetime(2023, 1, 1, tzinfo=UTC)
-        price = PriceValueObject(
-            cryptocurrency="BTC", price=Decimal("50000"), timestamp=timestamp
-        )
+        price = PriceValueObject(cryptocurrency="BTC", price=Decimal("50000"), timestamp=timestamp)
 
         data = price.to_dict()
         assert data["cryptocurrency"] == "BTC"

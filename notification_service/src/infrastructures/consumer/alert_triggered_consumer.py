@@ -11,9 +11,7 @@ from infrastructures.broker.broker import broker
 logger = structlog.getLogger(__name__)
 
 
-@broker.subscriber(
-    broker_settings.alert_triggered_topic, title="consume_alert_triggered"
-)
+@broker.subscriber(broker_settings.alert_triggered_topic, title="consume_alert_triggered")
 async def consume_alert_triggered(
     event: AlertTriggeredEvent,
     use_case: FromDishka[ProcessAlertTriggeredUseCase],

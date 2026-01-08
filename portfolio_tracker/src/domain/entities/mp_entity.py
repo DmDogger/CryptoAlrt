@@ -39,8 +39,7 @@ class MPEntity:
             )
         if not isinstance(self.price, Decimal):
             raise DomainValidationError(
-                "Price of cryptocurrency must be decimal"
-                f"But got: {type(self.price).__name__}"
+                "Price of cryptocurrency must be decimal" f"But got: {type(self.price).__name__}"
             )
         if self.timestamp > datetime.now(UTC):
             raise DomainValidationError(

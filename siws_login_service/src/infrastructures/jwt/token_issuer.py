@@ -77,9 +77,7 @@ class JWTAccessIssuer(AccessTokenIssuerProtocol):
                 iss=payload.get("iss"),
             )
 
-            encoded = jwt.encode(
-                payload, self._jwt_settings.secret_key, algorithm="EdDSA"
-            )
+            encoded = jwt.encode(payload, self._jwt_settings.secret_key, algorithm="EdDSA")
 
             logger.info(
                 "JWT access token issued successfully",
@@ -103,9 +101,7 @@ class JWTAccessIssuer(AccessTokenIssuerProtocol):
                 error=str(e),
                 exc_info=True,
             )
-            raise TokenIssueError(
-                f"Unexpected error during access token issuance: {e}"
-            ) from e
+            raise TokenIssueError(f"Unexpected error during access token issuance: {e}") from e
 
 
 @final
@@ -174,9 +170,7 @@ class JWTRefreshIssuer(RefreshTokenIssuerProtocol):
                 jti=payload.get("jti"),
             )
 
-            encoded = jwt.encode(
-                payload, self._jwt_settings.secret_key, algorithm="EdDSA"
-            )
+            encoded = jwt.encode(payload, self._jwt_settings.secret_key, algorithm="EdDSA")
 
             logger.info(
                 "JWT refresh token issued successfully",
@@ -200,6 +194,4 @@ class JWTRefreshIssuer(RefreshTokenIssuerProtocol):
                 error=str(e),
                 exc_info=True,
             )
-            raise TokenIssueError(
-                f"Unexpected error during refresh token issuance: {e}"
-            ) from e
+            raise TokenIssueError(f"Unexpected error during refresh token issuance: {e}") from e

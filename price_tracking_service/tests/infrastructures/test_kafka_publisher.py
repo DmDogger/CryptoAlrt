@@ -45,22 +45,16 @@ class TestKafkaEventPublisher:
 
         await publisher.publish(topic=topic, event=price_updated_dto)
 
-        mock_broker.publish.assert_called_once_with(
-            message=price_updated_dto, topic=topic
-        )
+        mock_broker.publish.assert_called_once_with(message=price_updated_dto, topic=topic)
 
     @pytest.mark.asyncio
-    async def test_publish_with_different_topic(
-        self, publisher, mock_broker, price_updated_dto
-    ):
+    async def test_publish_with_different_topic(self, publisher, mock_broker, price_updated_dto):
         """Test publishing to different topic."""
         topic = "alert-created"
 
         await publisher.publish(topic=topic, event=price_updated_dto)
 
-        mock_broker.publish.assert_called_once_with(
-            message=price_updated_dto, topic=topic
-        )
+        mock_broker.publish.assert_called_once_with(message=price_updated_dto, topic=topic)
 
     @pytest.mark.asyncio
     async def test_publish_with_different_event_type(self, publisher, mock_broker):
@@ -82,9 +76,7 @@ class TestKafkaEventPublisher:
         mock_broker.publish.assert_called_once_with(message=alert_dto, topic="alerts")
 
     @pytest.mark.asyncio
-    async def test_publish_raises_error_on_failure(
-        self, publisher, mock_broker, price_updated_dto
-    ):
+    async def test_publish_raises_error_on_failure(self, publisher, mock_broker, price_updated_dto):
         """Test that PublishError is raised when publishing fails."""
         mock_broker.publish.side_effect = Exception("Kafka connection error")
         topic = "price-updates"
@@ -105,6 +97,4 @@ class TestKafkaEventPublisher:
 
         await publisher.publish(topic="price-updates", event=event_dict)
 
-        mock_broker.publish.assert_called_once_with(
-            message=event_dict, topic="price-updates"
-        )
+        mock_broker.publish.assert_called_once_with(message=event_dict, topic="price-updates")

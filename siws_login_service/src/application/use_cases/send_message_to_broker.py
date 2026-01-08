@@ -60,25 +60,17 @@ class SendUserLoggedUseCase:
             logger.info("Wallet logged in event published successfully")
 
         except (KafkaConnectionError, KafkaTimeoutError) as e:
-            logger.error(
-                f"Occurred error during event publication. Type: Connection Error: {e}"
-            )
+            logger.error(f"Occurred error during event publication. Type: Connection Error: {e}")
             raise PublicationError(f"Cannot to send message to broker #1") from e
 
         except KafkaConfigurationError as e:
-            logger.error(
-                f"Occurred error during event publication. Type: Configuration Error: {e}"
-            )
+            logger.error(f"Occurred error during event publication. Type: Configuration Error: {e}")
             raise PublicationError(f"Cannot to send message to broker #2") from e
 
         except InvalidTopicError as e:
-            logger.error(
-                f"Occurred error during event publication. Type: Topic Error: {e} "
-            )
+            logger.error(f"Occurred error during event publication. Type: Topic Error: {e} ")
             raise PublicationError(f"Cannot to send message to broker #3") from e
 
         except Exception as e:
-            logger.error(
-                f"Occurred error during event publication. Type: Unknown: {e} "
-            )
+            logger.error(f"Occurred error during event publication. Type: Unknown: {e} ")
             raise PublicationError(f"Cannot to send message to broker #4") from e

@@ -58,9 +58,7 @@ class RevokeSessionUseCase:
                     "Wallet not found to terminate session",
                     wallet_address=wallet_address,
                 )
-                raise WalletNotFoundError(
-                    f"Wallet not found with address: {wallet_address}"
-                )
+                raise WalletNotFoundError(f"Wallet not found with address: {wallet_address}")
 
             sessions = await self._repository.get_sessions_by_wallet(
                 wallet_address=wallet.wallet_address.value,

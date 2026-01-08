@@ -29,9 +29,7 @@ class TestUserPreference:
         sample_user_preference_entity_with_enabled_telegram,
     ):
         """Test that set_telegram_enabled() method creates new entity with telegram_enabled set to True."""
-        assert (
-            sample_user_preference_entity_with_enabled_telegram.telegram_enabled == True
-        )
+        assert sample_user_preference_entity_with_enabled_telegram.telegram_enabled == True
 
     def test_user_preference_is_immutable(
         self,
@@ -48,9 +46,7 @@ class TestUserPreference:
             "big_string" * 100,
         ],
     )
-    def test_invalid_email_length(
-        self, invalid_email_value, sample_user_preference_entity
-    ):
+    def test_invalid_email_length(self, invalid_email_value, sample_user_preference_entity):
         """Test that creating UserPreferenceEntity with email length outside 5-100 characters raises DomainValidationError."""
         with pytest.raises(DomainValidationError):
             UserPreferenceEntity(

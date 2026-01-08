@@ -43,15 +43,11 @@ class NonceEntity:
     uuid: UUID
     wallet_address: WalletAddressVO
     nonce: NonceVO  # Randomized token used to prevent replay attacks, at least 8 alphanumeric
-    domain: str = (
-        "cryptoalrt.io"  # RFC 4501 dns authority that is requesting the signing.
-    )
+    domain: str = "cryptoalrt.io"  # RFC 4501 dns authority that is requesting the signing.
     statement: (
         str | None
     )  # Human-readable ASCII assertion that the user will sign, and it must not contain newline characters.
-    uri: (
-        str  # RFC 3986 URI referring to the resource that is the subject of the signing
-    )
+    uri: str  # RFC 3986 URI referring to the resource that is the subject of the signing
     version: str | None  # Current version of the message.
     expiration_time: (
         datetime  # ISO 8601 datetime string that, if present, indicates when the signed
@@ -86,9 +82,7 @@ class NonceEntity:
                 f"Wallet address must be an instance of WalletAddressVO, got {type(self.wallet_address).__name__}"
             )
         if not isinstance(self.statement, str):
-            raise DomainError(
-                f"Statement must be a string, got {type(self.statement).__name__}"
-            )
+            raise DomainError(f"Statement must be a string, got {type(self.statement).__name__}")
         if self.issued_at >= self.expiration_time:
             raise DateValidationError(
                 f"issued_at ({self.issued_at}) must be before expiration_time ({self.expiration_time})"

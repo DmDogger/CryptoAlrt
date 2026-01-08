@@ -50,6 +50,4 @@ class KafkaEventPublisher(EventPublisherProtocol):
                 event_type=type(event).__name__,
                 exc_info=True,
             )
-            raise PublishError(
-                f"Failed to publish event to topic '{topic}': {e}"
-            ) from e
+            raise PublishError(f"Failed to publish event to topic '{topic}': {e}") from e

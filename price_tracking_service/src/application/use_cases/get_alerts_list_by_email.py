@@ -1,3 +1,8 @@
+"""Use case for retrieving user alerts by email.
+
+Returns all active alerts associated with the specified email address.
+"""
+
 from structlog import get_logger
 
 from application.interfaces.repositories import AlertRepositoryProtocol
@@ -36,33 +41,32 @@ class GetAlertsUseCase:
             ValueError: If email format is invalid.
         """
         try:
-            logger.info("Executing GetAlertsUseCase", email=email)
+            logger.debug("Executing GetAlertsUseCase", email=email)
 
             if not email or not isinstance(email, str):
                 logger.warning("Invalid email provided", email=email)
                 raise ValueError("Email must be a non-empty string")
 
-            logger.info(f"Calling repository method with email: {email}")
-            logger.info(
-                f"Repository object: {self._repository}, type: {type(self._repository)}"
-            )
             alerts = await self._repository.get_active_alerts_list_by_email(email=email)
-            logger.info(f"Repository returned {len(alerts)} alerts")
 
-            logger.info(
-                "Successfully retrieved alerts", email=email, alerts_count=len(alerts)
-            )
+            logger.info("Successfully retrieved alerts", email=email, alerts_count=len(alerts))
             return alerts
 
         except RepositoryError as e:
             logger.error(
-                "Repository error while retrieving alerts", email=email, error=str(e)
+                "Repository error while retrieving alerts",
+                email=email,
+                error=str(e),
+                exc_info=True,
             )
             raise
 
         except ValueError as e:
             logger.error(
-                "Validation error in GetAlertsUseCase", email=email, error=str(e)
+                "Validation error in GetAlertsUseCase",
+                email=email,
+                error=str(e),
+                exc_info=True,
             )
             raise
 

@@ -62,9 +62,7 @@ class NotificationRepositoryProtocol(Protocol):
         ...
 
     @abstractmethod
-    async def get_by_idempotency_key(
-        self, idempotency_key: str
-    ) -> NotificationEntity | None:
+    async def get_by_idempotency_key(self, idempotency_key: str) -> NotificationEntity | None:
         """Get notification by its idempotency key.
 
         Args:

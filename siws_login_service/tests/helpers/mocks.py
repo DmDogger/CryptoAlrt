@@ -110,9 +110,7 @@ def mock_nonce_repository(
     mock_async_session: AsyncMock,
     mock_nonce_mapper: MagicMock,
 ):
-    return SQLAlchemyNonceRepository(
-        _session=mock_async_session, _mapper=mock_nonce_mapper
-    )
+    return SQLAlchemyNonceRepository(_session=mock_async_session, _mapper=mock_nonce_mapper)
 
 
 @pytest.fixture

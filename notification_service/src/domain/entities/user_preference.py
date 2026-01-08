@@ -29,9 +29,7 @@ class UserPreferenceEntity:
 
     def __post_init__(self):
         if len(self.email) < 5 or len(self.email) > 100:
-            raise DomainValidationError(
-                "Email length must be between 5 and 100 characters"
-            )
+            raise DomainValidationError("Email length must be between 5 and 100 characters")
 
     @classmethod
     def create(
@@ -57,9 +55,7 @@ class UserPreferenceEntity:
             id=uuid.uuid4(),
             email=email,
             email_enabled=email_enabled,
-            telegram_enabled=(
-                telegram_enabled if telegram_enabled is not None else False
-            ),
+            telegram_enabled=(telegram_enabled if telegram_enabled is not None else False),
             telegram_id=telegram_id,
         )
 

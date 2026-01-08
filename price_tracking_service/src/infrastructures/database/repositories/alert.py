@@ -53,9 +53,7 @@ class SQLAlchemyAlertRepository(AlertRepositoryProtocol):
     async def get_alert_by_id(self, alert_id: str | UUID) -> AlertEntity | None:
         try:
             stmt = (
-                select(Alert)
-                .options(joinedload(Alert.cryptocurrency))
-                .where(Alert.id == alert_id)
+                select(Alert).options(joinedload(Alert.cryptocurrency)).where(Alert.id == alert_id)
             )
             res = await self.session.scalars(stmt)
             result = res.first()
@@ -79,63 +77,6 @@ class SQLAlchemyAlertRepository(AlertRepositoryProtocol):
                 f"Unexpected error occurred while retrieving alert with ID: {alert_id}"
             )
 
-    async def get_active_alerts_by_name(self, crypto_name: str) -> list[AlertEntity]:
-        """Retrieve all active alerts for a specific cryptocurrency name.
-
-        Args:
-            crypto_name: Cryptocurrency name to filter alerts (e.g., Bitcoin, Ethereum).
-
-        Returns:
-            List of active AlertEntity objects, empty list if none found.
-
-        Raises:
-            RepositoryError: If a database error occurs during retrieval.
-        """
-        try:
-            logger.info(
-                f"Retrieving active alerts for cryptocurrency name: {crypto_name}"
-            )
-
-            stmt = (
-                select(Alert)
-                .join(Alert.cryptocurrency)
-                .where(
-                    Cryptocurrency.name == crypto_name,
-                    Alert.is_active == True,
-                    Alert.is_triggered == False,
-                )
-                .order_by(desc(Alert.created_at))
-            )
-            result = await self.session.scalars(stmt)
-            alerts = result.all()
-
-            if not alerts:
-                logger.info(
-                    f"No active alerts found for cryptocurrency name: {crypto_name}"
-                )
-                return []
-
-            logger.info(
-                f"Retrieved {len(alerts)} active alert(s) for cryptocurrency name: {crypto_name}"
-            )
-            return [self._mapper.from_database_model(alert) for alert in alerts]
-
-        except SQLAlchemyError as e:
-            logger.error(
-                f"[SQLAlchemyError]: Database error retrieving active alerts for cryptocurrency name {name}: {e}"
-            )
-            raise RepositoryError(
-                f"Database error occurred while retrieving active alerts for cryptocurrency name: {name}"
-            )
-
-        except Exception as e:
-            logger.error(
-                f"[Unexpected error]: Unexpected error retrieving active alerts for cryptocurrency name {name}: {e}"
-            )
-            raise RepositoryError(
-                f"Unexpected error occurred while retrieving active alerts for cryptocurrency name: {name}"
-            )
-
     async def get_active_alerts_list_by_email(self, email: str) -> list[AlertEntity]:
         """Retrieve all active alerts for a specific email.
 
@@ -149,7 +90,10 @@ class SQLAlchemyAlertRepository(AlertRepositoryProtocol):
             RepositoryError: If a database error occurs during retrieval.
         """
         try:
-            logger.info(f"Retrieving active alerts for email: {email}")
+            logger.debug(
+                f"Retrieving active alerts",
+                email=email,
+            )
 
             stmt = (
                 select(Alert)
@@ -161,21 +105,23 @@ class SQLAlchemyAlertRepository(AlertRepositoryProtocol):
                 .options(selectinload(Alert.cryptocurrency))
                 .order_by(desc(Alert.created_at))
             )
-            logger.info(f"Executing query: {stmt}")
             result = await self.session.scalars(stmt)
             alerts = result.all()
-            logger.info(f"Query executed, found {len(alerts)} alerts")
 
             if not alerts:
-                logger.info(f"No active alerts found for email: {email}")
+                logger.warning("No active alerts found", email=email)
                 return []
 
-            logger.info(f"Retrieved {len(alerts)} active alert(s) for email: {email}")
             return [self._mapper.from_database_model(alert) for alert in alerts]
 
         except SQLAlchemyError as e:
             logger.error(
-                f"[SQLAlchemyError]: Database error retrieving active alerts for email {email}: {e}"
+                logger.error(
+                    "SQLAlchemy Error",
+                    error=str(e),
+                    error_type=type(e).__name__,
+                    exc_info=True,
+                )
             )
             raise RepositoryError(
                 f"Database error occurred while retrieving active alerts for email: {email}"
@@ -183,7 +129,12 @@ class SQLAlchemyAlertRepository(AlertRepositoryProtocol):
 
         except Exception as e:
             logger.error(
-                f"[Unexpected error]: Unexpected error retrieving active alerts for email {email}: {e}"
+                logger.error(
+                    "Unexpected Error",
+                    error=str(e),
+                    error_type=type(e).__name__,
+                    exc_info=True,
+                )
             )
             raise RepositoryError(
                 f"Unexpected error occurred while retrieving active alerts for email: {email}"
@@ -217,19 +168,21 @@ class SQLAlchemyAlertRepository(AlertRepositoryProtocol):
 
         except SQLAlchemyError as e:
             logger.error(
-                f"[SQLAlchemyError]: Database error retrieving all active alerts: {e}"
+                "SQLAlchemy Error",
+                error=str(e),
+                error_type=type(e).__name__,
+                exc_info=True,
             )
-            raise RepositoryError(
-                "Database error occurred while retrieving all active alerts"
-            )
+            raise RepositoryError("Database error occurred while retrieving all active alerts")
 
         except Exception as e:
             logger.error(
-                f"[Unexpected error]: Unexpected error retrieving all active alerts: {e}"
+                "Unexpected Error",
+                error=str(e),
+                error_type=type(e).__name__,
+                exc_info=True,
             )
-            raise RepositoryError(
-                "Unexpected error occurred while retrieving all active alerts"
-            )
+            raise RepositoryError("Unexpected error occurred while retrieving all active alerts")
 
     async def save(self, cryptocurrency_id: UUID, alert: AlertEntity) -> None:
         try:
@@ -242,7 +195,10 @@ class SQLAlchemyAlertRepository(AlertRepositoryProtocol):
 
         except IntegrityError as e:
             logger.error(
-                f"[IntegrityError]: Integrity error saving alert with ID {alert.id}: {e}"
+                "Integrity Error",
+                error=str(e),
+                error_type=type(e).__name__,
+                exc_info=True,
             )
             await self.session.rollback()
             raise RepositoryError(
@@ -251,15 +207,21 @@ class SQLAlchemyAlertRepository(AlertRepositoryProtocol):
 
         except SQLAlchemyError as e:
             logger.error(
-                f"[SQLAlchemyError]: Database error saving alert with ID {alert.id}: {e}"
+                "SQLAlchemy Error",
+                error=str(e),
+                error_type=type(e).__name__,
+                exc_info=True,
             )
             await self.session.rollback()
-            raise RepositoryError(
-                f"Database error occurred while saving alert with ID: {alert.id}"
-            )
+            raise RepositoryError(f"Database error occurred while saving alert with ID: {alert.id}")
 
         except Exception as e:
-            logger.error(f"[Unexpected error]: {e}")
+            logger.error(
+                "Unexpected Error",
+                error=str(e),
+                error_type=type(e).__name__,
+                exc_info=True,
+            )
             await self.session.rollback()
             raise RepositoryError(
                 f"Unexpected error occurred while saving alert with ID: {alert.id}"
@@ -278,12 +240,20 @@ class SQLAlchemyAlertRepository(AlertRepositoryProtocol):
             result = await self.session.execute(stmt)
             updated_model = result.scalar_one()
             await self.session.commit()
-            logger.info(f"[Info]: Alert with ID {alert.id} updated successfully")
+            logger.info(
+                "Alert updated successfully",
+                alert_id=alert.id,
+            )
             return self._mapper.from_database_model(updated_model)
 
         except SQLAlchemyError as e:
             logger.error(
-                f"[SQLAlchemyError]: Database error updating alert with ID {alert.id}: {e}"
+                logger.error(
+                    "SQLAlchemy Error",
+                    error=str(e),
+                    error_type=type(e).__name__,
+                    exc_info=True,
+                )
             )
             await self.session.rollback()
             raise RepositoryError(
@@ -291,7 +261,12 @@ class SQLAlchemyAlertRepository(AlertRepositoryProtocol):
             )
 
         except Exception as e:
-            logger.error(f"[Unexpected error]: {e}")
+            logger.error(
+                "Unexpected Error",
+                error=str(e),
+                error_type=type(e).__name__,
+                exc_info=True,
+            )
             await self.session.rollback()
             raise RepositoryError(
                 f"Unexpected error occurred while updating alert with ID: {alert.id}"
@@ -312,10 +287,9 @@ class SQLAlchemyAlertRepository(AlertRepositoryProtocol):
         try:
             logger.info(f"Retrieving active alerts for cryptocurrency: {crypto_name}")
 
-            # Join with cryptocurrency table to filter by name and load related data
             stmt = (
                 select(Alert)
-                .options(selectinload(Alert.cryptocurrency))  # Load cryptocurrency data
+                .options(selectinload(Alert.cryptocurrency))
                 .join(Cryptocurrency, Alert.cryptocurrency_id == Cryptocurrency.id)
                 .where(
                     Cryptocurrency.symbol == crypto_name,
@@ -327,20 +301,25 @@ class SQLAlchemyAlertRepository(AlertRepositoryProtocol):
             result = await self.session.execute(stmt)
             alerts = result.scalars().all()
 
-            logger.info(f"Query executed, found {len(alerts)} alerts for {crypto_name}")
+            logger.info(f"Query executed", len_=len(alerts))
 
             if not alerts:
-                logger.info(f"No active alerts found for cryptocurrency: {crypto_name}")
+                logger.warning(
+                    f"No active alerts found",
+                    crypto_name=crypto_name,
+                )
                 return []
 
-            logger.info(
-                f"Retrieved {len(alerts)} active alert(s) for cryptocurrency: {crypto_name}"
-            )
             return [self._mapper.from_database_model(alert) for alert in alerts]
 
         except SQLAlchemyError as e:
             logger.error(
-                f"[SQLAlchemyError]: Database error retrieving active alerts for cryptocurrency {crypto_name}: {e}"
+                logger.error(
+                    "SQLAlchemy Error",
+                    error=str(e),
+                    error_type=type(e).__name__,
+                    exc_info=True,
+                )
             )
             raise RepositoryError(
                 f"Database error occurred while retrieving active alerts for cryptocurrency: {crypto_name}"
@@ -348,7 +327,12 @@ class SQLAlchemyAlertRepository(AlertRepositoryProtocol):
 
         except Exception as e:
             logger.error(
-                f"[Unexpected error]: Unexpected error retrieving active alerts for cryptocurrency {crypto_name}: {e}"
+                logger.error(
+                    "Unexpected Error",
+                    error=str(e),
+                    error_type=type(e).__name__,
+                    exc_info=True,
+                )
             )
             raise RepositoryError(
                 f"Unexpected error occurred while retrieving active alerts for cryptocurrency: {crypto_name}"
@@ -358,18 +342,24 @@ class SQLAlchemyAlertRepository(AlertRepositoryProtocol):
         """Delete alert by id scoped to a user email."""
         try:
 
-            logger.info(
-                f"Starting to delete alert for {email} with alert id: {alert_id}..."
+            logger.debug(
+                f"Starting to delete alert",
+                email=email,
+                alert_id=alert_id,
             )
             stmt = delete(Alert).where(Alert.email == email, Alert.id == alert_id)
             await self.session.execute(stmt)
             await self.session.commit()
-            logger.info(f"Succeed deleting alert for {email}")
 
         except SQLAlchemyError as e:
             await self.session.rollback()
             logger.error(
-                f"[SQLAlchemyError]: Database error during deleting alert with for {email} with alert id: {alert_id}: {e}"
+                logger.error(
+                    "SQLAlchemy Error",
+                    error=str(e),
+                    error_type=type(e).__name__,
+                    exc_info=True,
+                )
             )
             raise RepositoryError(
                 f"Database error during deleting alert with for {email} with alert id: {alert_id}: {e}"
@@ -377,7 +367,12 @@ class SQLAlchemyAlertRepository(AlertRepositoryProtocol):
 
         except Exception as e:
             logger.error(
-                f"[Unexpected error]: Unexpected error during deleting alert with for {email} with alert id: {alert_id}: {e}"
+                logger.error(
+                    "Unexpected Error",
+                    error=str(e),
+                    error_type=type(e).__name__,
+                    exc_info=True,
+                )
             )
             raise RepositoryError(
                 f"Unexpected Database error during deleting alert with for {email} with alert id: {alert_id}: {e}"

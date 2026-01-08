@@ -34,9 +34,7 @@ class TestSQLAlchemyNotificationRepository:
         mock_res = MagicMock()
         mock_res.first.return_value = sample_notification_db_model
         mock_async_session.scalars.return_value = mock_res
-        mock_notification_mapper.from_database_model.return_value = (
-            sample_notification_entity
-        )
+        mock_notification_mapper.from_database_model.return_value = sample_notification_entity
 
         # act
         result = await repository.get_by_id(notification_id)
@@ -83,9 +81,7 @@ class TestSQLAlchemyNotificationRepository:
         mock_res.all.return_value = [sample_notification_db_model]
 
         mock_async_session.scalars.return_value = mock_res
-        mock_notification_mapper.from_database_model.return_value = (
-            sample_notification_entity
-        )
+        mock_notification_mapper.from_database_model.return_value = sample_notification_entity
 
         expected_result = [sample_notification_entity]
 
@@ -133,12 +129,8 @@ class TestSQLAlchemyNotificationRepository:
     ) -> None:
         """Test that save successfully saves notification entity and returns saved entity."""
         # arrange
-        mock_notification_mapper.to_database_model.return_value = (
-            sample_notification_db_model
-        )
-        mock_notification_mapper.from_database_model.return_value = (
-            sample_notification_entity
-        )
+        mock_notification_mapper.to_database_model.return_value = sample_notification_db_model
+        mock_notification_mapper.from_database_model.return_value = sample_notification_entity
 
         res_obj = MagicMock()
         res_obj.get.return_value = sample_notification_db_model
@@ -154,9 +146,7 @@ class TestSQLAlchemyNotificationRepository:
         mock_async_session.get.assert_called_once()
         mock_async_session.add.assert_called_once()
         mock_async_session.commit.assert_called_once()
-        mock_notification_mapper.to_database_model.assert_called_with(
-            sample_notification_entity
-        )
+        mock_notification_mapper.to_database_model.assert_called_with(sample_notification_entity)
         mock_notification_mapper.from_database_model.assert_called_with(
             sample_notification_db_model
         )
@@ -177,9 +167,7 @@ class TestSQLAlchemyNotificationRepository:
         result_obj.scalar_one.return_value = sample_notification_db_model
 
         mock_notification_mapper.to_dict.return_value = sample_notification_to_dict
-        mock_notification_mapper.from_database_model.return_value = (
-            sample_notification_entity
-        )
+        mock_notification_mapper.from_database_model.return_value = sample_notification_entity
 
         mock_async_session.execute.return_value = result_obj
 
@@ -210,9 +198,7 @@ class TestSQLAlchemyNotificationRepository:
         result_obj.first.return_value = sample_notification_db_model
 
         mock_async_session.scalars.return_value = result_obj
-        mock_notification_mapper.from_database_model.return_value = (
-            sample_notification_entity
-        )
+        mock_notification_mapper.from_database_model.return_value = sample_notification_entity
 
         # act
 

@@ -45,9 +45,7 @@ class TestNonceVO:
     def test_nonce_creates_unique_values(
         self,
     ) -> None:
-        """Test that generate() method creates unique nonce values.
-
-        """
+        """Test that generate() method creates unique nonce values."""
         is_unique = NonceVO.generate()
         is_unique_too = NonceVO.generate()
 

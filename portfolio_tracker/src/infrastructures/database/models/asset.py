@@ -14,9 +14,7 @@ from sqlalchemy import UniqueConstraint
 class Asset(Base):
     __tablename__ = "assets"
 
-    __table_args__ = (
-        UniqueConstraint('wallet_address', 'ticker', name='uq_asset_wallet_ticker'),
-    )
+    __table_args__ = (UniqueConstraint("wallet_address", "ticker", name="uq_asset_wallet_ticker"),)
 
     asset_id: Mapped[UUID] = mapped_column(
         PG_UUID(as_uuid=True),
@@ -24,9 +22,7 @@ class Asset(Base):
     )
     ticker: Mapped[str] = mapped_column(
         String(10),
-        ForeignKey(
-            "crypto_prices.cryptocurrency", ondelete="CASCADE", onupdate="CASCADE"
-        ),
+        ForeignKey("crypto_prices.cryptocurrency", ondelete="CASCADE", onupdate="CASCADE"),
         nullable=False,
         index=True,
     )
@@ -49,4 +45,3 @@ class Asset(Base):
         "CryptoPrice",
         lazy="joined",
     )
-

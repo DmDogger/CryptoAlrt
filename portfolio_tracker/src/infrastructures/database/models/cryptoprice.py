@@ -40,14 +40,10 @@ class MarketPriceHistory(Base):
 
     __table_args__ = (Index("idx_crypto_timestamp", "cryptocurrency", "timestamp"),)
 
-    id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True), primary_key=True, default=uuid4
-    )
+    id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), primary_key=True, default=uuid4)
     cryptocurrency: Mapped[str] = mapped_column(
         String(10),
-        ForeignKey(
-            "crypto_prices.cryptocurrency", ondelete="CASCADE", onupdate="CASCADE"
-        ),
+        ForeignKey("crypto_prices.cryptocurrency", ondelete="CASCADE", onupdate="CASCADE"),
         nullable=False,
         index=True,
     )

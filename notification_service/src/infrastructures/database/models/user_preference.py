@@ -17,6 +17,4 @@ class UserPreference(Base):
     email: Mapped[str] = mapped_column(String(100), nullable=False, unique=True)
     email_enabled: Mapped[bool] = mapped_column(Boolean, default=True)
     telegram_id: Mapped[int] = mapped_column(BigInteger, nullable=True, unique=True)
-    telegram_enabled: Mapped[bool] = mapped_column(
-        Boolean, default=False, nullable=True
-    )
+    telegram_enabled: Mapped[bool] = mapped_column(Boolean, default=False, nullable=True)

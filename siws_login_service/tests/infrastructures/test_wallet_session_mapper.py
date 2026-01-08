@@ -21,14 +21,9 @@ class TestWalletSessionDBMapper:
         """
         entity = wallet_session_mapper_from_db_model
 
-        assert (
-            entity.wallet_address.value == sample_db_wallet_session_model.wallet_address
-        )
+        assert entity.wallet_address.value == sample_db_wallet_session_model.wallet_address
         assert entity.device_id == sample_db_wallet_session_model.device_id
-        assert (
-            entity.refresh_token_hash
-            == sample_db_wallet_session_model.refresh_token_hash
-        )
+        assert entity.refresh_token_hash == sample_db_wallet_session_model.refresh_token_hash
         assert entity.is_revoked == sample_db_wallet_session_model.is_revoked
         assert entity.created_at == sample_db_wallet_session_model.created_at
 
@@ -47,9 +42,7 @@ class TestWalletSessionDBMapper:
 
         assert db_model.wallet_address == sample_wallet_session_vo.wallet_address.value
         assert db_model.device_id == sample_wallet_session_vo.device_id
-        assert (
-            db_model.refresh_token_hash == sample_wallet_session_vo.refresh_token_hash
-        )
+        assert db_model.refresh_token_hash == sample_wallet_session_vo.refresh_token_hash
         assert db_model.is_revoked == sample_wallet_session_vo.is_revoked
         assert db_model.created_at == sample_wallet_session_vo.created_at
 
@@ -66,14 +59,8 @@ class TestWalletSessionDBMapper:
 
         restored_entity = WalletSessionDBMapper.from_database_model(db_model)
 
-        assert (
-            restored_entity.wallet_address.value
-            == sample_wallet_session_vo.wallet_address.value
-        )
+        assert restored_entity.wallet_address.value == sample_wallet_session_vo.wallet_address.value
         assert restored_entity.device_id == sample_wallet_session_vo.device_id
-        assert (
-            restored_entity.refresh_token_hash
-            == sample_wallet_session_vo.refresh_token_hash
-        )
+        assert restored_entity.refresh_token_hash == sample_wallet_session_vo.refresh_token_hash
         assert restored_entity.is_revoked == sample_wallet_session_vo.is_revoked
         assert restored_entity.created_at == sample_wallet_session_vo.created_at

@@ -22,9 +22,7 @@ class TestRequestSignatureUseCase:
         sample_wallet_vo: WalletAddressVO,
     ) -> None:
         """Test creating message when no active nonce exists."""
-        result = await mock_request_signature.execute(
-            wallet_address=sample_wallet_vo.value
-        )
+        result = await mock_request_signature.execute(wallet_address=sample_wallet_vo.value)
 
         assert isinstance(result, str)
 
@@ -37,9 +35,7 @@ class TestRequestSignatureUseCase:
     ) -> None:
         """Test reusing existing active nonce."""
         nonce = await fake_nonce_repository.create_nonce(sample_nonce_entity)
-        result = await mock_request_signature.execute(
-            wallet_address=nonce.wallet_address.value
-        )
+        result = await mock_request_signature.execute(wallet_address=nonce.wallet_address.value)
 
         assert isinstance(result, str)
         assert "cryptoalrt.io wants you to sign in with your Solana account" in result

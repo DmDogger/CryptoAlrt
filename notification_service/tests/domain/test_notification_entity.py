@@ -18,17 +18,12 @@ class TestNotificationEntity:
     def test_create_valid_notification_entity(self, sample_notification_entity):
         """Test creating a valid notification entity with all required fields."""
         assert sample_notification_entity.recipient == "test-recipient@cryptoalrt.io"
-        assert (
-            sample_notification_entity.message.text
-            == "Test MessageValueObject for tests :)"
-        )
+        assert sample_notification_entity.message.text == "Test MessageValueObject for tests :)"
         assert sample_notification_entity.channel == ChannelEnum.EMAIL
         assert sample_notification_entity.status == StatusEnum.PENDING
         assert sample_notification_entity.sent_at is None
 
-    def test_notification_entity_mark_as_sent(
-        self, sample_notification_entity_marked_as_sent
-    ):
+    def test_notification_entity_mark_as_sent(self, sample_notification_entity_marked_as_sent):
         """Test that make_sent() method creates new entity with SENT status and sent_at timestamp."""
         assert sample_notification_entity_marked_as_sent.status == StatusEnum.SENT
 
@@ -39,9 +34,7 @@ class TestNotificationEntity:
         """Test that mark_failed() method creates new entity with FAILED status."""
         assert sample_notification_entity_marked_as_failed.status == StatusEnum.FAILED
 
-    def test_notification_entity_with_empty_message(
-        self, sample_notification_entity_with_params
-    ):
+    def test_notification_entity_with_empty_message(self, sample_notification_entity_with_params):
         """Test that creating notification with empty message raises DomainValidationError."""
         with pytest.raises(DomainValidationError):
             sample_notification_entity_with_params(msg_text="")

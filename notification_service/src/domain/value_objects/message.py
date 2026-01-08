@@ -19,6 +19,4 @@ class MessageValueObject:
         if not isinstance(self.text, str):
             raise DomainValidationError("Message text must be a string")
         if len(self.text) <= 0 or len(self.text) > 100:
-            raise DomainValidationError(
-                "Message text length must be between 1 and 100 characters"
-            )
+            raise DomainValidationError("Message text length must be between 1 and 100 characters")

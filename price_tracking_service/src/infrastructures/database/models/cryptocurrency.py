@@ -55,19 +55,13 @@ class CryptocurrencyPrice(Base):
     price_usd: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
     last_updated: Mapped[datetime] = mapped_column(DateTime, default=func.now())
 
-    market_cap_usd: Mapped[Decimal | None] = mapped_column(
-        Numeric(30, 2), nullable=True
-    )
-    total_volume_24h_usd: Mapped[Decimal | None] = mapped_column(
-        Numeric(30, 2), nullable=True
-    )
+    market_cap_usd: Mapped[Decimal | None] = mapped_column(Numeric(30, 2), nullable=True)
+    total_volume_24h_usd: Mapped[Decimal | None] = mapped_column(Numeric(30, 2), nullable=True)
 
     high_24h: Mapped[Decimal | None] = mapped_column(Numeric(30, 2), nullable=True)
     low_24h: Mapped[Decimal | None] = mapped_column(Numeric(30, 2), nullable=True)
 
-    price_change_24h: Mapped[Decimal | None] = mapped_column(
-        Numeric(20, 8), nullable=True
-    )
+    price_change_24h: Mapped[Decimal | None] = mapped_column(Numeric(20, 8), nullable=True)
     price_change_percentage_24h: Mapped[Decimal | None] = mapped_column(
         Numeric(10, 4), nullable=True
     )

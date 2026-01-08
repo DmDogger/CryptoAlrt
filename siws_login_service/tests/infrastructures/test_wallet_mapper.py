@@ -56,9 +56,6 @@ class TestWalletDBMapper:
         restored_entity = WalletDBMapper.from_database_model(db_model)
 
         assert restored_entity.uuid == sample_wallet_entity.uuid
-        assert (
-            restored_entity.wallet_address.value
-            == sample_wallet_entity.wallet_address.value
-        )
+        assert restored_entity.wallet_address.value == sample_wallet_entity.wallet_address.value
         assert restored_entity.last_active == sample_wallet_entity.last_active
         assert restored_entity.created_at == sample_wallet_entity.created_at

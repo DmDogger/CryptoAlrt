@@ -77,9 +77,7 @@ class InfrastructureProvider(Provider):
         )
 
     @provide(scope=Scope.REQUEST)
-    async def get_session(
-        self, session_factory: async_sessionmaker
-    ) -> AsyncIterable[AsyncSession]:
+    async def get_session(self, session_factory: async_sessionmaker) -> AsyncIterable[AsyncSession]:
         """Database session для каждого запроса."""
         async with session_factory() as session:
             yield session
@@ -138,9 +136,7 @@ class UseCaseProvider(Provider):
         repository: CryptocurrencyRepositoryProtocol,
     ) -> FetchAndSaveUseCase:
         """Use case для получения и сохранения цен."""
-        return FetchAndSaveUseCase(
-            coingecko_client=coingecko_client, crypto_repository=repository
-        )
+        return FetchAndSaveUseCase(coingecko_client=coingecko_client, crypto_repository=repository)
 
     @provide(scope=Scope.REQUEST)
     def get_check_threshold_use_case(
@@ -154,9 +150,7 @@ class UseCaseProvider(Provider):
         )
 
     @provide(scope=Scope.REQUEST)
-    def get_alerts_use_case(
-        self, alert_repository: AlertRepositoryProtocol
-    ) -> GetAlertsUseCase:
+    def get_alerts_use_case(self, alert_repository: AlertRepositoryProtocol) -> GetAlertsUseCase:
         """Use case для получения алертов по email."""
         return GetAlertsUseCase(repository=alert_repository)
 

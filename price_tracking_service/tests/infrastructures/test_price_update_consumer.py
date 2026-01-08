@@ -75,9 +75,7 @@ class TestConsumePriceUpdateAndCheckThresholds:
             )
 
     @pytest.mark.asyncio
-    async def test_consume_repository_error(
-        self, mock_use_case, price_updated_event, caplog
-    ):
+    async def test_consume_repository_error(self, mock_use_case, price_updated_event, caplog):
         """Test handling of RepositoryError during consumption."""
         # Arrange
         repo_error = RepositoryError("Database connection failed")
@@ -107,9 +105,7 @@ class TestConsumePriceUpdateAndCheckThresholds:
             )
 
     @pytest.mark.asyncio
-    async def test_consume_publish_error(
-        self, mock_use_case, price_updated_event, caplog
-    ):
+    async def test_consume_publish_error(self, mock_use_case, price_updated_event, caplog):
         """Test handling of PublishError during consumption."""
         # Arrange
         publish_error = PublishError("Failed to publish alert event")
@@ -139,9 +135,7 @@ class TestConsumePriceUpdateAndCheckThresholds:
             )
 
     @pytest.mark.asyncio
-    async def test_consume_value_error(
-        self, mock_use_case, price_updated_event, caplog
-    ):
+    async def test_consume_value_error(self, mock_use_case, price_updated_event, caplog):
         """Test handling of ValueError during consumption."""
         # Arrange
         value_error = ValueError("Invalid price format")
@@ -171,9 +165,7 @@ class TestConsumePriceUpdateAndCheckThresholds:
             )
 
     @pytest.mark.asyncio
-    async def test_consume_unexpected_error(
-        self, mock_use_case, price_updated_event, caplog
-    ):
+    async def test_consume_unexpected_error(self, mock_use_case, price_updated_event, caplog):
         """Test handling of unexpected errors during consumption."""
         # Arrange
         unexpected_error = RuntimeError("Unexpected system error")
@@ -260,9 +252,7 @@ class TestConsumePriceUpdateAndCheckThresholds:
                 )
 
     @pytest.mark.asyncio
-    async def test_consume_no_exceptions_raised(
-        self, mock_use_case, price_updated_event
-    ):
+    async def test_consume_no_exceptions_raised(self, mock_use_case, price_updated_event):
         """Test that consumer function never raises exceptions."""
         # Arrange
         mock_use_case.execute.side_effect = Exception("Any error")
@@ -296,9 +286,7 @@ class TestConsumePriceUpdateAndCheckThresholds:
                 assert kwargs["current_price"] == str(price_updated_event.price)
 
     @pytest.mark.asyncio
-    async def test_consume_error_logging_includes_topic(
-        self, mock_use_case, price_updated_event
-    ):
+    async def test_consume_error_logging_includes_topic(self, mock_use_case, price_updated_event):
         """Test that error logs include topic information."""
         # Arrange
         mock_use_case.execute.side_effect = RepositoryError("Test error")

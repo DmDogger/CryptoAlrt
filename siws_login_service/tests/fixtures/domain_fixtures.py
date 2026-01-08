@@ -28,7 +28,9 @@ def sample_nonce_vo():
 
 @pytest.fixture
 def sample_signature_vo():
-    string = "5cRypRAdKEUtMCyFdqtEifWER5GMCfVnhZ8EUtcB7Sc35cRypRAdKEUtMCyFdqtEifWER5GMCfVnhZ8EUtcB7Sc3"
+    string = (
+        "5cRypRAdKEUtMCyFdqtEifWER5GMCfVnhZ8EUtcB7Sc35cRypRAdKEUtMCyFdqtEifWER5GMCfVnhZ8EUtcB7Sc3"
+    )
     return SignatureVO.from_string(value=string)
 
 
@@ -62,9 +64,7 @@ def custom_wallet_entity(sample_uuid, sample_wallet_vo):
 
 
 @pytest.fixture
-def sample_nonce_entity_with_custom_datetime(
-    sample_uuid, sample_wallet_vo, sample_nonce_vo
-):
+def sample_nonce_entity_with_custom_datetime(sample_uuid, sample_wallet_vo, sample_nonce_vo):
     def _create(
         expiration_time: datetime | None = None,
         used_at: datetime | None = None,

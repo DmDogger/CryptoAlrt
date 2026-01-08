@@ -13,9 +13,7 @@ class RequestSignatureRequest(BaseModel):
 
     class Config:
         json_schema_extra = {
-            "example": {
-                "wallet_address": "5cRypRAdKEUtMCyFdqtEifWER5GMCfVnhZ8EUtcB7Sc3"
-            }
+            "example": {"wallet_address": "5cRypRAdKEUtMCyFdqtEifWER5GMCfVnhZ8EUtcB7Sc3"}
         }
 
 

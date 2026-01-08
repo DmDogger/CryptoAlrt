@@ -66,10 +66,7 @@ class TestWalletEntity:
         """
         pinged_wallet = sample_wallet_entity.ping()
 
-        assert (
-            pinged_wallet.wallet_address.value
-            == "5cRypRAdKEUtMCyFdqtEifWER5GMCfVnhZ8EUtcB7Sc3"
-        )
+        assert pinged_wallet.wallet_address.value == "5cRypRAdKEUtMCyFdqtEifWER5GMCfVnhZ8EUtcB7Sc3"
 
     def test_wallet_entity_convert_to_bytes_correct(
         self,

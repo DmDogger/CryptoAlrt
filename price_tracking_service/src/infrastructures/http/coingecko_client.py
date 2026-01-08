@@ -62,10 +62,6 @@ class CoinGeckoClient(CoinGeckoClientProtocol):
                 "price_change_percentage": "24h",
             }
 
-            logger.info(
-                f"[Info]: Preparing to fetch from CoinGecko with url: {url}, coin_id: {coin_id}"
-            )
-
             response = await self.client.get(
                 url=url, headers=coingecko_settings.headers, params=params
             )
@@ -76,26 +72,37 @@ class CoinGeckoClient(CoinGeckoClientProtocol):
             if not data or len(data) == 0:
                 raise CryptocurrencyNotFound(f"Coin '{coin_id}' not found in CoinGecko")
 
-            logger.info(
-                f"[Info]: Successfully fetched information from CoinGecko for coin_id: {coin_id}"
-            )
             return CoinGeckoDTO.to_dto(data[0])
 
         except (httpx.HTTPStatusError, httpx.RequestError) as e:
             logger.exception(
-                f"[HTTP Error]: Error during fetching from CoinGecko: {e} for coin_id '{coin_id}' with URL: {url}"
+                "Error during fetching from CoinGecko",
+                error=str(e),
+                url=url,
+                error_type=type(e).__name__,
+                exc_info=True,
             )
             raise UnsuccessfullyCoinGeckoAPICall(
                 f"Error occurred during fetching from CoinGecko API: {e}"
             )
 
         except KeyError as e:
-            logger.exception(f"[KeyError]: CoinGecko returned invalid data: {e}")
+            logger.exception(
+                "CoinGecko returned invalid data",
+                error=str(e),
+                error_type=type(e).__name__,
+                exc_info=True,
+            )
             raise UnsuccessfullyCoinGeckoAPICall(
                 f"Error occurred during fetching from CoinGecko API: {e}"
             )
         except Exception as e:
-            logger.exception(f"[Unexpected error]: Occurred unexpected error: {e}")
+            logger.exception(
+                "Unexpected error from coingecko",
+                error=str(e),
+                error_type=type(e).__name__,
+                exc_info=True,
+            )
             raise UnsuccessfullyCoinGeckoAPICall(
                 f"Error occurred during fetching from CoinGecko API: {e}"
             )

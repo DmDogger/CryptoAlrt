@@ -78,20 +78,13 @@ class CheckAndReserveUseCase:
                 alert_id=event.alert_id,
             )
 
-            user_preference = await self._preference_repository.get_by_email(
-                event.email
-            )
+            user_preference = await self._preference_repository.get_by_email(event.email)
 
             if not user_preference:
-                logger.warning(
-                    "User preference not found", email=event.email, event_id=event.id
-                )
+                logger.warning("User preference not found", email=event.email, event_id=event.id)
                 return None
 
-            if (
-                not user_preference.email_enabled
-                and not user_preference.telegram_enabled
-            ):
+            if not user_preference.email_enabled and not user_preference.telegram_enabled:
                 logger.info(
                     "All notification channels disabled for user",
                     email=event.email,

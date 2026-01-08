@@ -12,6 +12,7 @@ RUN poetry config virtualenvs.create false && poetry install --only=main --no-in
 
 COPY siws_login_service/ .
 
+ENV PYTHONPATH=/app/src
 
 EXPOSE 8000
 

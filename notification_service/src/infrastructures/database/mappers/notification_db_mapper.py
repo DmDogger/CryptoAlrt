@@ -15,9 +15,7 @@ class NotificationDBMapper:
             else dto.created_at
         )
         sent_at = (
-            dto.sent_at.replace(tzinfo=None)
-            if dto.sent_at and dto.sent_at.tzinfo
-            else dto.sent_at
+            dto.sent_at.replace(tzinfo=None) if dto.sent_at and dto.sent_at.tzinfo else dto.sent_at
         )
 
         return {
@@ -52,9 +50,7 @@ class NotificationDBMapper:
             else dto.created_at
         )
         sent_at = (
-            dto.sent_at.replace(tzinfo=None)
-            if dto.sent_at and dto.sent_at.tzinfo
-            else dto.sent_at
+            dto.sent_at.replace(tzinfo=None) if dto.sent_at and dto.sent_at.tzinfo else dto.sent_at
         )
 
         return Notification(

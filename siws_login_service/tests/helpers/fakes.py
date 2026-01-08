@@ -47,8 +47,7 @@ class FakeNonceRepository:
         wallet_address = nonce_entity.wallet_address.value
         if nonce_entity.uuid in self._by_uuid:
             raise FailedToSaveNonceError(
-                f"Nonce with UUID {nonce_entity.uuid} already exists "
-                f"or constraint violated"
+                f"Nonce with UUID {nonce_entity.uuid} already exists " f"or constraint violated"
             )
         self._by_wallet[wallet_address] = nonce_entity
         self._by_uuid[nonce_entity.uuid] = nonce_entity
@@ -61,9 +60,7 @@ class FakeNonceRepository:
     ) -> NonceEntity:
         uuid_obj = UUID(nonce_uuid) if isinstance(nonce_uuid, str) else nonce_uuid
         if uuid_obj not in self._by_uuid:
-            raise NonceNotFoundError(
-                f"Cannot update nonce: nonce with UUID {nonce_uuid} not found"
-            )
+            raise NonceNotFoundError(f"Cannot update nonce: nonce with UUID {nonce_uuid} not found")
         wallet_address = nonce_entity.wallet_address.value
         self._by_wallet[wallet_address] = nonce_entity
         self._by_uuid[uuid_obj] = nonce_entity
@@ -88,8 +85,7 @@ class FakeWalletRepository:
         wallet_address = wallet_entity.wallet_address.value
         if wallet_address in self._storage:
             raise FailedToSaveWalletError(
-                f"Wallet with address {wallet_address} "
-                f"already exists or constraint violated"
+                f"Wallet with address {wallet_address} " f"already exists or constraint violated"
             )
         self._storage[wallet_address] = wallet_entity
         return wallet_entity
@@ -101,8 +97,7 @@ class FakeWalletRepository:
     ) -> WalletEntity:
         if wallet_address not in self._storage:
             raise WalletNotFoundError(
-                f"Cannot update wallet: wallet with address "
-                f"{wallet_address} not found"
+                f"Cannot update wallet: wallet with address " f"{wallet_address} not found"
             )
         self._storage[wallet_address] = wallet_entity
         return wallet_entity
@@ -146,9 +141,7 @@ class FakeWalletRepository:
             Returns empty list if no sessions are found.
         """
         sessions = [
-            session
-            for (addr, _), session in self._sessions.items()
-            if addr == wallet_address
+            session for (addr, _), session in self._sessions.items() if addr == wallet_address
         ]
         return sessions
 

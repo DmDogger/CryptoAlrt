@@ -83,9 +83,7 @@ class SendRequestUseCase:
 
             # TODO: Create wallet if not exist
             wallet_address_vo = WalletAddressVO(value=wallet_address)
-            existing_wallet = await self._wallet_repository.get_wallet_by_address(
-                wallet_address
-            )
+            existing_wallet = await self._wallet_repository.get_wallet_by_address(wallet_address)
             if existing_wallet is None:
                 logger.info(
                     "Wallet not found, creating new wallet",

@@ -51,9 +51,7 @@ class AlertPresentationMapper:
                 else existing.is_active
             ),
             is_triggered=(
-                False
-                if pydantic_model.threshold_price is not None
-                else existing.is_triggered
+                False if pydantic_model.threshold_price is not None else existing.is_triggered
             ),
             created_at=existing.created_at,
         )

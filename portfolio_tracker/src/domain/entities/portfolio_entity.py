@@ -46,15 +46,13 @@ class PortfolioEntity:
         if self.total_value:
             if self.total_value < 0:
                 raise DomainValidationError(
-                    "Total value of portfolio cannot be negative"
-                    f"But got: {self.total_value}"
+                    "Total value of portfolio cannot be negative" f"But got: {self.total_value}"
                 )
 
         if self.weight:
             if self.weight < 0:
                 raise DomainValidationError(
-                    "Total value of portfolio cannot be negative"
-                    f"But got: {self.weight}"
+                    "Total value of portfolio cannot be negative" f"But got: {self.weight}"
                 )
 
         if datetime.now(UTC) > self.updated_at:

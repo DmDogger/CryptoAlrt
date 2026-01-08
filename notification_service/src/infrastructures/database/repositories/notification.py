@@ -62,9 +62,7 @@ class SQLAlchemyNotificationRepository(NotificationRepositoryProtocol):
             result = res.first()
 
             if result is None:
-                logger.warning(
-                    "Notification not found", notification_id=str(notification_id)
-                )
+                logger.warning("Notification not found", notification_id=str(notification_id))
                 return None
 
             logger.info(
@@ -119,9 +117,7 @@ class SQLAlchemyNotificationRepository(NotificationRepositoryProtocol):
             self.session.add(db_model)
             await self.session.commit()
 
-            logger.info(
-                "Notification saved successfully", notification_id=str(entity.id)
-            )
+            logger.info("Notification saved successfully", notification_id=str(entity.id))
             result = await self.session.get(Notification, entity.id)
             return self._mapper.from_database_model(result)
 
@@ -279,9 +275,7 @@ class SQLAlchemyNotificationRepository(NotificationRepositoryProtocol):
                 f"Unexpected error occurred while retrieving notifications with status: {status.value}"
             )
 
-    async def get_by_idempotency_key(
-        self, idempotency_key: str
-    ) -> NotificationEntity | None:
+    async def get_by_idempotency_key(self, idempotency_key: str) -> NotificationEntity | None:
         """
         Get notification by its idempotency key.
 
@@ -297,9 +291,7 @@ class SQLAlchemyNotificationRepository(NotificationRepositoryProtocol):
                 idempotency_key=idempotency_key,
             )
 
-            stmt = select(Notification).where(
-                Notification.idempotency_key == idempotency_key
-            )
+            stmt = select(Notification).where(Notification.idempotency_key == idempotency_key)
             res = await self.session.scalars(stmt)
             result = res.first()
 

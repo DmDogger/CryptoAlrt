@@ -9,9 +9,7 @@ class EmailClientProtocol(Protocol):
     depending on Infrastructure implementations.
     """
 
-    async def send(
-        self, to: str, subject: str, body: str, from_: str | None = None
-    ) -> None:
+    async def send(self, to: str, subject: str, body: str, from_: str | None = None) -> None:
         """Send an email message.
 
         Args:

@@ -32,9 +32,7 @@ class TestNotificationDBMapper:
         assert result.message.text == sample_notification_entity.message.text
         assert result.recipient == sample_notification_entity.recipient
         assert result.status == sample_notification_entity.status
-        assert (
-            result.idempotency_key.key == sample_notification_entity.idempotency_key.key
-        )
+        assert result.idempotency_key.key == sample_notification_entity.idempotency_key.key
 
     def test_round_trip_mapping(
         self,
@@ -49,7 +47,4 @@ class TestNotificationDBMapper:
         assert result_entity.message.text == sample_notification_entity.message.text
         assert result_entity.recipient == sample_notification_entity.recipient
         assert result_entity.status == sample_notification_entity.status
-        assert (
-            result_entity.idempotency_key.key
-            == sample_notification_entity.idempotency_key.key
-        )
+        assert result_entity.idempotency_key.key == sample_notification_entity.idempotency_key.key

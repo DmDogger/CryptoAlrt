@@ -1,3 +1,8 @@
+"""Use case for updating existing alert.
+
+Updates alert fields (email, threshold price, active status) and publishes change events to Kafka.
+"""
+
 import uuid
 from decimal import Decimal
 
@@ -32,14 +37,7 @@ class UpdateAlertUseCase:
         broker: EventPublisherProtocol,
         mapper: AlertPresentationMapper,
     ):
-        """
-        Initialize the UpdateAlertUseCase.
 
-        Args:
-            repository: The alert repository implementation for data persistence.
-            broker: Event publisher for Kafka.
-            mapper: Mapper for converting between presentation and domain layers.
-        """
         self._repository = repository
         self._broker = broker
         self._mapper = mapper
@@ -131,23 +129,17 @@ class UpdateAlertUseCase:
 
             updated_entity = await self._repository.update(model)
 
-            logger.info(
-                f"Created {len(events)} event(s) to publish", alert_id=str(alert_id)
-            )
+            logger.info(f"Created event(s) to publish", alert_id=str(alert_id), len_=len(events))
             for event in events:
                 logger.info(
                     "Publishing alert update event",
                     event_id=str(event.event_id),
                     topic=broker_settings.alert_updated_topic,
                 )
-                await self._broker.publish(
-                    topic=broker_settings.alert_updated_topic, event=event
-                )
-                logger.info(
-                    "Publication sent successfully", event_id=str(event.event_id)
-                )
+                await self._broker.publish(topic=broker_settings.alert_updated_topic, event=event)
+                logger.info("Publication sent successfully", event_id=str(event.event_id))
 
-            logger.info(f"[Info]: Alert ID: {alert_id} updated successfully")
+            logger.info("Alert updated successfully")
 
             return updated_entity
 
@@ -175,9 +167,7 @@ class UpdateAlertUseCase:
                 error=str(e),
                 exc_info=True,
             )
-            raise RepositoryError(
-                f"Failed to update alert {alert_id}: database error"
-            ) from e
+            raise RepositoryError(f"Failed to update alert {alert_id}: database error") from e
 
         except DomainValidationError as e:
             logger.error(
@@ -195,6 +185,4 @@ class UpdateAlertUseCase:
                 error=str(e),
                 exc_info=True,
             )
-            raise RepositoryError(
-                f"Unexpected error while updating alert {alert_id}"
-            ) from e
+            raise RepositoryError(f"Unexpected error while updating alert {alert_id}") from e
