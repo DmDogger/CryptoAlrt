@@ -9,11 +9,12 @@ package-mode = false
 python = "^3.11"
 sqlalchemy = "^2.0.0"
 structlog = "^24.0.0"
-faststream = {extras = ["cli"], version = "^0.6.4"}
+faststream = {extras = ["cli", "kafka"], version = "^0.6.5"}
 pydantic-settings = "^2.12.0"
 httpx = "^0.28.1"
 stamina = "^25.2.0"
 taskiq-faststream = "^0.3.2"
+taskiq-redis = "^1.1.0"
 dishka = "^1.7.2"
 fastapi = "^0.124.4"
 uvicorn = {extras = ["standard"], version = "^0.27.0"}
@@ -26,6 +27,7 @@ pynacl = "^1.6.1"
 pyjwt = {extras = ["crypto"], version = "^2.10.1"}
 pyscrypt = "^1.6.2"
 pylint = "^4.0.4"
+pydantic = {extras = ["email"], version = "^2.12.5"}
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"
