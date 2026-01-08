@@ -1,0 +1,184 @@
+services:
+  price_tracking_service:
+    build:
+      context: .
+      dockerfile: ./price_tracking_service/Dockerfile
+    image: cryptoalrt-price-tracking:latest
+    command:
+      - python
+      - -m
+      - uvicorn
+      - main:app
+      - --host
+      - "0.0.0.0"
+      - --port
+      - "8000"
+    ports:
+      - "8001:8000"
+    working_dir: /app
+    depends_on:
+      kafka:
+        condition: service_started
+    restart: unless-stopped
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - DB_DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/cryptoalrt
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+
+  notification_service:
+    build:
+      context: .
+      dockerfile: ./notification_service/Dockerfile
+    image: cryptoalrt-notification:latest
+    command:
+      - faststream
+      - run
+      - infrastructures.broker.broker:app
+    working_dir: /app
+    depends_on:
+      kafka:
+        condition: service_started
+    restart: unless-stopped
+    environment:
+      - DB_DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/cryptoalrt
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+
+  siws_login_service:
+    build:
+      context: .
+      dockerfile: ./siws_login_service/Dockerfile
+    image: cryptoalrt-siws-login:latest
+    command:
+      - python
+      - -m
+      - uvicorn
+      - main:app
+      - --host
+      - "0.0.0.0"
+      - --port
+      - "8000"
+    ports:
+      - "8003:8000"
+    working_dir: /app
+    depends_on:
+      - db
+    environment:
+      - DB_DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/cryptoalrt
+
+  portfolio_tracker:
+    build:
+      context: .
+      dockerfile: ./portfolio_tracker/Dockerfile
+    image: cryptoalrt-portfolio-tracker:latest
+    command:
+      - python
+      - -m
+      - uvicorn
+      - main:app
+      - --host
+      - "0.0.0.0"
+      - --port
+      - "8000"
+    ports:
+      - "8004:8000"
+    working_dir: /app
+    depends_on:
+      - db
+    environment:
+      - DB_DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/cryptoalrt
+
+  worker:
+    build:
+      context: .
+      dockerfile: ./price_tracking_service/Dockerfile
+    image: cryptoalrt-worker:latest
+    command:
+      - taskiq
+      - worker
+      - --log-level=INFO
+      - infrastructures.tasks.tasks:taskiq_broker
+    depends_on:
+      kafka:
+        condition: service_started
+    restart: unless-stopped
+    working_dir: /app
+    environment:
+      - PYTHONPATH=/app/src
+      - REDIS_URL=redis://redis:6379/0
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - DB_DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/cryptoalrt
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+
+  scheduler:
+    build:
+      context: .
+      dockerfile: ./price_tracking_service/Dockerfile
+    image: cryptoalrt-scheduler:latest
+    command:
+      - taskiq
+      - scheduler
+      - --log-level=INFO
+      - infrastructures.tasks.tasks:scheduler
+    depends_on:
+      - redis
+      - db
+      - kafka
+    working_dir: /app
+    environment:
+      - PYTHONPATH=/app/src
+      - REDIS_URL=redis://redis:6379/0
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - DB_DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/cryptoalrt
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+
+
+  db:
+    image: "postgres:16"
+    hostname: db
+    environment:
+      POSTGRES_DB: "cryptoalrt"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+    restart: always
+    healthcheck:
+      test: pg_isready -U postgres
+      interval: 2s
+      timeout: 3s
+      retries: 40
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  # Source - https://stackoverflow.com/q/30547274
+  # Posted by user762579, modified by community. See post 'Timeline' for change history
+  # Retrieved 2026-01-08, License - CC BY-SA 4.0
+
+  redis:
+    image: redis
+    ports:
+      - "6379"
+
+#todo: настроить кафку (notification_service-1  | Unable connect to "kafka:9092": [Errno 111] Connection refused)
+  kafka:
+    image: apache/kafka:latest
+    ports:
+      - "9094:9094"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: CONTROLLER://localhost:9091,PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:9094
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:9094
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9091
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+    restart: unless-stopped
+
+volumes:
+  db-data:
