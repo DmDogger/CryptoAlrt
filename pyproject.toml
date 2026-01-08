@@ -1,0 +1,246 @@
+[tool.poetry]
+name = "cryptoalrt"
+version = "0.1.0"
+description = "Crypto analitics service"
+authors = ["Dmitrii Kotik @dmdoggx"]
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.11"
+sqlalchemy = "^2.0.0"
+structlog = "^24.0.0"
+faststream = {extras = ["cli"], version = "^0.6.4"}
+pydantic-settings = "^2.12.0"
+httpx = "^0.28.1"
+stamina = "^25.2.0"
+taskiq-faststream = "^0.3.2"
+dishka = "^1.7.2"
+fastapi = "^0.124.4"
+uvicorn = {extras = ["standard"], version = "^0.27.0"}
+greenlet = "^3.3.0"
+aiosmtplib = "^5.0.0"
+pytest-cov = "^7.0.0"
+base58 = "^2.1.1"
+freezegun = "^1.5.5"
+pynacl = "^1.6.1"
+pyjwt = {extras = ["crypto"], version = "^2.10.1"}
+pyscrypt = "^1.6.2"
+pylint = "^4.0.4"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0.0"
+pytest-asyncio = "^0.23.0"
+black = "^25.12.0"
+
+[tool.poetry.scripts]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+pythonpath = [
+    "price-traking-service/src",
+    "CryptoAlrt/portfolio_tracker/src",
+    "CryptoAlrt/portfolio_tracker",
+]
+testpaths = [
+    "price-traking-service/tests",
+    "CryptoAlrt/portfolio_tracker/tests",
+]
+
+[tool.black]
+line-length = 100
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.venv
+  | build
+  | dist
+  | migrations
+)/
+'''
+
+[tool.pylint.main]
+fail-under = 7.0
+
+ignore = ["CVS"]
+
+ignore-patterns = ["^\\.#"]
+
+init-hook = '''
+import sys
+import os
+from pathlib import Path
+
+# Получаем корневую директорию проекта (где находится pyproject.toml)
+# __file__ в init-hook указывает на pyproject.toml, но нужно найти корень проекта
+# Используем текущую рабочую директорию или ищем pyproject.toml
+try:
+    # Пытаемся найти корень через переменную окружения или текущую директорию
+    if 'PYTHONPATH' in os.environ:
+        project_root = Path(os.environ.get('PYTHONPATH', '.')).resolve()
+    else:
+        # Ищем pyproject.toml в родительских директориях
+        current = Path.cwd()
+        while current != current.parent:
+            if (current / 'pyproject.toml').exists():
+                project_root = current
+                break
+            current = current.parent
+        else:
+            project_root = Path.cwd()
+except Exception:
+    project_root = Path.cwd()
+
+# Добавляем пути к src директориям каждого сервиса
+# Важно: порядок имеет значение - более специфичные пути должны быть первыми
+portfolio_tracker_src = project_root / "CryptoAlrt" / "portfolio_tracker" / "src"
+if portfolio_tracker_src.exists():
+    sys.path.insert(0, str(portfolio_tracker_src))
+    
+siws_src = project_root / "CryptoAlrt" / "siws_login_service" / "src"
+if siws_src.exists():
+    sys.path.insert(0, str(siws_src))
+    
+notification_src = project_root / "CryptoAlrt" / "notification_service" / "src"
+if notification_src.exists():
+    sys.path.insert(0, str(notification_src))
+    
+price_tracking_src = project_root / "CryptoAlrt" / "price_tracking_service" / "src"
+if price_tracking_src.exists():
+    sys.path.insert(0, str(price_tracking_src))
+'''
+
+jobs = 1
+
+limit-inference-results = 100
+
+persistent = true
+
+py-version = "3.13"
+
+[tool.pylint.basic]
+argument-naming-style = "snake_case"
+attr-naming-style = "snake_case"
+bad-names = ["foo", "bar", "baz", "toto", "tutu", "tata"]
+class-attribute-naming-style = "any"
+class-const-naming-style = "UPPER_CASE"
+class-naming-style = "PascalCase"
+class-rgx = "[A-Z][a-z]+"
+const-naming-style = "UPPER_CASE"
+docstring-min-length = -1
+function-naming-style = "snake_case"
+good-names = ["i", "j", "k", "ex", "Run", "_"]
+inlinevar-naming-style = "any"
+method-naming-style = "snake_case"
+module-naming-style = "snake_case"
+no-docstring-rgx = "^_"
+property-classes = ["abc.abstractproperty"]
+
+[tool.pylint.classes]
+defining-attr-methods = ["__init__", "__new__", "setUp", "asyncSetUp", "__post_init__"]
+exclude-protected = ["_asdict", "_fields", "_replace", "_source", "_make", "os._exit"]
+valid-classmethod-first-arg = ["cls"]
+valid-metaclass-classmethod-first-arg = ["mcs"]
+
+[tool.pylint.design]
+max-args = 5
+max-attributes = 7
+max-bool-expr = 5
+max-branches = 12
+max-locals = 15
+max-parents = 7
+max-positional-arguments = 5
+max-public-methods = 20
+max-returns = 6
+max-statements = 50
+min-public-methods = 1
+
+[tool.pylint.exceptions]
+overgeneral-exceptions = ["builtins.BaseException", "builtins.Exception"]
+
+[tool.pylint.format]
+ignore-long-lines = "^\\s*(# )?<?https?://\\S+>?$"
+indent-after-paren = 4
+indent-string = "    "
+max-line-length = 100
+max-module-lines = 1000
+
+[tool.pylint.imports]
+known-third-party = ["enchant"]
+
+[tool.pylint.logging]
+logging-format-style = "old"
+logging-modules = ["logging"]
+
+[tool.pylint."messages control"]
+confidence = ["HIGH", "CONTROL_FLOW", "INFERENCE", "INFERENCE_FAILURE", "UNDEFINED"]
+disable = [
+    "raw-checker-failed",
+    "bad-inline-option",
+    "locally-disabled",
+    "file-ignored",
+    "suppressed-message",
+    "useless-suppression",
+    "deprecated-pragma",
+    "use-symbolic-message-instead",
+    "use-implicit-booleaness-not-comparison-to-string",
+    "use-implicit-booleaness-not-comparison-to-zero",
+    "invalid-name",
+    "f-string-without-interpolation",
+    "unnecessary-ellipsis",
+    "trailing-whitespace",
+    "trailing-newlines",
+    "missing-final-newline",
+    "too-few-public-methods",
+    "too-many-instance-attributes",
+    "too-many-arguments",
+    "too-many-positional-arguments",
+]
+
+[tool.pylint.method_args]
+timeout-methods = ["requests.api.delete", "requests.api.get", "requests.api.head", "requests.api.options", "requests.api.patch", "requests.api.post", "requests.api.put", "requests.api.request"]
+
+[tool.pylint.miscellaneous]
+notes = ["FIXME", "XXX", "TODO"]
+
+[tool.pylint.refactoring]
+max-nested-blocks = 5
+never-returning-functions = ["sys.exit", "argparse.parse_error"]
+suggest-join-with-non-empty-separator = true
+
+[tool.pylint.reports]
+evaluation = "max(0, 0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10))"
+score = true
+
+[tool.pylint.similarities]
+ignore-comments = true
+ignore-docstrings = true
+ignore-imports = true
+ignore-signatures = true
+min-similarity-lines = 4
+
+[tool.pylint.spelling]
+max-spelling-suggestions = 4
+spelling-ignore-comment-directives = "fmt: on,fmt: off,noqa:,noqa,nosec,isort:skip,mypy:"
+
+[tool.pylint.typecheck]
+contextmanager-decorators = ["contextlib.contextmanager"]
+ignore-none = true
+ignore-on-opaque-inference = true
+ignored-checks-for-mixins = ["no-member", "not-async-context-manager", "not-context-manager", "attribute-defined-outside-init"]
+ignored-classes = ["optparse.Values", "thread._local", "_thread._local", "argparse.Namespace"]
+missing-member-hint = true
+missing-member-hint-distance = 1
+missing-member-max-choices = 1
+mixin-class-rgx = ".*[Mm]ixin"
+
+[tool.pylint.variables]
+allow-global-unused-variables = true
+callbacks = ["cb_", "_cb"]
+dummy-variables-rgx = "_+$|(_[a-zA-Z0-9_]*[a-zA-Z0-9]+?$)|dummy|^ignored_|^unused_"
+ignored-argument-names = "_.*|^ignored_|^unused_"
+redefining-builtins-modules = ["six.moves", "past.builtins", "future.builtins", "builtins", "io"]
