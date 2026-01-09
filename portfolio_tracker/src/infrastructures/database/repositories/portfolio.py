@@ -95,6 +95,15 @@ class SQLAlchemyPortfolioRepository(PortfolioRepositoryProtocol):
             )
             raise RepositoryError("Unable to load portfolio information") from e
 
+        except Exception as e:
+            logger.error(
+                "Unexpected error occurred during from database",
+                error=str(e),
+                error_type=type(e).__name__,
+                exc_info=True,
+            )
+            raise RepositoryError("Unable to load portfolio information") from e
+
     async def get_portfolio_total_value(
         self, wallet_address: str
     ) -> tuple[PortfolioEntity, Decimal] | None:
@@ -155,7 +164,18 @@ class SQLAlchemyPortfolioRepository(PortfolioRepositoryProtocol):
                 error_type=type(e).__name__,
                 exc_info=True,
             )
-            raise RepositoryError("Unable to load or calculate portfolio information") from e
+            raise RepositoryError("Portfolio and total value successfully retrieved") from e
+
+        except Exception as e:
+            logger.error(
+                "Unexpected error occurred during from database",
+                error=str(e),
+                error_type=type(e).__name__,
+                exc_info=True,
+            )
+            raise RepositoryError(
+                "Unable to load or calculate assets & portfolio information"
+            ) from e
 
     async def get_portfolio_with_assets_count(
         self, wallet_address: str
@@ -205,6 +225,17 @@ class SQLAlchemyPortfolioRepository(PortfolioRepositoryProtocol):
         except SQLAlchemyError as e:
             logger.error(
                 "Error occurred during from database",
+                error=str(e),
+                error_type=type(e).__name__,
+                exc_info=True,
+            )
+            raise RepositoryError(
+                "Unable to load or calculate assets & portfolio information"
+            ) from e
+
+        except Exception as e:
+            logger.error(
+                "Unexpected error occurred during from database",
                 error=str(e),
                 error_type=type(e).__name__,
                 exc_info=True,

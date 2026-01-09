@@ -51,6 +51,10 @@ testpaths = [
     "price-traking-service/tests",
     "CryptoAlrt/portfolio_tracker/tests",
 ]
+asyncio_mode = "auto"
+markers = [
+    "asyncio: marks tests as async (deselect with '-m \"not asyncio\"')",
+]
 
 [tool.black]
 line-length = 100

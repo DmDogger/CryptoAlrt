@@ -3,8 +3,8 @@ from decimal import Decimal
 import pytest
 
 from domain.entities.portfolio_entity import PortfolioEntity
-from fixtures.domain_fixtures import sample_portfolio_entity
-from fixtures.infra_fixtures import mock_async_session
+from domain.exceptions import RepositoryError
+from sqlalchemy.exc import SQLAlchemyError
 
 
 class TestPortfolioRepository:
@@ -70,3 +70,19 @@ class TestPortfolioRepository:
 
         assert result[1] == 10
         assert isinstance(result[0], PortfolioEntity)
+
+    @pytest.mark.parametrize(
+        "exception_, expected_exception",
+        [(SQLAlchemyError, RepositoryError), (Exception, RepositoryError)],
+    )
+    @pytest.mark.asyncio
+    async def test_with_assets_count_raises_error(
+        self, exception_, expected_exception, mock_async_session, mock_portfolio_repository
+    ):
+
+        mock_async_session.execute.side_effect = exception_
+
+        with pytest.raises(expected_exception):
+            await mock_portfolio_repository.get_portfolio_with_assets_count(
+                wallet_address="test_wallet_addr"
+            )

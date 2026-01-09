@@ -2,3 +2,7 @@
 pythonpath = [".", "src"]
 testpaths = ["tests"]
 norecursedirs = [".git", ".pytest_cache", "__pycache__", "*.egg"]
+asyncio_mode = "auto"
+markers = [
+    "asyncio: marks tests as async (deselect with '-m \"not asyncio\"')",
+]
