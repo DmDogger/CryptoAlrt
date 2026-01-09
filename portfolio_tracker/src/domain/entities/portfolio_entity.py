@@ -55,8 +55,8 @@ class PortfolioEntity:
                     "Total value of portfolio cannot be negative" f"But got: {self.weight}"
                 )
 
-        if datetime.now(UTC) > self.updated_at:
+        if self.updated_at > datetime.now(UTC):
             raise DomainValidationError(
-                f"Updated at time must cannot be in the future"
+                f"Updated at time cannot be in the future. "
                 f"Timestamp now: {datetime.now(UTC)}, time you selected: {self.updated_at}"
             )

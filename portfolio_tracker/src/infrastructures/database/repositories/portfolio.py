@@ -17,21 +17,23 @@ from domain.entities.portfolio_entity import PortfolioEntity
 from infrastructures.database.models.portfolio import Portfolio
 from infrastructures.database.models.cryptoprice import CryptoPrice
 from infrastructures.database.models.asset import Asset
-from sqlalchemy.orm import selectinload, joinedload, join
+from sqlalchemy.orm import joinedload
 
 from domain.exceptions import RepositoryError
+from application.interfaces.repositories import PortfolioRepositoryProtocol
 
 logger = structlog.getLogger(__name__)
 
 
 @final
 @dataclass(frozen=True, slots=True, kw_only=True)
-class SQLAlchemyPortfolioRepository:
+class SQLAlchemyPortfolioRepository(PortfolioRepositoryProtocol):
     """Repository for portfolio database operations.
 
     Handles CRUD operations for portfolios with eager loading of assets and prices.
     Mapping logic is delegated to PortfolioDBMapper.
     """
+
     _session: AsyncSession
     _mapper: PortfolioDBMapper
 
@@ -142,7 +144,7 @@ class SQLAlchemyPortfolioRepository:
             logger.debug(
                 "Portfolio and total value successfully retrieved",
                 wallet_address=wallet_address,
-                total_value=total_value,
+                total_value_typ=type(total_value).__name__,
             )
             return mapped_portfolio, total_value
 

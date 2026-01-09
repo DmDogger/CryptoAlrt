@@ -61,3 +61,10 @@ class InvalidAssetAmount(Exception):
     """Raised when asset amount is invalid (negative or zero)."""
 
     ...
+
+
+@final
+class RepositoryError(Exception):
+    """Raised when repository/database operations fail."""
+
+    ...

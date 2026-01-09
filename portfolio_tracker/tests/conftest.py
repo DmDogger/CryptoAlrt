@@ -4,4 +4,5 @@ import pytest
 
 pytest_plugins = [
     "tests.fixtures.domain_fixtures",
+    "tests.fixtures.infra_fixtures",
 ]
