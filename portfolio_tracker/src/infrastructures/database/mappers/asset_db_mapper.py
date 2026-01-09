@@ -25,8 +25,7 @@ class AssetDBMapper:
 
     @staticmethod
     def from_database(model: Asset) -> AssetEntity:
-        """Convert Asset database model to AssetEntity.
-        """
+        """Convert Asset database model to AssetEntity."""
         created_at = model.created_at
         if created_at.tzinfo is None:
             created_at = created_at.replace(tzinfo=UTC)
@@ -41,8 +40,7 @@ class AssetDBMapper:
 
     @staticmethod
     def to_dict(asset: AssetEntity) -> dict:
-        """Convert AssetEntity to dict.
-        """
+        """Convert AssetEntity to dict."""
         return {
             "asset_id": str(asset.asset_id),
             "ticker": asset.ticker,

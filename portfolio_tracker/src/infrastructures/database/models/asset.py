@@ -3,12 +3,11 @@ from decimal import Decimal
 from uuid import UUID
 
 from sqlalchemy import String, ForeignKey, Numeric, DateTime, func
+from sqlalchemy import UniqueConstraint
 from sqlalchemy.dialects.postgresql.base import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from infrastructures.database.models.base import Base
-
-from sqlalchemy import UniqueConstraint
 
 
 class Asset(Base):
@@ -32,6 +31,7 @@ class Asset(Base):
     )
     wallet_address: Mapped[str] = mapped_column(
         String(200),
+        ForeignKey("portfolio.wallet_address", onupdate="CASCADE", ondelete="CASCADE"),
         index=True,
         nullable=False,
     )
@@ -44,4 +44,9 @@ class Asset(Base):
     crypto_price: Mapped["CryptoPrice"] = relationship(
         "CryptoPrice",
         lazy="joined",
+    )
+
+    portfolio: Mapped["Portfolio"] = relationship(
+        "Portfolio",
+        back_populates="assets",
     )
