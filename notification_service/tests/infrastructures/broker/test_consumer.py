@@ -20,7 +20,7 @@ class TestAlertTriggeredConsumer:
             "cryptocurrency": "SOL",
             "current_price": "105",
             "threshold_price": "150",
-            "created_at": datetime.now(UTC),
+            "created_at": datetime.now(UTC).isoformat(),
             "telegram_id": None,
         }
 
@@ -29,4 +29,6 @@ class TestAlertTriggeredConsumer:
                 alert_event_payload,
                 topic=broker_settings.alert_triggered_topic,
             )
-            consume_alert_triggered.mock.assert_called_once()
+            consume_alert_triggered.mock.assert_called_with(
+                alert_event_payload
+            )
