@@ -22,6 +22,14 @@ import os
 # Add src directory to path (alembic.ini prepend_sys_path = . points to notification_service/)
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
+# Override database URL from environment variable
+# Convert asyncpg URL to sync URL for Alembic
+database_url = os.getenv("DB_DATABASE_URL", config.get_main_option("sqlalchemy.url"))
+if database_url:
+    # Replace asyncpg with psycopg2 for synchronous connections
+    database_url = database_url.replace("+asyncpg", "").replace("postgresql+asyncpg", "postgresql+psycopg2")
+    config.set_main_option("sqlalchemy.url", database_url)
+
 # Импортируем все модели, чтобы они зарегистрировались в Base.metadata
 from infrastructures.database.models import Notification, UserPreference  # noqa: F401
 from infrastructures.database.models.base import Base

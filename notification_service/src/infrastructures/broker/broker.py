@@ -12,3 +12,5 @@ app = FastStream(broker)
 
 _container = create_container()
 setup_dishka_faststream(_container, app, auto_inject=True)
+
+from infrastructures.consumer import alert_triggered_consumer  # noqa: F401
