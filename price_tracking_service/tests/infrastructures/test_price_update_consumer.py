@@ -55,21 +55,21 @@ class TestConsumePriceUpdateAndCheckThresholds:
             )
 
             # Verify logging
-            mock_logger.info.assert_any_call(
-                "[Consumer] Received price update message",
+            mock_logger.debug.assert_any_call(
+                "Received price update message",
                 cryptocurrency=price_updated_event.cryptocurrency,
                 current_price=str(price_updated_event.price),
                 topic="price-updates",
             )
 
-            mock_logger.debug.assert_called_once_with(
-                "[Consumer] Starting threshold check use case execution",
+            mock_logger.debug.assert_any_call(
+                "Starting threshold check use case execution",
                 cryptocurrency=price_updated_event.cryptocurrency,
                 current_price=str(price_updated_event.price),
             )
 
-            mock_logger.info.assert_any_call(
-                "[Consumer] Successfully processed price update and checked thresholds",
+            mock_logger.info.assert_called_once_with(
+                "Successfully processed price update and checked thresholds",
                 cryptocurrency=price_updated_event.cryptocurrency,
                 current_price=str(price_updated_event.price),
             )
@@ -95,7 +95,7 @@ class TestConsumePriceUpdateAndCheckThresholds:
 
             # Verify error logging
             mock_logger.error.assert_called_once_with(
-                "[Consumer] Database repository error occurred while processing price update",
+                "Database repository error occurred while processing price update",
                 error=str(repo_error),
                 error_type="RepositoryError",
                 cryptocurrency=price_updated_event.cryptocurrency,
@@ -125,7 +125,7 @@ class TestConsumePriceUpdateAndCheckThresholds:
 
             # Verify error logging
             mock_logger.error.assert_called_once_with(
-                "[Consumer] Message publishing error occurred while processing price update",
+                "Message publishing error occurred while processing price update",
                 error=str(publish_error),
                 error_type="PublishError",
                 cryptocurrency=price_updated_event.cryptocurrency,
@@ -155,7 +155,7 @@ class TestConsumePriceUpdateAndCheckThresholds:
 
             # Verify error logging
             mock_logger.error.assert_called_once_with(
-                "[Consumer] Invalid data format received in price update message",
+                "Invalid data format received in price update message",
                 error=str(value_error),
                 error_type="ValueError",
                 cryptocurrency=price_updated_event.cryptocurrency,
@@ -185,7 +185,7 @@ class TestConsumePriceUpdateAndCheckThresholds:
 
             # Verify critical error logging
             mock_logger.critical.assert_called_once_with(
-                "[Consumer] Unexpected error occurred while processing price update",
+                "Unexpected error occurred while processing price update",
                 error=str(unexpected_error),
                 error_type="RuntimeError",
                 cryptocurrency=price_updated_event.cryptocurrency,
@@ -274,10 +274,21 @@ class TestConsumePriceUpdateAndCheckThresholds:
             )
 
             # Assert
-            # Check that all info logs include cryptocurrency and price
+            # Check that all logs include cryptocurrency and price
+            debug_calls = mock_logger.debug.call_args_list
             info_calls = mock_logger.info.call_args_list
-            assert len(info_calls) == 2  # Received and Success messages
+            assert len(debug_calls) == 2  # Received and Starting messages
+            assert len(info_calls) == 1  # Success message
 
+            # Check debug calls
+            for call in debug_calls:
+                args, kwargs = call
+                assert "cryptocurrency" in kwargs
+                assert "current_price" in kwargs
+                assert kwargs["cryptocurrency"] == price_updated_event.cryptocurrency
+                assert kwargs["current_price"] == str(price_updated_event.price)
+
+            # Check info call
             for call in info_calls:
                 args, kwargs = call
                 assert "cryptocurrency" in kwargs

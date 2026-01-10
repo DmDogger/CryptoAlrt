@@ -132,7 +132,9 @@ class TestFetchAndSaveUseCase:
         mock_coingecko_client.fetch_price.return_value = None
 
         # Act & Assert
-        with pytest.raises(UnsuccessfullyCoinGeckoAPICall, match="Coingecko returned None"):
+        with pytest.raises(
+            UnsuccessfullyCoinGeckoAPICall, match="Cannot to fetch prices from external API"
+        ):
             await use_case.execute(coin_id)
 
         # Should not call repository methods

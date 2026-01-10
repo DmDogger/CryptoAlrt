@@ -29,6 +29,4 @@ class TestAlertTriggeredConsumer:
                 alert_event_payload,
                 topic=broker_settings.alert_triggered_topic,
             )
-            consume_alert_triggered.mock.assert_called_with(
-                alert_event_payload
-            )
+            consume_alert_triggered.mock.assert_called_with(alert_event_payload)

@@ -104,8 +104,8 @@ async def _consume_price_update_and_check_thresholds(
 
 
 @broker.subscriber(
+    broker_settings.price_updates_topic,
     title="consume_price_update_and_check_threshold",
-    topic=broker_settings.price_updates_topic,
 )
 async def consume_price_update_and_check_thresholds(
     event: PriceUpdatedEvent, use_case: FromDishka[CheckThresholdUseCase]

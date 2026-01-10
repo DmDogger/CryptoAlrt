@@ -2,7 +2,6 @@ import pytest
 from datetime import UTC, datetime
 from decimal import Decimal
 from uuid import uuid4
-from unittest import mock
 from unittest.mock import MagicMock
 
 from domain.entities.alert import AlertEntity
@@ -11,6 +10,12 @@ from domain.value_objects.threshold import ThresholdValueObject
 
 class TestAlertDBMapper:
     """Tests for AlertDBMapper."""
+
+    @pytest.fixture(autouse=True)
+    def _import_models(self):
+        """Import all models to ensure SQLAlchemy relationships are initialized."""
+        from infrastructures.database.models.cryptocurrency import Cryptocurrency  # noqa: F401
+        from infrastructures.database.models.alert import Alert  # noqa: F401
 
     @pytest.fixture
     def mapper(self):
@@ -21,6 +26,8 @@ class TestAlertDBMapper:
 
     def test_to_database_model(self, mapper):
         """Test conversion from AlertEntity to Alert database model."""
+        from infrastructures.database.models.alert import Alert
+
         entity = AlertEntity(
             id=uuid4(),
             email="user@example.com",
@@ -33,17 +40,17 @@ class TestAlertDBMapper:
         )
         cryptocurrency_id = uuid4()
 
-        with mock.patch(
-            "src.infrastructures.database.mappers.alert_db_mapper.Alert"
-        ) as mock_model_class:
-            result = mapper.to_database_model(entity, cryptocurrency_id)
-            call_kwargs = mock_model_class.call_args[1]
-            assert call_kwargs["id"] == entity.id
-            assert call_kwargs["email"] == entity.email
-            assert call_kwargs["cryptocurrency_id"] == cryptocurrency_id
-            assert call_kwargs["threshold_price"] == entity.threshold_price.value
-            assert call_kwargs["is_active"] == entity.is_active
-            assert call_kwargs["created_at"] == entity.created_at
+        result = mapper.to_database_model(entity, cryptocurrency_id)
+
+        assert isinstance(result, Alert)
+        assert result.id == entity.id
+        assert result.email == entity.email
+        assert result.cryptocurrency_id == cryptocurrency_id
+        assert result.threshold_price == entity.threshold_price.value
+        assert result.is_active == entity.is_active
+        assert result.created_at == entity.created_at
+        assert result.telegram_id == entity.telegram_id
+        assert result.is_triggered == entity.is_triggered
 
     def test_from_database_model(self, mapper):
         """Test conversion from Alert database model to AlertEntity."""
