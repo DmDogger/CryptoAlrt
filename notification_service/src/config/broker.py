@@ -1,7 +1,7 @@
 from typing import final
 
 from pydantic import Field, ConfigDict
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 @final
@@ -32,7 +32,7 @@ class BrokerSettings(BaseSettings):
     publish_retries: int = Field(default=3, alias="KAFKA_PUBLISH_RETRIES")
     publish_retry_backoff: float = Field(default=0.5, alias="KAFKA_PUBLISH_RETRY_BACKOFF")
 
-    model_config = ConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
 
 broker_settings = BrokerSettings()

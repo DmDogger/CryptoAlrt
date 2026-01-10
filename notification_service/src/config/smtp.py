@@ -8,9 +8,7 @@ from pydantic_settings import BaseSettings
 class SMTPSettings(BaseSettings):
     """SMTP server configuration settings."""
 
-    # Defaults are set to allow module import without environment variables.
-    # Override via SMTP_* env vars in production.
-    host: str = Field(default="localhost", description="SMTP server hostname")
+    host: str = Field(default="127.0.0.1", description="SMTP server hostname")
     port: int = Field(default=1025, description="SMTP server port")
     username: str = Field(default="", description="SMTP authentication username (optional)")
     password: str = Field(default="", description="SMTP authentication password (optional)")

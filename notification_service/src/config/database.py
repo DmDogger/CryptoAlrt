@@ -1,4 +1,4 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class DatabaseSettings(BaseSettings):
@@ -6,9 +6,7 @@ class DatabaseSettings(BaseSettings):
 
     database_url: str = "postgresql+asyncpg://dmitrii@localhost:5432/cryptoalrt"
 
-    class Config:
-        env_prefix = "DB_"
-        env_file = ".env"
+    model_config = SettingsConfigDict(env_prefix="DB_", env_file=".env")
 
 
 db_settings = DatabaseSettings()

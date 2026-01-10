@@ -40,7 +40,6 @@ class InfrastructureProvider(Provider):
 
     @provide(scope=Scope.APP)
     def get_db_engine(self) -> AsyncEngine:
-        # Avoid connecting at import time; engine is lazy.
         return create_async_engine(str(make_url(db_settings.database_url)), echo=False)
 
     @provide(scope=Scope.APP)

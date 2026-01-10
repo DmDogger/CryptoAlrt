@@ -1,8 +1,11 @@
-from typing import TYPE_CHECKING
 from unittest.mock import AsyncMock, MagicMock
 
 import aiosmtplib
 import pytest
+from dishka import make_async_container
+from dishka.integrations.faststream import setup_dishka as setup_dishka_faststream
+from faststream import app
+from faststream.kafka import TestKafkaBroker, KafkaBroker
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from application.use_cases.send_email_notification import SendEmailNotificationUseCase
@@ -18,12 +21,14 @@ from tests.infrastructures.fixtures.user_preference_fixtures import (
     sample_user_preference_entity,
     sample_user_preference_entity_with_disabled_email,
 )
+
+from tests.helpers.providers import MockInfrastructureProvider, MockUseCaseProvider
+
+from config.broker import broker_settings
+from infrastructures.consumer.alert_triggered_consumer import consume_alert_triggered
 from infrastructures.database.mappers import NotificationDBMapper
 from infrastructures.database.repositories import SQLAlchemyNotificationRepository
 from infrastructures.smtp.send_email import SMTPEmailClient
-
-if TYPE_CHECKING:
-    pass
 
 
 @pytest.fixture
@@ -121,13 +126,7 @@ def mock_fake_repository(
     sample_notification_entity_marked_as_failed,
 ) -> FakeRepository:
     """Fake in-memory repository для тестов use cases с предзаполненными данными."""
-    return FakeRepository(
-        preferences=(
-            # sample_notification_entity_marked_as_sent,
-            sample_notification_entity,
-            # sample_notification_entity_marked_as_failed,
-        )
-    )
+    return FakeRepository(preferences=(sample_notification_entity,))
 
 
 @pytest.fixture
@@ -166,3 +165,25 @@ def mock_check_and_reserve_use_case(
         notification_repository=mock_fake_repository,
         preference_repository=mock_fake_preference_repository,
     )
+
+
+@pytest.fixture
+def container():
+    container = make_async_container(
+        MockInfrastructureProvider(),
+        MockUseCaseProvider(),
+    )
+    yield container
+    container.close()
+
+
+@pytest.fixture
+def mock_broker(container):
+    broker = KafkaBroker(bootstrap_servers=MagicMock())
+
+    setup_dishka_faststream(container, broker=broker, auto_inject=True)
+
+    broker.subscriber(broker_settings.alert_triggered_topic, title="consume_alert_triggered")(
+        consume_alert_triggered
+    )
+    return broker
