@@ -9,13 +9,16 @@ class TestCachedUserPreferenceRepository:
         self,
         mock_fake_preference_repository: "FakeUserPreferenceRepository",
         sample_user_preference_entity: UserPreferenceEntity,
+        mock_redis_client: "RedisClient",
         mock_cached_repository: "CachedUserPreferenceRepository",
     ):
 
         await mock_fake_preference_repository.save(sample_user_preference_entity)
-        res = await mock_cached_repository.get_by_id(sample_user_preference_entity.id)
+        await mock_cached_repository.get_by_id(sample_user_preference_entity.id) # first call: data not cached yet
+        cached = await mock_cached_repository.get_by_id(sample_user_preference_entity.id) # second call: data must be cached
 
-        assert isinstance(res, UserPreferenceEntity)
-        assert res.email_enabled is True
-        assert res.telegram_enabled is False
-        assert res.telegram_id is None
+        assert cached is not None
+        assert isinstance(cached, UserPreferenceEntity)
+        assert cached.email_enabled is True
+        assert cached.telegram_enabled is False
+        assert cached.telegram_id is None

@@ -64,7 +64,11 @@ class CachedUserPreferencyRepository(PreferenceRepositoryProtocol):
                     ttl=cache_settings.key_expire,
                 )
                 return result
-
+            logger.debug(
+                "Preferences found in cache successfully",
+                key=preference_id,
+                value_as_dict=preferences,
+            )
             return UserPreferenceEntity.from_dict(preferences)
 
         except (redis.exceptions.DataError, JSONDecodeError) as e:
