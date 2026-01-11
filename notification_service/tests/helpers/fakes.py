@@ -37,17 +37,20 @@ class FakeUserPreferenceRepository(PreferenceRepositoryProtocol):
     def __init__(self, preferences):
         self._preferences = set(preferences)
 
-    async def save(self, preference: UserPreferenceEntity):
+    async def save(self, preference: UserPreferenceEntity) -> UserPreferenceEntity:
         self._preferences.add(preference)
+        return preference
 
-    async def get_by_id(self, id_: int):
-        return next(p for p in self._preferences if p.id == id_)
+    async def get_by_id(self, preference_id: UUID) -> UserPreferenceEntity | None:
+        return next((p for p in self._preferences if p.id == preference_id), None)
 
-    async def update(self, preference: NotificationEntity):
+    async def update(self, preference: UserPreferenceEntity) -> UserPreferenceEntity:
+        self._preferences = {p for p in self._preferences if p.id != preference.id}
         self._preferences.add(preference)
+        return preference
 
-    async def get_by_email(self, email: str):
+    async def get_by_email(self, email: str) -> UserPreferenceEntity | None:
         return next((p for p in self._preferences if p.email == email), None)
 
-    async def get_by_telegram_id(self, telegram_id: int):
+    async def get_by_telegram_id(self, telegram_id: int) -> UserPreferenceEntity | None:
         return next((p for p in self._preferences if p.telegram_id == telegram_id), None)

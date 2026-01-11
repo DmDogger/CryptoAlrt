@@ -1,12 +1,16 @@
+from typing import Generator, AsyncGenerator, Any
 from unittest.mock import AsyncMock, MagicMock
 
 import aiosmtplib
 import pytest
-from dishka import make_async_container
+import pytest_asyncio
+from dishka import make_async_container, AsyncContainer
 from dishka.integrations.faststream import setup_dishka as setup_dishka_faststream
 from faststream import app
 from faststream.kafka import TestKafkaBroker, KafkaBroker
+from redis import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
+from testcontainers.redis import RedisContainer, AsyncRedisContainer
 
 from application.use_cases.send_email_notification import SendEmailNotificationUseCase
 from tests.helpers.fakes import FakeRepository, FakeUserPreferenceRepository
@@ -25,9 +29,13 @@ from tests.infrastructures.fixtures.user_preference_fixtures import (
 from tests.helpers.providers import MockInfrastructureProvider, MockUseCaseProvider
 
 from config.broker import broker_settings
+from infrastructures.cache.redis import RedisCache
 from infrastructures.consumer.alert_triggered_consumer import consume_alert_triggered
-from infrastructures.database.mappers import NotificationDBMapper
+from infrastructures.database.mappers import NotificationDBMapper, UserPreferenceDBMapper
 from infrastructures.database.repositories import SQLAlchemyNotificationRepository
+from infrastructures.database.repositories.cached_user_preference import (
+    CachedUserPreferencyRepository,
+)
 from infrastructures.smtp.send_email import SMTPEmailClient
 
 
@@ -168,7 +176,8 @@ def mock_check_and_reserve_use_case(
 
 
 @pytest.fixture
-def container():
+def container() -> Generator[AsyncContainer, None, None]:
+    """Контейнер Дишка"""
     container = make_async_container(
         MockInfrastructureProvider(),
         MockUseCaseProvider(),
@@ -178,7 +187,8 @@ def container():
 
 
 @pytest.fixture
-def mock_broker(container):
+def mock_broker(container: "AsyncContainer") -> KafkaBroker:
+    """Мок Кафки"""
     broker = KafkaBroker(bootstrap_servers=MagicMock())
 
     setup_dishka_faststream(container, broker=broker, auto_inject=True)
@@ -187,3 +197,24 @@ def mock_broker(container):
         consume_alert_triggered
     )
     return broker
+
+
+@pytest_asyncio.fixture
+async def mock_redis_client() -> AsyncGenerator[Any, Any]:
+    """RedisClient через TestConatiner"""
+    with AsyncRedisContainer() as redis_container:
+        redis_client = await redis_container.get_async_client()
+        yield redis_client
+        await redis_client.aclose()
+
+
+@pytest_asyncio.fixture
+async def mock_cached_repository(
+    mock_redis_client, mock_fake_preference_repository
+) -> CachedUserPreferencyRepository:
+    """Cached Repository"""
+    return CachedUserPreferencyRepository(
+        _redis_cache=RedisCache(client=mock_redis_client),
+        _mapper=UserPreferenceDBMapper(),
+        _original=mock_fake_preference_repository,
+    )

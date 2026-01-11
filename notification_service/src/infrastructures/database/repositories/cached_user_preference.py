@@ -25,14 +25,14 @@ logger = structlog.getLogger(__name__)
 @final
 @dataclass(frozen=True, slots=True, kw_only=True)
 class CachedUserPreferencyRepository(PreferenceRepositoryProtocol):
-
+    # todo: add all protocols methods
     _original: SQLAlchemyUserPreferenceRepository
     _redis_cache: RedisCache
     _mapper: UserPreferenceDBMapper
 
     async def get_by_id(self, preference_id: UUID) -> UserPreferenceEntity | None:
         """
-        Searches for user preferences in the cache, if found, it returns them;
+        Searches for user preferences in the cache (by pref.id), if found, it returns them;
         if not, it makes a request to the original repository, saves them in the cache,
         and returns the result
         """
@@ -96,6 +96,9 @@ class CachedUserPreferencyRepository(PreferenceRepositoryProtocol):
             return await self._original.get_by_id(preference_id)
 
     async def get_by_email(self, email: str) -> UserPreferenceEntity | None:
+        """Searches for user preferences (by email) in the cache, if found, it returns them;
+        if not, it makes a request to the original repository, saves them in the cache,
+        and returns the result"""
         try:
             preferences: dict | None = await self._redis_cache.get(key=email)
 
@@ -117,10 +120,27 @@ class CachedUserPreferencyRepository(PreferenceRepositoryProtocol):
                 "Redis operation failed",
                 error_type=type(e).__name__,
                 operation="get",
+                key=email,
                 timestamp=datetime.now(UTC).isoformat(),
-
-
             )
+            await self._redis_cache.delete(key=email)
+            return await self._original.get_by_email(email)
+        except (redis.exceptions.ConnectionError, redis.exceptions.TimeoutError) as e:
+            logger.error(
+                "Redis operation failed",
+                error_type=type(e).__name__,
+                operation="get",
+                key=email,
+                timestamp=datetime.now(UTC).isoformat(),
+            )
+            return await self._original.get_by_email(email=email)
 
+    async def get_by_telegram_id(self, telegram_id: int) -> UserPreferenceEntity | None:
+        # todo: will be realised
+        pass
 
+    async def save(self, preference: UserPreferenceEntity) -> UserPreferenceEntity:
+        pass
 
+    async def update(self, preference: UserPreferenceEntity) -> UserPreferenceEntity:
+        pass

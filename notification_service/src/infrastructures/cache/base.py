@@ -7,7 +7,7 @@ class BaseCache:
     prefix = "c"
 
     def __init__(self, version=None, prefix=None):
-        self.version = version or cache_settings.CACHE_VERSION
+        self.version = version or cache_settings.cache_version
         if prefix is not None:
             self.prefix = prefix
 
