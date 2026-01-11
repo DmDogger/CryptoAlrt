@@ -1,7 +1,9 @@
 from typing import AsyncIterable
 
 import aiosmtplib
+import redis
 from dishka import Provider, Scope, provide
+from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
@@ -32,6 +34,7 @@ from infrastructures.database.repositories.notification import (
 from infrastructures.database.repositories.user_preference import (
     SQLAlchemyUserPreferenceRepository,
 )
+from infrastructures.redis.redis import decoded_connection as r_client
 from infrastructures.smtp.send_email import SMTPEmailClient
 
 
@@ -96,6 +99,14 @@ class InfrastructureProvider(Provider):
     @provide(scope=Scope.REQUEST)
     def get_email_client(self, smtp: aiosmtplib.SMTP) -> EmailClientProtocol:
         return SMTPEmailClient(smtp=smtp)
+
+    @provide(scope=Scope.APP)
+    async def get_redis_client(self) -> AsyncIterable[Redis]:
+        try:
+            await r_client.ping()
+            yield r_client
+        except redis.exceptions.ConnectionError:
+            await r_client.aclose()
 
 
 class UseCaseProvider(Provider):

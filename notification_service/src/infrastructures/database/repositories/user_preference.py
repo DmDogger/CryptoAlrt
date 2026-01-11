@@ -19,39 +19,14 @@ logger = getLogger(__name__)
 @final
 @dataclass(frozen=True, slots=True, kw_only=True)
 class SQLAlchemyUserPreferenceRepository(PreferenceRepositoryProtocol):
-    """SQLAlchemy implementation of the User Preference Repository.
-
-    This repository is responsible for database operations (CRUD) only.
-    Mapping logic is delegated to UserPreferenceDBMapper following SRP.
-    """
+    """SQLAlchemy implementation of the User Preference Repository."""
 
     session: AsyncSession
     _mapper: UserPreferenceDBMapper
 
-    def __init__(
-        self,
-        session: AsyncSession,
-        mapper: UserPreferenceDBMapper,
-    ) -> None:
-        """
-        Initialize the repository with database session and mapper.
-
-        Args:
-            session: The async SQLAlchemy session for database operations.
-            mapper: The UserPreferenceDBMapper for converting between entities and database models.
-        """
-        object.__setattr__(self, "session", session)
-        object.__setattr__(self, "_mapper", mapper)
-
     async def get_by_id(self, preference_id: UUID) -> UserPreferenceEntity | None:
         """
         Get user preference by its ID.
-
-        Args:
-            preference_id: Unique identifier of the user preference.
-
-        Returns:
-            UserPreferenceEntity if found, None otherwise.
         """
         try:
             logger.info("Retrieving user preference", preference_id=str(preference_id))
@@ -94,15 +69,9 @@ class SQLAlchemyUserPreferenceRepository(PreferenceRepositoryProtocol):
     async def get_by_email(self, email: str) -> UserPreferenceEntity | None:
         """
         Get user preference by email address.
-
-        Args:
-            email: User's email address.
-
-        Returns:
-            UserPreferenceEntity if found, None otherwise.
         """
         try:
-            logger.info("Retrieving user preference by email", email=email)
+            logger.debug("Retrieving user preference by email", email=email)
 
             stmt = select(UserPreference).where(UserPreference.email == email)
             res = await self.session.scalars(stmt)
@@ -112,7 +81,7 @@ class SQLAlchemyUserPreferenceRepository(PreferenceRepositoryProtocol):
                 logger.warning("User preference not found by email", email=email)
                 return None
 
-            logger.info("User preference retrieved successfully by email", email=email)
+            logger.debug("User preference retrieved successfully by email", email=email)
             return self._mapper.from_database_model(result)
 
         except SQLAlchemyError as e:
@@ -139,15 +108,9 @@ class SQLAlchemyUserPreferenceRepository(PreferenceRepositoryProtocol):
     async def get_by_telegram_id(self, telegram_id: int) -> UserPreferenceEntity | None:
         """
         Get user preference by Telegram ID.
-
-        Args:
-            telegram_id: User's Telegram ID.
-
-        Returns:
-            UserPreferenceEntity if found, None otherwise.
         """
         try:
-            logger.info("Retrieving user preference by telegram_id", telegram_id=telegram_id)
+            logger.debug("Retrieving user preference by telegram_id", telegram_id=telegram_id)
 
             stmt = select(UserPreference).where(UserPreference.telegram_id == telegram_id)
             res = await self.session.scalars(stmt)
@@ -157,7 +120,7 @@ class SQLAlchemyUserPreferenceRepository(PreferenceRepositoryProtocol):
                 logger.warning("User preference not found by telegram_id", telegram_id=telegram_id)
                 return None
 
-            logger.info(
+            logger.debug(
                 "User preference retrieved successfully by telegram_id",
                 telegram_id=telegram_id,
             )
@@ -187,18 +150,9 @@ class SQLAlchemyUserPreferenceRepository(PreferenceRepositoryProtocol):
     async def save(self, preference: UserPreferenceEntity) -> UserPreferenceEntity:
         """
         Save a new user preference entity.
-
-        Args:
-            preference: User preference entity to save.
-
-        Returns:
-            Saved user preference entity.
-
-        Raises:
-            RepositoryError: If database operation fails.
         """
         try:
-            logger.info(
+            logger.debug(
                 "Saving user preference",
                 preference_id=str(preference.id),
                 email=preference.email,
@@ -210,7 +164,7 @@ class SQLAlchemyUserPreferenceRepository(PreferenceRepositoryProtocol):
             self.session.add(db_model)
             await self.session.commit()
 
-            logger.info("User preference saved successfully", preference_id=str(preference.id))
+            logger.debug("User preference saved successfully", preference_id=str(preference.id))
             return preference
 
         except IntegrityError as e:
@@ -250,18 +204,9 @@ class SQLAlchemyUserPreferenceRepository(PreferenceRepositoryProtocol):
     async def update(self, preference: UserPreferenceEntity) -> UserPreferenceEntity:
         """
         Update an existing user preference entity.
-
-        Args:
-            preference: User preference entity with updated data.
-
-        Returns:
-            Updated user preference entity.
-
-        Raises:
-            RepositoryError: If database operation fails.
         """
         try:
-            logger.info(
+            logger.debug(
                 "Updating user preference",
                 preference_id=str(preference.id),
                 email=preference.email,
@@ -281,7 +226,7 @@ class SQLAlchemyUserPreferenceRepository(PreferenceRepositoryProtocol):
             result = await self.session.execute(upd_stmt)
             updated_model = result.scalar_one()
 
-            logger.info("User preference updated successfully", preference_id=str(preference.id))
+            logger.debug("User preference updated successfully", preference_id=str(preference.id))
             return self._mapper.from_database_model(updated_model)
 
         except IntegrityError as e:

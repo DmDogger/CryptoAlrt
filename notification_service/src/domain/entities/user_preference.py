@@ -59,6 +59,16 @@ class UserPreferenceEntity:
             telegram_id=telegram_id,
         )
 
+    @classmethod
+    def from_dict(cls, data: dict) -> "UserPreferenceEntity":
+        return cls(
+            id=uuid.UUID(data.get("id", "None")),
+            email=data.get("email", "No_email_detected"),
+            email_enabled=data.get("email_enabled"),
+            telegram_id=data.get("telegram_id"),
+            telegram_enabled=data.get("telegram_enabled"),
+        )
+
     def set_email_enabled(self) -> "UserPreferenceEntity":
         """Enable email notifications.
 

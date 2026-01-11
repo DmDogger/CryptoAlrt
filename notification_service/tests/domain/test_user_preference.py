@@ -56,3 +56,17 @@ class TestUserPreference:
                 telegram_id=None,
                 telegram_enabled=False,
             )
+
+    def test_convert_from_dict_to_entity(self, sample_user_preference_entity):
+        data = {
+            "id": str(uuid4()),
+            "email": "richardhendrix@piedpiper.com",
+            "email_enabled": True,
+            "telegram_id": 123123,
+            "telegram_enabled": True,
+        }
+
+        res = sample_user_preference_entity.from_dict(data)
+
+        assert isinstance(res, UserPreferenceEntity)
+        assert res.email_enabled is True
