@@ -2,6 +2,7 @@
 
 from datetime import datetime, UTC
 from decimal import Decimal
+from typing import AsyncGenerator, Any
 
 import pytest
 import pytest_asyncio
@@ -16,6 +17,7 @@ from infrastructures.database.mappers.portfolio_db_mapper import PortfolioDBMapp
 from infrastructures.database.mappers.asset_db_mapper import AssetDBMapper
 from infrastructures.database.repositories.portfolio import SQLAlchemyPortfolioRepository
 from testcontainers.postgres import PostgresContainer
+from testcontainers.redis import AsyncRedisContainer
 
 
 @pytest.fixture

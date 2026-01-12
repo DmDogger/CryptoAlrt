@@ -1,6 +1,8 @@
 """Mapper for converting between PortfolioEntity and Portfolio database model."""
 
-from datetime import UTC, tzinfo
+from datetime import UTC, datetime, tzinfo
+from decimal import Decimal
+from typing import Any
 
 from domain.entities.portfolio_entity import PortfolioEntity
 from infrastructures.database.models.portfolio import Portfolio
@@ -65,3 +67,27 @@ class PortfolioDBMapper:
                 else (len(portfolio.assets) if portfolio.assets else 0)
             ),
         }
+
+    @staticmethod
+    def from_dict(data: dict) -> PortfolioEntity:
+        """Convert dict to PortfolioEntity."""
+        updated_at = (
+            datetime.fromisoformat(data.get("updated_at")).replace(tzinfo=UTC)
+            if data.get("updated_at")
+            else datetime.now(UTC)
+        )
+        return PortfolioEntity(
+            wallet_address=data.get("wallet_address"),
+            assets=data.get("assets", None),
+            total_value=Decimal(data.get("total_value")) if data.get("total_value") else None,
+            weight=Decimal(data.get("weight")) if data.get("weight") else None,
+            portfolio_total=(
+                Decimal(data.get("portfolio_total")) if data.get("portfolio_total") else None
+            ),
+            assets_count=data.get("assets_count", None),
+            updated_at=updated_at,
+        )
+
+    @staticmethod
+    def to_decimal(value: Any) -> Decimal:
+        return Decimal(value)

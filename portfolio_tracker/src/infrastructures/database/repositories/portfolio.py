@@ -29,11 +29,7 @@ logger = structlog.getLogger(__name__)
 @final
 @dataclass(frozen=True, slots=True, kw_only=True)
 class SQLAlchemyPortfolioRepository(PortfolioRepositoryProtocol):
-    """Repository for portfolio database operations.
-
-    Handles CRUD operations for portfolios with eager loading of assets and prices.
-    Mapping logic is delegated to PortfolioDBMapper.
-    """
+    """Repository for portfolio database operations."""
 
     _session: AsyncSession
     _mapper: PortfolioDBMapper

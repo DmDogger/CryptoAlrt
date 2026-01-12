@@ -1,22 +1,25 @@
 from decimal import Decimal
+from collections.abc import Callable, Coroutine
 
 import pytest
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from infrastructures.database.models.asset import Asset
 from infrastructures.database.models.cryptoprice import CryptoPrice
 from infrastructures.database.mappers.asset_db_mapper import AssetDBMapper
 from domain.entities.portfolio_entity import PortfolioEntity
+from infrastructures.database.repositories.portfolio import SQLAlchemyPortfolioRepository
 
 
 class TestPortfolioRepository:
     @pytest.mark.asyncio
     async def test_get_portfolio_with_assets_and_prices(
         self,
-        integration_portfolio_entity,
-        portfolio_repository_for_transactions,
-        fill_integration_base_fields,
-        async_session,
-    ):
+        integration_portfolio_entity: PortfolioEntity,
+        portfolio_repository_for_transactions: SQLAlchemyPortfolioRepository,
+        fill_integration_base_fields: None,
+        async_session: AsyncSession,
+    ) -> None:
         await portfolio_repository_for_transactions.save_portfolio(integration_portfolio_entity)
         await async_session.commit()
 
@@ -31,11 +34,11 @@ class TestPortfolioRepository:
     @pytest.mark.asyncio
     async def test_calculate_and_update_portfolio_total_value(
         self,
-        integration_portfolio_entity,
-        portfolio_repository_for_transactions,
-        fill_integration_base_fields,
-        async_session,
-    ):
+        integration_portfolio_entity: PortfolioEntity,
+        portfolio_repository_for_transactions: SQLAlchemyPortfolioRepository,
+        fill_integration_base_fields: None,
+        async_session: AsyncSession,
+    ) -> None:
         """Integration test confirms that calculation total value & updating portfolio works correct"""
         await portfolio_repository_for_transactions.save_portfolio(integration_portfolio_entity)
         await async_session.commit()
@@ -60,11 +63,11 @@ class TestPortfolioRepository:
     @pytest.mark.asyncio
     async def test_get_counted_assets_and_update(
         self,
-        portfolio_repository_for_transactions,
-        integration_empty_portfolio_entity,
-        fill_integration_base_fields,
-        async_session,
-    ):
+        portfolio_repository_for_transactions: SQLAlchemyPortfolioRepository,
+        integration_empty_portfolio_entity: PortfolioEntity,
+        fill_integration_base_fields: None,
+        async_session: AsyncSession,
+    ) -> None:
         await portfolio_repository_for_transactions.save_portfolio(
             integration_empty_portfolio_entity
         )
@@ -87,11 +90,11 @@ class TestPortfolioRepository:
     @pytest.mark.asyncio
     async def test_portfolio_saves_correctly(
         self,
-        async_session,
-        integration_portfolio_entity,
-        portfolio_repository_for_transactions,
-        add_asset_and_crypto_price_for_portfolio,
-    ):
+        async_session: AsyncSession,
+        integration_portfolio_entity: PortfolioEntity,
+        portfolio_repository_for_transactions: SQLAlchemyPortfolioRepository,
+        add_asset_and_crypto_price_for_portfolio: Callable[[], Coroutine[None, None, None]],
+    ) -> None:
         portfolio_to_save = await portfolio_repository_for_transactions.save_portfolio(
             integration_portfolio_entity
         )
@@ -115,11 +118,11 @@ class TestPortfolioRepository:
     @pytest.mark.asyncio
     async def test_portfolio_updates_correctly(
         self,
-        async_session,
-        portfolio_repository_for_transactions,
-        integration_portfolio_entity,
-        fill_integration_base_fields,
-    ):
+        async_session: AsyncSession,
+        portfolio_repository_for_transactions: SQLAlchemyPortfolioRepository,
+        integration_portfolio_entity: PortfolioEntity,
+        fill_integration_base_fields: None,
+    ) -> None:
 
         saved = await portfolio_repository_for_transactions.save_portfolio(
             integration_portfolio_entity
