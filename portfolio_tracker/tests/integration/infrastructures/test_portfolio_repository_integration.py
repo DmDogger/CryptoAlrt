@@ -114,7 +114,11 @@ class TestPortfolioRepository:
 
     @pytest.mark.asyncio
     async def test_portfolio_updates_correctly(
-        self, async_session, portfolio_repository_for_transactions, integration_portfolio_entity
+        self,
+        async_session,
+        portfolio_repository_for_transactions,
+        integration_portfolio_entity,
+        fill_integration_base_fields,
     ):
 
         saved = await portfolio_repository_for_transactions.save_portfolio(
@@ -126,9 +130,15 @@ class TestPortfolioRepository:
 
         assert saved.total_value != Decimal("100_000_000")
 
-        updated_portfolio = await portfolio_repository_for_transactions.update_portfolio(
-            data_to_update
+        await portfolio_repository_for_transactions.update_portfolio(data_to_update)
+
+        await async_session.commit()
+
+        updated_portfolio = (
+            await portfolio_repository_for_transactions.get_portfolio_with_assets_and_prices(
+                wallet_address=integration_portfolio_entity.wallet_address
+            )
         )
 
-        assert updated_portfolio == data_to_update
+        assert updated_portfolio is not None
         assert updated_portfolio.total_value == Decimal("100_000_000")
