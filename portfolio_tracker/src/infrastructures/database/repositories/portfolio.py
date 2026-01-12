@@ -8,8 +8,8 @@ from decimal import Decimal
 from typing import final
 
 import structlog
-from sqlalchemy import select, label, func, desc
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy import select, func, update
+from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from infrastructures.database.mappers.portfolio_db_mapper import PortfolioDBMapper
@@ -17,10 +17,11 @@ from domain.entities.portfolio_entity import PortfolioEntity
 from infrastructures.database.models.portfolio import Portfolio
 from infrastructures.database.models.cryptoprice import CryptoPrice
 from infrastructures.database.models.asset import Asset
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, selectinload
 
 from domain.exceptions import RepositoryError
 from application.interfaces.repositories import PortfolioRepositoryProtocol
+from infrastructures.exceptions import DatabaseSavingError
 
 logger = structlog.getLogger(__name__)
 
@@ -63,9 +64,9 @@ class SQLAlchemyPortfolioRepository(PortfolioRepositoryProtocol):
                 .join(CryptoPrice, Asset.ticker == CryptoPrice.cryptocurrency)
                 .where(Portfolio.wallet_address == wallet_address)
                 .options(
-                    joinedload(
+                    selectinload(
                         Portfolio.assets,
-                    ).joinedload(
+                    ).selectinload(
                         Asset.crypto_price,
                     )
                 )
@@ -123,11 +124,21 @@ class SQLAlchemyPortfolioRepository(PortfolioRepositoryProtocol):
         try:
             logger.debug("Trying to get portfolio total_value & portfolio entity ")
             stmt = (
-                select(Portfolio, func.sum(Asset.amount * CryptoPrice.price).label("total_value"))
+                select(
+                    Portfolio,
+                    func.sum(Asset.amount * CryptoPrice.price).label("calculated_total_value"),
+                )
                 .join(Asset, Asset.wallet_address == Portfolio.wallet_address)
                 .join(CryptoPrice, CryptoPrice.cryptocurrency == Asset.ticker)
                 .where(Portfolio.wallet_address == wallet_address)
                 .group_by(Portfolio.wallet_address)
+                .options(
+                    selectinload(
+                        Portfolio.assets,
+                    ).selectinload(
+                        Asset.crypto_price,
+                    )
+                )
             )
             res = await self._session.execute(stmt)
             row = res.one_or_none()
@@ -200,10 +211,15 @@ class SQLAlchemyPortfolioRepository(PortfolioRepositoryProtocol):
                 select(Portfolio, func.count(Asset.asset_id).label("total_assets_count"))
                 .join(Asset, Asset.wallet_address == Portfolio.wallet_address)
                 .where(Portfolio.wallet_address == wallet_address)
+                .options(
+                    selectinload(
+                        Portfolio.assets,
+                    ).selectinload(Asset.crypto_price)
+                )
                 .group_by(Portfolio.wallet_address)
             )
             res = await self._session.execute(stmt)
-            row = res.one_or_none()
+            row = res.unique().one_or_none()
 
             if row is None:
                 logger.warning(
@@ -242,4 +258,152 @@ class SQLAlchemyPortfolioRepository(PortfolioRepositoryProtocol):
             )
             raise RepositoryError(
                 "Unable to load or calculate assets & portfolio information"
+            ) from e
+
+    async def save_portfolio(self, portfolio_entity: PortfolioEntity) -> PortfolioEntity:
+        """Save a new portfolio entity to the database.
+
+        Args:
+            portfolio_entity: Portfolio entity to save.
+
+        Returns:
+            Saved portfolio entity.
+
+        Raises:
+            DatabaseSavingError: If database operation fails or constraints are violated.
+        """
+        try:
+            logger.debug(
+                "Saving portfolio to database",
+                wallet_address=portfolio_entity.wallet_address,
+            )
+            portfolio_model = self._mapper.to_database(portfolio_entity)
+            self._session.add(portfolio_model)
+            await self._session.commit()
+
+            logger.debug(
+                "Portfolio successfully saved to database",
+                wallet_address=portfolio_entity.wallet_address,
+            )
+            return portfolio_entity
+
+        except IntegrityError as e:
+            await self._session.rollback()
+            logger.error(
+                "Database constraint violation occurred during portfolio saving",
+                error=str(e),
+                error_type=type(e).__name__,
+                wallet_address=portfolio_entity.wallet_address,
+                exc_info=True,
+            )
+            raise DatabaseSavingError(
+                f"Failed to save portfolio: constraint violation - {str(e)}"
+            ) from e
+
+        except SQLAlchemyError as e:
+            await self._session.rollback()
+            logger.error(
+                "SQLAlchemy error occurred while saving portfolio",
+                error=str(e),
+                error_type=type(e).__name__,
+                wallet_address=portfolio_entity.wallet_address,
+                exc_info=True,
+            )
+            raise DatabaseSavingError(f"Failed to save portfolio to database: {str(e)}") from e
+
+        except Exception as e:
+            await self._session.rollback()
+            logger.error(
+                "Unexpected error occurred while saving portfolio",
+                error=str(e),
+                error_type=type(e).__name__,
+                wallet_address=portfolio_entity.wallet_address,
+                exc_info=True,
+            )
+            raise DatabaseSavingError(
+                f"Unexpected error occurred while saving portfolio: {str(e)}"
+            ) from e
+
+    async def update_portfolio(self, portfolio_entity: PortfolioEntity) -> PortfolioEntity:
+        """Update an existing portfolio entity in the database.
+
+        Args:
+            portfolio_entity: Portfolio entity with updated data.
+
+        Returns:
+            Updated portfolio entity.
+
+        Raises:
+            DatabaseSavingError: If database operation fails, portfolio not found, or constraints are violated.
+        """
+        try:
+            logger.debug(
+                "Updating portfolio in database",
+                wallet_address=portfolio_entity.wallet_address,
+            )
+
+            update_dict = PortfolioDBMapper.to_dict(portfolio_entity)
+
+            stmt = (
+                update(Portfolio)
+                .where(Portfolio.wallet_address == portfolio_entity.wallet_address)
+                .values(update_dict)
+                .returning(Portfolio)
+            )
+            result = await self._session.execute(stmt)
+            updated_portfolio = result.unique().scalar_one_or_none()
+
+            if updated_portfolio is None:
+                await self._session.rollback()
+                logger.error(
+                    "Portfolio not found for update",
+                    wallet_address=portfolio_entity.wallet_address,
+                )
+                raise DatabaseSavingError(
+                    f"Portfolio with wallet address {portfolio_entity.wallet_address} not found"
+                )
+
+            await self._session.commit()
+
+            logger.debug(
+                "Portfolio successfully updated in database",
+                wallet_address=portfolio_entity.wallet_address,
+            )
+            return portfolio_entity
+
+        except IntegrityError as e:
+            await self._session.rollback()
+            logger.error(
+                "Database constraint violation occurred during portfolio update",
+                error=str(e),
+                error_type=type(e).__name__,
+                wallet_address=portfolio_entity.wallet_address,
+                exc_info=True,
+            )
+            raise DatabaseSavingError(
+                f"Failed to update portfolio: constraint violation - {str(e)}"
+            ) from e
+
+        except SQLAlchemyError as e:
+            await self._session.rollback()
+            logger.error(
+                "SQLAlchemy error occurred while updating portfolio",
+                error=str(e),
+                error_type=type(e).__name__,
+                wallet_address=portfolio_entity.wallet_address,
+                exc_info=True,
+            )
+            raise DatabaseSavingError(f"Failed to update portfolio in database: {str(e)}") from e
+
+        except Exception as e:
+            await self._session.rollback()
+            logger.error(
+                "Unexpected error occurred while updating portfolio",
+                error=str(e),
+                error_type=type(e).__name__,
+                wallet_address=portfolio_entity.wallet_address,
+                exc_info=True,
+            )
+            raise DatabaseSavingError(
+                f"Unexpected error occurred while updating portfolio: {str(e)}"
             ) from e

@@ -1,7 +1,7 @@
 from datetime import datetime
 from decimal import Decimal
 
-from sqlalchemy import String, DateTime, Numeric, func
+from sqlalchemy import String, DateTime, Numeric, func, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from infrastructures.database.models.base import Base
@@ -38,6 +38,11 @@ class Portfolio(Base):
         server_default=func.now(),
     )
 
+    assets_count: Mapped[int] = mapped_column(
+        Integer,
+        nullable=True,
+    )
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
         nullable=False,
@@ -47,6 +52,6 @@ class Portfolio(Base):
     assets: Mapped[list["Asset"]] = relationship(
         "Asset",
         back_populates="portfolio",
-        lazy="selectin",
+        lazy="joined",
         cascade="all, delete-orphan",
     )

@@ -1,6 +1,6 @@
 """Mapper for converting between PortfolioEntity and Portfolio database model."""
 
-from datetime import UTC
+from datetime import UTC, tzinfo
 
 from domain.entities.portfolio_entity import PortfolioEntity
 from infrastructures.database.models.portfolio import Portfolio
@@ -23,6 +23,7 @@ class PortfolioDBMapper:
             total_value=portfolio.total_value,
             weight=portfolio.weight,
             portfolio_total=portfolio.portfolio_total,
+            assets_count=portfolio.assets_count,
             updated_at=updated_at,
         )
 
@@ -43,6 +44,7 @@ class PortfolioDBMapper:
             total_value=model.total_value,
             weight=model.weight,
             portfolio_total=model.portfolio_total,
+            assets_count=model.assets_count,
             updated_at=updated_at,
         )
 
@@ -56,6 +58,10 @@ class PortfolioDBMapper:
             "portfolio_total": (
                 str(portfolio.portfolio_total) if portfolio.portfolio_total else None
             ),
-            "updated_at": portfolio.updated_at.isoformat(),
-            "assets_count": len(portfolio.assets),
+            "updated_at": portfolio.updated_at.replace(tzinfo=None),
+            "assets_count": (
+                portfolio.assets_count
+                if portfolio.assets_count is not None
+                else (len(portfolio.assets) if portfolio.assets else 0)
+            ),
         }

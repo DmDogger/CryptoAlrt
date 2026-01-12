@@ -31,6 +31,7 @@ class PortfolioEntity:
     total_value: Decimal | None
     weight: Decimal | None
     portfolio_total: Decimal | None
+    assets_count: int | None
     updated_at: datetime
 
     def __post_init__(self):
@@ -60,3 +61,41 @@ class PortfolioEntity:
                 f"Updated at time cannot be in the future. "
                 f"Timestamp now: {datetime.now(UTC)}, time you selected: {self.updated_at}"
             )
+
+    @classmethod
+    def create(
+        cls,
+        wallet_address: str,
+        assets: list[AssetEntity] | None = None,
+    ) -> "PortfolioEntity":
+        return cls(
+            wallet_address=wallet_address,
+            assets=assets if assets else None,
+            total_value=None,
+            weight=None,
+            portfolio_total=None,
+            assets_count=None,
+            updated_at=datetime.now(UTC),
+        )
+
+    def set_total_value(self, total_value: Decimal) -> "PortfolioEntity":
+        return PortfolioEntity(
+            wallet_address=self.wallet_address,
+            assets=self.assets,
+            total_value=total_value,
+            weight=self.weight,
+            portfolio_total=self.portfolio_total,
+            assets_count=self.assets_count,
+            updated_at=datetime.now(UTC),
+        )
+
+    def set_counted_assets(self, counted_assets: int) -> "PortfolioEntity":
+        return PortfolioEntity(
+            wallet_address=self.wallet_address,
+            assets=self.assets,
+            total_value=self.total_value,
+            weight=self.weight,
+            portfolio_total=self.portfolio_total,
+            assets_count=counted_assets,
+            updated_at=datetime.now(UTC),
+        )

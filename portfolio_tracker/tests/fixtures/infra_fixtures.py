@@ -2,11 +2,11 @@
 
 from datetime import datetime, UTC
 from decimal import Decimal
-from uuid import uuid4
 
 import pytest
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import ScalarResult
+import pytest_asyncio
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
+from sqlalchemy.pool import NullPool
 from unittest.mock import AsyncMock, MagicMock
 
 from infrastructures.database.models.portfolio import Portfolio
@@ -15,6 +15,7 @@ from infrastructures.database.models.cryptoprice import CryptoPrice
 from infrastructures.database.mappers.portfolio_db_mapper import PortfolioDBMapper
 from infrastructures.database.mappers.asset_db_mapper import AssetDBMapper
 from infrastructures.database.repositories.portfolio import SQLAlchemyPortfolioRepository
+from testcontainers.postgres import PostgresContainer
 
 
 @pytest.fixture
@@ -77,6 +78,153 @@ def sample_portfolio_db_model():
         updated_at=now,
         created_at=now,
     )
+
+
+@pytest.fixture(scope="session")
+def postgres_container():
+    """PostgreSQL testcontainer for integration tests."""
+    with PostgresContainer("postgres:16", driver=None) as container:
+        yield container
+
+
+@pytest_asyncio.fixture(scope="function")
+async def async_session(postgres_container):
+    """AsyncSession for SQLAlchemy using testcontainers PostgreSQL."""
+    psql_url = postgres_container.get_connection_url()
+    # Convert to asyncpg URL format for async SQLAlchemy
+    async_url = psql_url.replace("postgresql://", "postgresql+asyncpg://").replace(
+        "postgres://", "postgresql+asyncpg://"
+    )
+
+    engine = create_async_engine(
+        async_url,
+        poolclass=NullPool,
+        echo=False,
+    )
+
+    from infrastructures.database.models.base import Base
+
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+    async_session_maker = async_sessionmaker(
+        engine,
+        class_=AsyncSession,
+        expire_on_commit=False,
+    )
+
+    async with async_session_maker() as session:
+        yield session
+
+    await engine.dispose()
+
+
+@pytest_asyncio.fixture
+async def portfolio_repository_for_transactions(async_session):
+    """Real SQLAlchemyPortfolioRepository with real database session for transaction testing."""
+    return SQLAlchemyPortfolioRepository(
+        _session=async_session,
+        _mapper=PortfolioDBMapper(),
+    )
+
+
+@pytest.fixture(scope="function")
+async def fill_with_the_base_fields(sample_portfolio_entity, async_session):
+    """Fixture that adds CryptoPrice and Asset to session (without commit).
+    Commit should be done in test after Portfolio is saved.
+    Data is rolled back after test."""
+    from sqlalchemy import select
+
+    ticker = sample_portfolio_entity.assets[0].ticker
+    wallet_address = sample_portfolio_entity.wallet_address
+
+    # Check if CryptoPrice exists, if not - add it
+    existing_crypto_price = await async_session.execute(
+        select(CryptoPrice).where(CryptoPrice.cryptocurrency == ticker)
+    )
+    if existing_crypto_price.scalar_one_or_none() is None:
+        crypto_price = CryptoPrice(
+            cryptocurrency=ticker,
+            price=Decimal("90000.00"),
+            updated_at=datetime.now(UTC).replace(tzinfo=None),
+        )
+        async_session.add(crypto_price)
+
+    # Check if Asset exists, if not - add it
+    existing_asset = await async_session.execute(
+        select(Asset).where(Asset.wallet_address == wallet_address, Asset.ticker == ticker)
+    )
+    if existing_asset.scalar_one_or_none() is None:
+        asset_model = AssetDBMapper.to_database(sample_portfolio_entity.assets[0])
+        async_session.add(asset_model)
+
+    yield
+
+    # Rollback all changes after test
+    await async_session.rollback()
+
+
+@pytest.fixture(scope="function")
+async def fill_integration_base_fields(integration_portfolio_entity, async_session):
+    """Fixture for integration tests that adds CryptoPrice and Asset to session."""
+    from sqlalchemy import select
+
+    ticker = integration_portfolio_entity.assets[0].ticker
+    wallet_address = integration_portfolio_entity.wallet_address
+
+    # Check if CryptoPrice exists, if not - add it
+    existing_crypto_price = await async_session.execute(
+        select(CryptoPrice).where(CryptoPrice.cryptocurrency == ticker)
+    )
+    if existing_crypto_price.scalar_one_or_none() is None:
+        crypto_price = CryptoPrice(
+            cryptocurrency=ticker,
+            price=Decimal("90000.00"),
+            updated_at=datetime.now(UTC).replace(tzinfo=None),
+        )
+        async_session.add(crypto_price)
+
+    # Check if Asset exists, if not - add it
+    existing_asset = await async_session.execute(
+        select(Asset).where(Asset.wallet_address == wallet_address, Asset.ticker == ticker)
+    )
+    if existing_asset.scalar_one_or_none() is None:
+        asset_model = AssetDBMapper.to_database(integration_portfolio_entity.assets[0])
+        async_session.add(asset_model)
+
+    yield
+
+    await async_session.rollback()
+
+
+@pytest.fixture(scope="function")
+def add_asset_and_crypto_price_for_portfolio(integration_portfolio_entity, async_session):
+    """Fixture that returns a function to add CryptoPrice and Asset to session."""
+    from sqlalchemy import select
+
+    async def _add_data():
+        ticker = integration_portfolio_entity.assets[0].ticker
+        wallet_address = integration_portfolio_entity.wallet_address
+
+        existing_crypto_price = await async_session.execute(
+            select(CryptoPrice).where(CryptoPrice.cryptocurrency == ticker)
+        )
+        if existing_crypto_price.scalar_one_or_none() is None:
+            crypto_price = CryptoPrice(
+                cryptocurrency=ticker,
+                price=Decimal("90000.00"),
+                updated_at=datetime.now(UTC).replace(tzinfo=None),
+            )
+            async_session.add(crypto_price)
+
+        existing_asset = await async_session.execute(
+            select(Asset).where(Asset.wallet_address == wallet_address, Asset.ticker == ticker)
+        )
+        if existing_asset.scalar_one_or_none() is None:
+            asset_model = AssetDBMapper.to_database(integration_portfolio_entity.assets[0])
+            async_session.add(asset_model)
+
+    return _add_data
 
 
 @pytest.fixture
