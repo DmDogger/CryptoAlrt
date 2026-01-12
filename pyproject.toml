@@ -31,6 +31,7 @@ pyjwt = {extras = ["crypto"], version = "^2.10.1"}
 pyscrypt = "^1.6.2"
 pylint = "^4.0.4"
 pydantic = {extras = ["email"], version = "^2.12.5"}
+testcontainers = "^4.14.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"

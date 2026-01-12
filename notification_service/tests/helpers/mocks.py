@@ -212,9 +212,21 @@ async def mock_redis_client() -> AsyncGenerator[Any, Any]:
 async def mock_cached_repository(
     mock_redis_client, mock_fake_preference_repository
 ) -> CachedUserPreferencyRepository:
-    """Cached Repository"""
+    """Cached Repository with injected fake repository"""
     return CachedUserPreferencyRepository(
         _redis_cache=RedisCache(client=mock_redis_client),
         _mapper=UserPreferenceDBMapper(),
         _original=mock_fake_preference_repository,
+    )
+
+
+@pytest_asyncio.fixture
+async def full_mocked_cached_repository(
+    mock_redis_client, mock_preference_repository
+) -> CachedUserPreferencyRepository:
+    """Cached Repository with mocked repository"""
+    return CachedUserPreferencyRepository(
+        _redis_cache=RedisCache(client=mock_redis_client),
+        _mapper=UserPreferenceDBMapper(),
+        _original=mock_preference_repository,
     )

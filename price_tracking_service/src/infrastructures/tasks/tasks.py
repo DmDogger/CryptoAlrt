@@ -14,24 +14,20 @@ from infrastructures.di_container import create_container
 
 logger = structlog.getLogger(__name__)
 
-# Настройки Redis
 redis_settings = RedisSettings()
 
-# Kafka broker для FastStream (обработка событий)
 kafka_broker = KafkaBroker(broker_settings.bootstrap_servers)
 
-# TaskIQ broker для периодических задач (с поддержкой расписания через Redis)
 taskiq_broker = ListQueueBroker(
     url=str(redis_settings.redis_url),
-    queue_name="taskiq:crypto_alert:queue",  # Уникальное имя очереди
+    queue_name="taskiq:crypto_alert:queue",
 ).with_result_backend(
     RedisAsyncResultBackend(
         redis_url=str(redis_settings.redis_url),
-        result_ex_time=3600,  # TTL результатов: 1 час
+        result_ex_time=3600,
     )
 )
 
-# Настраиваем Dishka для TaskIQ worker
 container = create_container()
 setup_dishka(container, taskiq_broker)
 
@@ -71,24 +67,30 @@ async def fetch_all_prices_task(
     """
     await startup_kafka_broker()
 
-    logger.info("[Task]: Starting scheduled price fetch")
+    logger.debug("Starting schedule prices")
 
     coin_symbols = scheduler_settings.cryptocurrencies
 
     for symbol in coin_symbols:
         try:
             logger.info(
-                f"[TaskIQ]: Trying to fetch and save this coin (symbol): {symbol} information"
+                "Trying to fetch and save",
+                symbol=symbol
             )
             await use_case.execute(coin_id=symbol)
             logger.info(
-                f"[TaskIQ]: Successfully fetched and saved information for {symbol} in database"
+                "Successfully fetched and saved",
+                symbol=symbol,
             )
 
         except UnexpectedError as e:
-            logger.error(f"[Unexpected error]: Unexpected error during fetching from TaskIQ {e}")
+            logger.error(
+                "Unexpected error during fetching",
+                error=str(e),
+                error_typ=type(e).__name__
+            )
 
-    logger.info(f"[Task]: All fetching successfully done.")
+    logger.debug("All fetching successfully done")
 
     await shutdown_kafka_broker()
 
