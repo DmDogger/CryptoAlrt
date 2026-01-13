@@ -174,6 +174,20 @@ services:
       KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
       CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
 
+  mail-dev:
+      image: maildev/maildev
+      restart: always
+      environment:
+        - TZ=Asia/Shanghai
+        - MAILDEV_WEB_PORT=1080
+        - MAILDEV_SMTP_PORT=1025
+      ports:
+        - "8080:1080"
+        - "8025:1025"
+      logging:
+        driver: "json-file"
+        options:
+          max-size: "1m"
 
 volumes:
   db-data:

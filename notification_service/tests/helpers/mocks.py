@@ -230,3 +230,4 @@ async def full_mocked_cached_repository(
         _mapper=UserPreferenceDBMapper(),
         _original=mock_preference_repository,
     )
+
