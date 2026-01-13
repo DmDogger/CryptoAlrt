@@ -8,6 +8,7 @@ from infrastructures.database.repositories.cached_portfolio_repository import (
     CachedPortfolioRepository,
 )
 
+from config.cache import cache_settings
 from fixtures.infra_fixtures import async_session
 
 
@@ -68,7 +69,7 @@ class TestCachedPortfolioRepository:
         assert isinstance(portfolio, PortfolioEntity)
 
     @pytest.mark.asyncio
-    async def test_raises_dataerror(self, sample_portfolio_entity, full_mocked_cached_repository):
+    async def test_raises_data_error(self, sample_portfolio_entity, full_mocked_cached_repository):
 
         full_mocked_cached_repository._original.get_portfolio_with_assets_count.side_effect = (
             redis.exceptions.DataError
@@ -78,3 +79,30 @@ class TestCachedPortfolioRepository:
             await full_mocked_cached_repository.get_portfolio_with_assets_count("wallet_address")
 
             full_mocked_cached_repository._original.get_portfolio_with_assets_and_prices.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_save_portfolio(
+        self, sample_empty_portfolio_entity, mock_redis_cache, mock_cached_portfolio_repository
+    ):
+        await mock_cached_portfolio_repository._original.save_portfolio(
+            sample_empty_portfolio_entity
+        )
+
+        res = await mock_cached_portfolio_repository.get_portfolio_with_assets_and_prices(
+            wallet_address=sample_empty_portfolio_entity.wallet_address
+        )
+
+        target_key = await mock_redis_cache.get(
+            key=sample_empty_portfolio_entity.wallet_address,
+            version=cache_settings.version_with_assets_and_prices,
+        )
+        dummy_key = await mock_redis_cache.get(
+            key=sample_empty_portfolio_entity.wallet_address,
+            version=cache_settings.version_total_value,
+        )
+
+        assert target_key is not None
+        assert target_key["portfolio_total"] is None
+        assert target_key["updated_at"] is not None
+        assert dummy_key is None
+        assert isinstance(res, PortfolioEntity)

@@ -251,3 +251,59 @@ class CachedPortfolioRepository:  # todo: implement all protocol's methods
             return await self._original.get_portfolio_with_assets_count(
                 wallet_address=wallet_address
             )
+
+    async def save_portfolio(self, portfolio_entity: PortfolioEntity) -> PortfolioEntity:
+        """Only invalidate cache"""
+        try:
+            logger.debug(
+                "Starting to save portfolio and invalidate cache",
+                wallet_address=portfolio_entity.wallet_address,
+            )
+            versions_to_delete = [
+                cache_settings.version_with_assets_and_prices,
+                cache_settings.version_portfolio_total_value,
+                cache_settings.version_total_value,
+                cache_settings.assets_counted,
+                cache_settings.portfolio_assotiated_with_assets_counted,
+            ]
+
+            # we need to invalidate cache before save new portfolio
+            # so here we are trying to delete all values from cache
+            for version in versions_to_delete:
+                logger.debug(
+                    "Trying to delete value from cache",
+                    version=version,
+                    wallet_address=portfolio_entity.wallet_address,
+                )
+                await self._redis_client.delete(
+                    version=version,
+                    key=portfolio_entity.wallet_address,
+                )
+
+            saved = await self._original.save_portfolio(portfolio_entity)
+            # no need to save the new value to the cache
+
+            logger.debug(
+                "Portfolio saved and cache invalidated",
+                wallet_address=portfolio_entity.wallet_address,
+            )
+            return saved
+        except (redis.exceptions.DataError, JSONDecodeError) as e:
+            logger.error(
+                "Redis operation failed",
+                error_type=type(e).__name__,
+                operation="delete",
+                key=portfolio_entity.wallet_address,
+                timestamp=datetime.now(UTC).isoformat(),
+            )
+
+            return await self._original.save_portfolio(portfolio_entity)
+        except (redis.exceptions.ConnectionError, redis.exceptions.TimeoutError) as e:
+            logger.error(
+                "Redis operation failed",
+                error_type=type(e).__name__,
+                operation="delete",
+                key=portfolio_entity.wallet_address,
+                timestamp=datetime.now(UTC).isoformat(),
+            )
+            return await self._original.save_portfolio(portfolio_entity)

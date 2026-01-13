@@ -16,6 +16,7 @@ class CacheSettings(BaseSettings):
     portfolio_assotiated_with_assets_counted: str = Field(
         default="portfolio_assotiated_with_assets_counted"
     )
+    saved_portfolio: str = Field(default="saved_portfolio")
 
 
 cache_settings = CacheSettings()
