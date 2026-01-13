@@ -17,7 +17,12 @@ from infrastructures.database.mappers.portfolio_db_mapper import PortfolioDBMapp
 from infrastructures.database.mappers.asset_db_mapper import AssetDBMapper
 from infrastructures.database.repositories.portfolio import SQLAlchemyPortfolioRepository
 from testcontainers.postgres import PostgresContainer
-from testcontainers.redis import AsyncRedisContainer
+
+from infrastructures.database.repositories.cached_portfolio_repository import (
+    CachedPortfolioRepository,
+)
+
+from infrastructures.cache.redis import RedisCache
 
 
 @pytest.fixture
@@ -282,3 +287,15 @@ def sample_portfolio_db_mapper():
 def sample_asset_db_mapper():
     """Fixture providing AssetDBMapper class for testing."""
     return AssetDBMapper
+
+
+@pytest_asyncio.fixture
+async def full_mocked_cached_repository(
+    mock_redis_client,
+) -> CachedPortfolioRepository:
+    """Cached Repository with mocked repository"""
+    return CachedPortfolioRepository(
+        _redis_client=RedisCache(client=mock_redis_client),
+        _mapper=PortfolioDBMapper(),
+        _original=AsyncMock(spec=SQLAlchemyPortfolioRepository),
+    )

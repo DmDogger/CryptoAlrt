@@ -22,7 +22,7 @@ class RedisCache(BaseCache):
         key = self.make_key(key, version=version)
         await self._client.delete(key)
 
-    async def get(self, key, version=None) -> dict | None:
+    async def get(self, key, version=None) -> Any | None:
         key = self.make_key(key, version=version)
         result = await self._client.get(key)
         if result is not None:

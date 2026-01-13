@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime, UTC
 from decimal import Decimal
 from json import JSONDecodeError
-from typing import final
+from typing import final, Any
 
 import redis
 import structlog
@@ -136,7 +136,7 @@ class CachedPortfolioRepository:  # todo: implement all protocol's methods
                     timeout=cache_settings.key_expire,
                 )
                 return portfolio_entity, total_value_decimal
-            return (self._mapper.from_dict(portfolio), self._mapper.to_decimal(total_value))
+            return self._mapper.from_dict(portfolio), self._mapper.to_decimal(total_value)
 
         except (redis.exceptions.DataError, JSONDecodeError) as e:
             logger.error(
@@ -167,3 +167,87 @@ class CachedPortfolioRepository:  # todo: implement all protocol's methods
                 timestamp=datetime.now(UTC).isoformat(),
             )
             return await self._original.get_portfolio_total_value(wallet_address=wallet_address)
+
+    async def get_portfolio_with_assets_count(
+        self, wallet_address: str
+    ) -> tuple[PortfolioEntity, int] | None:
+        try:
+            logger.debug(
+                "Trying to get portfolio with assets counted from cache",
+                wallet_address=wallet_address,
+            )
+            assets_counted: int | None = await self._redis_client.get(
+                key=wallet_address,
+                version=cache_settings.assets_counted,
+            )
+            portfolio: Any | None = await self._redis_client.get(
+                key=wallet_address,
+                version=cache_settings.portfolio_assotiated_with_assets_counted,
+            )
+
+            if not assets_counted or not portfolio:
+                # if nothing found, let repository find the values
+                logger.debug(
+                    "Nothing found, I will ask repository",
+                    wallet_address=wallet_address,
+                )
+                portfolio, assets_counted = await self._original.get_portfolio_with_assets_count(
+                    wallet_address=wallet_address
+                )
+
+                if portfolio is None or assets_counted is None:
+                    logger.debug("Nothing found in database")
+                    return None
+
+                cache_dict = self._mapper.to_dict(portfolio)
+                if isinstance(cache_dict.get("updated_at"), datetime):
+                    cache_dict["updated_at"] = cache_dict["updated_at"].isoformat()
+
+                await self._redis_client.set(
+                    key=wallet_address,
+                    value=cache_dict,
+                    version=cache_settings.portfolio_assotiated_with_assets_counted,
+                    timeout=cache_settings.key_expire,
+                )
+
+                await self._redis_client.set(
+                    key=wallet_address,
+                    value=assets_counted,
+                    version=cache_settings.assets_counted,
+                    timeout=cache_settings.key_expire,
+                )
+                logger.debug("Successfully found in database and cached")
+                # no need to convert because data from repository layer already converted
+                return portfolio, assets_counted
+            return self._mapper.from_dict(portfolio), assets_counted
+        except (redis.exceptions.DataError, JSONDecodeError) as e:
+            logger.error(
+                "Redis operation failed",
+                error_type=type(e).__name__,
+                operation="get",
+                key=wallet_address,
+                timestamp=datetime.now(UTC).isoformat(),
+            )
+            await self._redis_client.delete(
+                key=wallet_address,
+                version=cache_settings.portfolio_assotiated_with_assets_counted,
+            )
+            await self._redis_client.delete(
+                key=wallet_address,
+                version=cache_settings.assets_counted,
+            )
+            return await self._original.get_portfolio_with_assets_count(
+                wallet_address=wallet_address
+            )
+        except (redis.exceptions.ConnectionError, redis.exceptions.TimeoutError) as e:
+            logger.error(
+                "Redis operation failed",
+                error_type=type(e).__name__,
+                operation="get",
+                key=wallet_address,
+                version=cache_settings.portfolio_assotiated_with_assets_counted,
+                timestamp=datetime.now(UTC).isoformat(),
+            )
+            return await self._original.get_portfolio_with_assets_count(
+                wallet_address=wallet_address
+            )

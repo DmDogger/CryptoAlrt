@@ -1,6 +1,7 @@
 from dataclasses import replace
 from datetime import datetime, UTC, timedelta
 from decimal import Decimal
+from random import randint
 from uuid import uuid4
 
 import pytest
@@ -46,6 +47,33 @@ def sample_asset_entity(sample_uuid):
         amount=Decimal("0.0005"),
         wallet_address="walletaddress4tests",
     )
+
+
+@pytest.fixture
+def sample_custom_portfolio_entity(sample_asset_entity):
+    def _create(
+        wallet_address: str | None = None,
+        assets_counted: int | None = None,
+        asset_counted: int | None = None,
+        assets_count: int | None = None,
+        asset_counts: int | None = None,
+        total_value: Decimal | None = None,
+        weight: Decimal | None = None,
+    ):
+        final_assets_counted = assets_counted or asset_counted
+        final_assets_count = assets_count or asset_counts
+
+        return PortfolioEntity(
+            wallet_address=wallet_address if wallet_address else f"wallet_address{randint(1,200)}",
+            assets=[sample_asset_entity] * (final_assets_counted or 1),
+            total_value=total_value if total_value else Decimal("100"),
+            weight=weight if weight else Decimal("100"),
+            portfolio_total=Decimal("2000.00"),
+            assets_count=final_assets_count if final_assets_count else 1,
+            updated_at=datetime.now(UTC) - timedelta(days=2),
+        )
+
+    return _create
 
 
 @pytest.fixture
