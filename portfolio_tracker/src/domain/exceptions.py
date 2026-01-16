@@ -3,68 +3,72 @@
 from typing import final
 
 
-class DomainValidationError(Exception):
+class DomainError(Exception):
+    """"""
+
+
+class DomainValidationError(DomainError):
     """Wrapper for base Exc"""
 
 
 @final
-class PortfolioNotFound(Exception):
+class PortfolioNotFound(DomainError):
     """Raised when portfolio is not found in database."""
 
     ...
 
 
 @final
-class PortfolioAlreadyExists(Exception):
+class PortfolioAlreadyExists(DomainError):
     """Raised when trying to create portfolio that already exists."""
 
     ...
 
 
 @final
-class PortfolioSavingError(Exception):
+class PortfolioSavingError(DomainError):
     """Raised when portfolio saving to database fails."""
 
     ...
 
 
 @final
-class InvalidWalletAddress(Exception):
+class InvalidWalletAddress(DomainError):
     """Raised when wallet address format is invalid."""
 
     ...
 
 
 @final
-class AssetNotFound(Exception):
+class AssetNotFound(DomainError):
     """Raised when asset is not found in portfolio."""
 
     ...
 
 
 @final
-class InsufficientAssetAmount(Exception):
+class InsufficientAssetAmount(DomainError):
     """Raised when trying to sell more assets than available."""
 
     ...
 
 
 @final
-class AssetSavingError(Exception):
+class AssetSavingError(DomainError):
     """Raised when asset saving to database fails."""
 
     ...
 
 
 @final
-class InvalidAssetAmount(Exception):
+class InvalidAssetAmount(DomainError):
     """Raised when asset amount is invalid (negative or zero)."""
 
     ...
 
 
 @final
-class RepositoryError(Exception):
+class RepositoryError(DomainError):
     """Raised when repository/database operations fail."""
 
     ...

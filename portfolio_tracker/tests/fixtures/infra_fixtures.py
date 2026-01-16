@@ -217,6 +217,46 @@ async def fill_integration_base_fields(integration_portfolio_entity, async_sessi
     await async_session.rollback()
 
 
+@pytest_asyncio.fixture
+async def fill_prices_only(integration_portfolio_entity, async_session):
+    """Fixture for integration tests that adds only CryptoPrice and MarketPriceHistory (without Asset)."""
+    from sqlalchemy import select
+    from infrastructures.database.models.cryptoprice import MarketPriceHistory
+
+    ticker = integration_portfolio_entity.assets[0].ticker
+
+    existing_crypto_price = await async_session.execute(
+        select(CryptoPrice).where(CryptoPrice.cryptocurrency == ticker)
+    )
+    if existing_crypto_price.scalar_one_or_none() is None:
+        crypto_price = CryptoPrice(
+            cryptocurrency=ticker,
+            price=Decimal("90000.00"),
+            updated_at=datetime.now(UTC).replace(tzinfo=None),
+        )
+        async_session.add(crypto_price)
+
+    existing_price_history = await async_session.execute(
+        select(MarketPriceHistory).where(
+            MarketPriceHistory.cryptocurrency == ticker,
+            MarketPriceHistory.timestamp
+            >= datetime.now(UTC).replace(tzinfo=None) - timedelta(hours=24),
+        )
+    )
+    if existing_price_history.scalar_one_or_none() is None:
+        price_history = MarketPriceHistory(
+            cryptocurrency=ticker,
+            name="Bitcoin",
+            price=Decimal("85000.00"),
+            timestamp=datetime.now(UTC).replace(tzinfo=None) - timedelta(hours=1),
+        )
+        async_session.add(price_history)
+
+    yield
+
+    await async_session.rollback()
+
+
 @pytest.fixture(scope="function")
 def add_asset_and_crypto_price_for_portfolio(integration_portfolio_entity, async_session):
     """Fixture that returns a function to add CryptoPrice and Asset to session."""

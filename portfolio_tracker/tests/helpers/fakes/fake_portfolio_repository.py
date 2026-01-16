@@ -18,6 +18,10 @@ class FakePortfolioRepository(PortfolioRepositoryProtocol):
             for portfolio in portfolios:
                 self._portfolios[portfolio.wallet_address] = portfolio
 
+        # Storage for crypto prices and price history
+        self._crypto_prices: dict[str, Decimal] = {}  # ticker -> current_price
+        self._price_history: dict[str, Decimal] = {}  # ticker -> last_price
+
     async def get_portfolio_with_assets_and_prices(
         self, wallet_address: str
     ) -> PortfolioEntity | None:
@@ -71,3 +75,24 @@ class FakePortfolioRepository(PortfolioRepositoryProtocol):
             )
         self._portfolios[portfolio_entity.wallet_address] = portfolio_entity
         return portfolio_entity
+
+    async def get_current_and_last_prices(
+        self,
+        ticker: str,
+        hours: int = 24,
+    ) -> tuple[Decimal, Decimal | None] | None:
+        """Get current and last prices for a ticker."""
+        current_price = self._crypto_prices.get(ticker)
+        if current_price is None:
+            return None
+
+        last_price = self._price_history.get(ticker)
+        return current_price, last_price
+
+    def add_crypto_price(self, ticker: str, price: Decimal) -> None:
+        """Add current crypto price for testing."""
+        self._crypto_prices[ticker] = price
+
+    def add_price_history(self, ticker: str, price: Decimal) -> None:
+        """Add historical price for testing."""
+        self._price_history[ticker] = price
