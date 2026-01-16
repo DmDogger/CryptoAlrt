@@ -1,6 +1,6 @@
 """Fixtures for infrastructure layer tests."""
 
-from datetime import datetime, UTC
+from datetime import datetime, UTC, timedelta
 from decimal import Decimal
 from typing import AsyncGenerator, Any
 
@@ -35,6 +35,7 @@ def mock_result_obj():
     result.scalars = MagicMock()
     result.one_or_none = MagicMock()
     result.scalar_one = MagicMock()
+    result.unique = MagicMock(return_value=result)
     return result
 
 
@@ -98,7 +99,6 @@ def postgres_container():
 async def async_session(postgres_container):
     """AsyncSession for SQLAlchemy using testcontainers PostgreSQL."""
     psql_url = postgres_container.get_connection_url()
-    # Convert to asyncpg URL format for async SQLAlchemy
     async_url = psql_url.replace("postgresql://", "postgresql+asyncpg://").replace(
         "postgres://", "postgresql+asyncpg://"
     )
@@ -145,7 +145,6 @@ async def fill_with_the_base_fields(sample_portfolio_entity, async_session):
     ticker = sample_portfolio_entity.assets[0].ticker
     wallet_address = sample_portfolio_entity.wallet_address
 
-    # Check if CryptoPrice exists, if not - add it
     existing_crypto_price = await async_session.execute(
         select(CryptoPrice).where(CryptoPrice.cryptocurrency == ticker)
     )
@@ -157,7 +156,6 @@ async def fill_with_the_base_fields(sample_portfolio_entity, async_session):
         )
         async_session.add(crypto_price)
 
-    # Check if Asset exists, if not - add it
     existing_asset = await async_session.execute(
         select(Asset).where(Asset.wallet_address == wallet_address, Asset.ticker == ticker)
     )
@@ -167,19 +165,18 @@ async def fill_with_the_base_fields(sample_portfolio_entity, async_session):
 
     yield
 
-    # Rollback all changes after test
     await async_session.rollback()
 
 
 @pytest.fixture(scope="function")
 async def fill_integration_base_fields(integration_portfolio_entity, async_session):
-    """Fixture for integration tests that adds CryptoPrice and Asset to session."""
+    """Fixture for integration tests that adds CryptoPrice, Asset and MarketPriceHistory to session."""
     from sqlalchemy import select
+    from infrastructures.database.models.cryptoprice import MarketPriceHistory
 
     ticker = integration_portfolio_entity.assets[0].ticker
     wallet_address = integration_portfolio_entity.wallet_address
 
-    # Check if CryptoPrice exists, if not - add it
     existing_crypto_price = await async_session.execute(
         select(CryptoPrice).where(CryptoPrice.cryptocurrency == ticker)
     )
@@ -191,13 +188,29 @@ async def fill_integration_base_fields(integration_portfolio_entity, async_sessi
         )
         async_session.add(crypto_price)
 
-    # Check if Asset exists, if not - add it
-    existing_asset = await async_session.execute(
-        select(Asset).where(Asset.wallet_address == wallet_address, Asset.ticker == ticker)
+    existing_price_history = await async_session.execute(
+        select(MarketPriceHistory).where(
+            MarketPriceHistory.cryptocurrency == ticker,
+            MarketPriceHistory.timestamp
+            >= datetime.now(UTC).replace(tzinfo=None) - timedelta(hours=24),
+        )
     )
-    if existing_asset.scalar_one_or_none() is None:
-        asset_model = AssetDBMapper.to_database(integration_portfolio_entity.assets[0])
-        async_session.add(asset_model)
+    if existing_price_history.scalar_one_or_none() is None:
+        price_history = MarketPriceHistory(
+            cryptocurrency=ticker,
+            name="Bitcoin",
+            price=Decimal("85000.00"),
+            timestamp=datetime.now(UTC).replace(tzinfo=None) - timedelta(hours=1),
+        )
+        async_session.add(price_history)
+
+    with async_session.no_autoflush:
+        existing_asset = await async_session.execute(
+            select(Asset).where(Asset.wallet_address == wallet_address, Asset.ticker == ticker)
+        )
+        if existing_asset.scalar_one_or_none() is None:
+            asset_model = AssetDBMapper.to_database(integration_portfolio_entity.assets[0])
+            async_session.add(asset_model)
 
     yield
 

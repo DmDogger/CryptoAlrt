@@ -50,6 +50,14 @@ class FakePortfolioRepository(PortfolioRepositoryProtocol):
         )
         return portfolio, assets_count
 
+    async def get_portfolio_total_value_only(self, wallet_address: str) -> Decimal:
+        """Calculate and retrieve only portfolio total value without portfolio entity."""
+        portfolio = self._portfolios.get(wallet_address)
+        if portfolio is None:
+            return Decimal("0")
+
+        return portfolio.total_value if portfolio.total_value is not None else Decimal("0")
+
     async def save_portfolio(self, portfolio_entity: PortfolioEntity) -> PortfolioEntity:
         """Save a new portfolio entity."""
         self._portfolios[portfolio_entity.wallet_address] = portfolio_entity

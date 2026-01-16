@@ -54,13 +54,15 @@ class TestPortfolioRepository:
     async def test_get_portfolio_with_assets_count(
         self,
         sample_portfolio_entity,
+        sample_portfolio_db_model,
         mock_result_obj,
         mock_async_session,
         mock_portfolio_mapper,
         mock_portfolio_repository,
     ):
 
-        mock_result_obj.one_or_none.return_value = (sample_portfolio_entity, 10)
+        mock_result_obj.unique.return_value = mock_result_obj
+        mock_result_obj.one_or_none.return_value = (sample_portfolio_db_model, 10)
         mock_async_session.execute.return_value = mock_result_obj
         mock_portfolio_mapper.from_database.return_value = sample_portfolio_entity
 
@@ -76,7 +78,7 @@ class TestPortfolioRepository:
         [(SQLAlchemyError, RepositoryError), (Exception, RepositoryError)],
     )
     @pytest.mark.asyncio
-    async def test_with_assets_count_raises_error(
+    async def test_get_portfolio_with_assets_count_raises_error(
         self, exception_, expected_exception, mock_async_session, mock_portfolio_repository
     ):
 

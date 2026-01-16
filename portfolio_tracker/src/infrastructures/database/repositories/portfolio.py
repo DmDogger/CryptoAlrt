@@ -4,23 +4,27 @@ This module provides data access layer for portfolio entities with assets and pr
 """
 
 from dataclasses import dataclass
+from datetime import timedelta, UTC, datetime
 from decimal import Decimal
 from typing import final
 
 import structlog
-from sqlalchemy import select, func, update
+from sqlalchemy import select, func, update, desc
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from infrastructures.database.mappers.portfolio_db_mapper import PortfolioDBMapper
 from domain.entities.portfolio_entity import PortfolioEntity
 from infrastructures.database.models.portfolio import Portfolio
-from infrastructures.database.models.cryptoprice import CryptoPrice
+from infrastructures.database.models.cryptoprice import CryptoPrice, MarketPriceHistory
 from infrastructures.database.models.asset import Asset
 from sqlalchemy.orm import joinedload, selectinload
 
 from domain.exceptions import RepositoryError
 from application.interfaces.repositories import PortfolioRepositoryProtocol
+from domain.value_objects.analytics_vo import AnalyticsValueObject
+
+from infrastructures.database.mappers.analytics_db_mapper import AnalyticsDBMapper
 from infrastructures.exceptions import DatabaseSavingError
 
 logger = structlog.getLogger(__name__)
@@ -255,6 +259,182 @@ class SQLAlchemyPortfolioRepository(PortfolioRepositoryProtocol):
             raise RepositoryError(
                 "Unable to load or calculate assets & portfolio information"
             ) from e
+
+    async def get_portfolio_total_value_only(self, wallet_address: str) -> Decimal | None:
+        try:
+            stmt = (
+                select(func.sum(Asset.amount * CryptoPrice.price).label("total_value"))
+                .join(CryptoPrice, CryptoPrice.cryptocurrency == Asset.ticker)
+                .join(Portfolio, Portfolio.wallet_address == Asset.wallet_address)
+                .where(Asset.wallet_address == wallet_address)
+            )
+            res_obj = await self._session.execute(stmt)
+            total_value = res_obj.scalar_one_or_none()
+
+            if total_value is None:
+                return None
+
+            return Decimal(total_value)
+
+        except SQLAlchemyError as e:
+            logger.error(
+                "Error occurred during from database",
+                error=str(e),
+                error_type=type(e).__name__,
+                exc_info=True,
+            )
+            raise RepositoryError("Unable to load or calculate portfolio's total value") from e
+
+        except Exception as e:
+            logger.error(
+                "Unexpected error occurred during from database",
+                error=str(e),
+                error_type=type(e).__name__,
+                exc_info=True,
+            )
+            raise RepositoryError("Unable to load or calculate portfolio's total value") from e
+
+    async def get_position_value(self, ticker: str, wallet_address: str) -> AnalyticsValueObject:
+        try:
+            stmt = (
+                select(Asset.ticker, (Asset.amount * CryptoPrice.price).label("position_value"))
+                .join(CryptoPrice, CryptoPrice.cryptocurrency == Asset.ticker)
+                .where(Asset.wallet_address == wallet_address, Asset.ticker == ticker)
+            )
+            res_obj = await self._session.execute(stmt)
+            row = res_obj.one_or_none()
+
+            if row is None:
+                return None
+
+            return AnalyticsDBMapper.from_database(row)
+
+        except SQLAlchemyError as e:
+            logger.error(
+                "Error occurred during from database",
+                error=str(e),
+                error_type=type(e).__name__,
+                exc_info=True,
+            )
+            raise RepositoryError("Unable to calculate position value") from e
+
+        except Exception as e:
+            logger.error(
+                "Unexpected error occurred during from database",
+                error=str(e),
+                error_type=type(e).__name__,
+                exc_info=True,
+            )
+            raise RepositoryError("Unable to load or calculate portfolio's position value") from e
+
+    async def get_position_values(self, wallet_address: str) -> None | list[AnalyticsValueObject]:
+        try:
+            stmt = (
+                select(Asset.ticker, (Asset.amount * CryptoPrice.price).label("position_value"))
+                .join(CryptoPrice, CryptoPrice.cryptocurrency == Asset.ticker)
+                .where(Asset.wallet_address == wallet_address)
+            )
+            res_obj = await self._session.execute(stmt)
+            rows = res_obj.all()
+
+            if not rows:
+                return None
+
+            return [AnalyticsDBMapper.from_database(r) for r in rows]
+
+        except SQLAlchemyError as e:
+            logger.error(
+                "Error occurred during from database",
+                error=str(e),
+                error_type=type(e).__name__,
+                exc_info=True,
+            )
+            raise RepositoryError("Unable to calculate position value") from e
+
+        except Exception as e:
+            logger.error(
+                "Unexpected error occurred during from database",
+                error=str(e),
+                error_type=type(e).__name__,
+                exc_info=True,
+            )
+            raise RepositoryError("Unable to load or calculate portfolio's position value") from e
+
+    async def get_current_and_last_prices(
+        self,
+        ticker: str,
+        hours: int = 24,
+    ) -> tuple[Decimal, Decimal | None] | None:
+        try:
+            stmt = (
+                select(
+                    CryptoPrice.price.label("current_price"),
+                    MarketPriceHistory.price.label("last_price"),
+                )
+                .join(
+                    MarketPriceHistory,
+                    MarketPriceHistory.cryptocurrency == CryptoPrice.cryptocurrency,
+                )
+                .where(
+                    CryptoPrice.cryptocurrency == ticker,
+                    MarketPriceHistory.timestamp
+                    >= datetime.now(UTC).replace(tzinfo=None) - timedelta(hours=hours),
+                )
+                .order_by(MarketPriceHistory.timestamp.asc())
+                .limit(1)
+            )
+            res_obj = await self._session.execute(stmt)
+            prices_row = res_obj.one_or_none()
+
+            if prices_row is None:
+                return None
+
+            current_price, last_price = prices_row
+            return current_price, last_price
+
+        except SQLAlchemyError as e:
+            logger.error(
+                "Error occurred during from database",
+                error=str(e),
+                error_type=type(e).__name__,
+                exc_info=True,
+            )
+            raise RepositoryError("Unable to load prices") from e
+
+        except Exception as e:
+            logger.error(
+                "Unexpected error occurred during from database",
+                error=str(e),
+                error_type=type(e).__name__,
+                exc_info=True,
+            )
+            raise RepositoryError("Unable to load prices") from e
+
+    async def get_assets_counted(self, wallet_address: str) -> int | None:
+        try:
+            stmt = select(func.count(Asset.asset_id)).where(Asset.wallet_address == wallet_address)
+            res = await self._session.execute(stmt)
+            assets_counted = res.scalar_one_or_none()
+
+            return assets_counted
+
+        except SQLAlchemyError as e:
+            logger.error(
+                "Error occurred during from database",
+                error=str(e),
+                error_type=type(e).__name__,
+                exc_info=True,
+            )
+            raise RepositoryError("Unable to load prices") from e
+
+        except Exception as e:
+            logger.error(
+                "Unexpected error occurred during from database",
+                error=str(e),
+                error_type=type(e).__name__,
+                exc_info=True,
+            )
+            raise RepositoryError("Unable to load prices") from e
 
     async def save_portfolio(self, portfolio_entity: PortfolioEntity) -> PortfolioEntity:
         """Save a new portfolio entity to the database.

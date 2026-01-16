@@ -2,6 +2,7 @@ from dataclasses import replace
 from datetime import datetime, UTC, timedelta
 from decimal import Decimal
 from random import randint
+from unittest.mock import MagicMock
 from uuid import uuid4
 
 import pytest
@@ -11,6 +12,8 @@ from src.domain.entities.mp_entity import MPEntity
 from domain.entities.asset_entity import AssetEntity
 from domain.entities.portfolio_entity import PortfolioEntity
 from domain.events.price_updated import PriceUpdatedEvent
+
+from domain.value_objects.analytics_vo import AnalyticsValueObject
 
 
 @pytest.fixture
@@ -137,3 +140,22 @@ def integration_empty_portfolio_entity(unique_wallet_address):
         assets_count=0,
         updated_at=datetime.now(UTC) - timedelta(days=2),
     )
+
+
+@pytest.fixture
+def sample_analytics_vo():
+    return AnalyticsValueObject.create(
+        ticker="BTC",
+    )
+
+
+@pytest.fixture
+def row_obj():
+    row = MagicMock()
+    row.ticker = "BTC"
+    row.position_value = Decimal("1")
+    row.allocation = Decimal("10")
+    row.port_change = Decimal("1.0")
+    row.amount = Decimal("22")
+    row.current_price = Decimal("50000")
+    return row

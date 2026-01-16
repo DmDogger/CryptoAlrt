@@ -69,7 +69,9 @@ class TestCachedPortfolioRepository:
         assert isinstance(portfolio, PortfolioEntity)
 
     @pytest.mark.asyncio
-    async def test_raises_data_error(self, sample_portfolio_entity, full_mocked_cached_repository):
+    async def test_get_portfolio_with_assets_count_raises_data_error(
+        self, sample_portfolio_entity, full_mocked_cached_repository
+    ):
 
         full_mocked_cached_repository._original.get_portfolio_with_assets_count.side_effect = (
             redis.exceptions.DataError

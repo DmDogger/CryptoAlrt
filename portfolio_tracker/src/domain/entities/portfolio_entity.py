@@ -68,6 +68,7 @@ class PortfolioEntity:
         wallet_address: str,
         assets: list[AssetEntity] | None = None,
     ) -> "PortfolioEntity":
+        """Created portfolio entity"""
         return cls(
             wallet_address=wallet_address,
             assets=assets if assets else None,
@@ -79,6 +80,7 @@ class PortfolioEntity:
         )
 
     def set_total_value(self, total_value: Decimal) -> "PortfolioEntity":
+        """Set total value"""
         return PortfolioEntity(
             wallet_address=self.wallet_address,
             assets=self.assets,

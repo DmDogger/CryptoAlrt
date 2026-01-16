@@ -56,3 +56,21 @@ class PortfolioRepositoryProtocol(Protocol):
             Tuple of (PortfolioEntity, assets_count), or None if not found.
         """
         ...
+
+    @abstractmethod
+    async def get_portfolio_total_value_only(self, wallet_address: str) -> Decimal:
+        """Calculate and retrieve only portfolio total value without portfolio entity.
+
+        Total value is calculated as sum of (asset.amount * crypto_price.price).
+        Returns Decimal("0") if no assets found or calculation result is None.
+
+        Args:
+            wallet_address: Wallet address to find portfolio.
+
+        Returns:
+            Total value as Decimal. Returns Decimal("0") if portfolio not found or has no assets.
+
+        Raises:
+            RepositoryError: If database operation fails.
+        """
+        ...
