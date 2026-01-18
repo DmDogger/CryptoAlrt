@@ -1,4 +1,5 @@
 from datetime import datetime, UTC
+from decimal import Decimal
 
 import structlog
 from application.exceptions import TotalValueUnableToCalculate, UseCaseError
@@ -13,7 +14,7 @@ class RecalculatePortfolioChangeUseCase:
     def __init__(self, repository: PortfolioRepositoryProtocol):
         self._repository = repository
 
-    async def execute(self, wallet_address: str):
+    async def execute(self, wallet_address: str) -> Decimal:
         try:
             last_total_value = await self._repository.get_last_total_value(
                 wallet_address=wallet_address

@@ -255,6 +255,74 @@ async def fill_prices_only(integration_portfolio_entity, async_session):
 
 
 @pytest_asyncio.fixture
+async def fill_integration_base_data(
+    integration_portfolio_entity, async_session, portfolio_repository_for_transactions
+):
+    """Fixture for integration tests that fills database with all base data:
+    - Portfolio (saved via repository)
+    - Assets (created via cascade when portfolio is saved)
+    - CryptoPrice for all tickers in portfolio
+    - MarketPriceHistory for all tickers in portfolio
+
+    All data is committed and rolled back after test."""
+    from sqlalchemy import select
+    from infrastructures.database.models.cryptoprice import MarketPriceHistory
+
+    # Получаем все уникальные тикеры из портфеля
+    tickers = set()
+    if integration_portfolio_entity.assets:
+        for asset in integration_portfolio_entity.assets:
+            tickers.add(asset.ticker)
+
+    # Сохраняем портфель (активы создадутся автоматически через каскад)
+    await portfolio_repository_for_transactions.save_portfolio(integration_portfolio_entity)
+
+    # Добавляем CryptoPrice для каждого тикера
+    for ticker in tickers:
+        existing_crypto_price = await async_session.execute(
+            select(CryptoPrice).where(CryptoPrice.cryptocurrency == ticker)
+        )
+        if existing_crypto_price.scalar_one_or_none() is None:
+            # Используем разные цены для разных тикеров
+            price = Decimal("90000.00") if ticker == "BTC" else Decimal("3000.00")
+            crypto_price = CryptoPrice(
+                cryptocurrency=ticker,
+                price=price,
+                updated_at=datetime.now(UTC).replace(tzinfo=None),
+            )
+            async_session.add(crypto_price)
+
+    # Добавляем MarketPriceHistory для каждого тикера
+    for ticker in tickers:
+        existing_price_history = await async_session.execute(
+            select(MarketPriceHistory).where(
+                MarketPriceHistory.cryptocurrency == ticker,
+                MarketPriceHistory.timestamp
+                >= datetime.now(UTC).replace(tzinfo=None) - timedelta(hours=24),
+            )
+        )
+        if existing_price_history.scalar_one_or_none() is None:
+            # Используем разные исторические цены для разных тикеров
+            historical_price = Decimal("85000.00") if ticker == "BTC" else Decimal("2800.00")
+            name = "Bitcoin" if ticker == "BTC" else "Ethereum"
+            price_history = MarketPriceHistory(
+                cryptocurrency=ticker,
+                name=name,
+                price=historical_price,
+                timestamp=datetime.now(UTC).replace(tzinfo=None) - timedelta(hours=1),
+            )
+            async_session.add(price_history)
+
+    # Коммитим все изменения
+    await async_session.commit()
+
+    yield
+
+    # Откатываем изменения после теста
+    await async_session.rollback()
+
+
+@pytest_asyncio.fixture
 async def fill_eth_price(async_session):
     """Fixture that adds CryptoPrice for ETH ticker."""
     from sqlalchemy import select

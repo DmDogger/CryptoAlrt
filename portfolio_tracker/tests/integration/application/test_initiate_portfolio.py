@@ -4,12 +4,12 @@ import pytest
 from typing import TYPE_CHECKING
 
 from domain.entities.portfolio_entity import PortfolioEntity
+from domain.entities.asset_entity import AssetEntity
 
 from fixtures.domain_fixtures import sample_asset_entity
 
 if TYPE_CHECKING:
     from application.use_cases.initiate_portfolio import InitiatePortfolioUseCase
-    from domain.entities.asset_entity import AssetEntity
 
 
 class TestInitiatePortfolioUseCaseIntegration:

@@ -14,6 +14,8 @@ class AnalyticsValueObject:
     port_change: Decimal | None
     amount: Decimal | None = None
     current_price: Decimal | None = None
+    portfolio_weight: Decimal | None
+    portfolio_change: Decimal | None
 
     def __post_init__(self):
         if not self.ticker or not self.ticker.strip():
@@ -43,6 +45,8 @@ class AnalyticsValueObject:
         port_change: Decimal | None = None,
         amount: Decimal | None = None,
         current_price: Decimal | None = None,
+        portfolio_weight: Decimal | None = None,
+        portfolio_change: Decimal | None = None,
     ) -> "AnalyticsValueObject":
         return cls(
             ticker=ticker,
@@ -51,4 +55,30 @@ class AnalyticsValueObject:
             port_change=port_change if port_change else None,
             amount=amount if amount else None,
             current_price=current_price if current_price else None,
+            portfolio_weight=portfolio_weight if portfolio_weight else None,
+            portfolio_change=portfolio_change if portfolio_change else None,
+        )
+
+    def set_allocation(self, allocation: Decimal):
+        return AnalyticsValueObject(
+            ticker=self.ticker,
+            position_value=self.position_value,
+            allocation=allocation,
+            port_change=self.port_change,
+            amount=self.amount,
+            current_price=self.current_price,
+            portfolio_weight=self.portfolio_weight,
+            portfolio_change=self.portfolio_change,
+        )
+
+    def set_portfolio_change(self, portfolio_change: Decimal):
+        return AnalyticsValueObject(
+            ticker=self.ticker,
+            position_value=self.position_value,
+            allocation=self.allocation,
+            port_change=self.port_change,
+            amount=self.amount,
+            current_price=self.current_price,
+            portfolio_weight=self.portfolio_weight,
+            portfolio_change=portfolio_change,
         )

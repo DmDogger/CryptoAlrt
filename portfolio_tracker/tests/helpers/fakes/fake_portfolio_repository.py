@@ -23,6 +23,17 @@ class FakePortfolioRepository(PortfolioRepositoryProtocol):
         self._crypto_prices: dict[str, Decimal] = {}  # ticker -> current_price
         self._price_history: dict[str, Decimal] = {}  # ticker -> last_price
 
+    async def get_portfolio_by_wallet_address(self, wallet_address: str) -> PortfolioEntity | None:
+        """Retrieve portfolio by wallet address.
+
+        Args:
+            wallet_address: Wallet address to find portfolio.
+
+        Returns:
+            PortfolioEntity or None if not found.
+        """
+        return self._portfolios.get(wallet_address)
+
     async def get_portfolio_with_assets_and_prices(
         self, wallet_address: str
     ) -> PortfolioEntity | None:
@@ -176,4 +187,57 @@ class FakePortfolioRepository(PortfolioRepositoryProtocol):
             port_change=None,
             amount=total_amount,
             current_price=price,
+            portfolio_weight=None,
+            portfolio_change=None,
         )
+
+    async def get_position_values(self, wallet_address: str) -> None | list[AnalyticsValueObject]:
+        """Get position values for all tickers in a portfolio.
+
+        Args:
+            wallet_address: Wallet address to find portfolio.
+
+        Returns:
+            List of AnalyticsValueObject for each unique ticker, or None if portfolio not found.
+        """
+        portfolio = self._portfolios.get(wallet_address)
+        if portfolio is None or portfolio.assets is None:
+            return None
+
+        if not portfolio.assets:
+            return None
+
+        # Group assets by ticker and calculate position values
+        ticker_amounts: dict[str, Decimal] = {}
+        for asset in portfolio.assets:
+            if asset.ticker in ticker_amounts:
+                ticker_amounts[asset.ticker] += asset.amount
+            else:
+                ticker_amounts[asset.ticker] = asset.amount
+
+        # Build list of AnalyticsValueObject for each ticker
+        position_values = []
+        for ticker, total_amount in ticker_amounts.items():
+            price = self._crypto_prices.get(ticker)
+            if price is None:
+                continue
+
+            position_value = total_amount * price
+
+            position_values.append(
+                AnalyticsValueObject(
+                    ticker=ticker,
+                    position_value=position_value,
+                    allocation=None,
+                    port_change=None,
+                    amount=total_amount,
+                    current_price=price,
+                    portfolio_weight=None,
+                    portfolio_change=None,
+                )
+            )
+
+        if not position_values:
+            return None
+
+        return position_values

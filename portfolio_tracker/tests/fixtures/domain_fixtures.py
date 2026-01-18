@@ -177,4 +177,6 @@ def row_obj():
     row.port_change = Decimal("1.0")
     row.amount = Decimal("22")
     row.current_price = Decimal("50000")
+    row.portfolio_weight = None
+    row.portfolio_change = None
     return row

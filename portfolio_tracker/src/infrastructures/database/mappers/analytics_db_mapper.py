@@ -14,4 +14,6 @@ class AnalyticsDBMapper:
             port_change=row.port_change if hasattr(row, "port_change") else Decimal("0"),
             amount=row.amount if hasattr(row, "amount") else Decimal("0"),
             current_price=row.current_price if hasattr(row, "current_price") else Decimal("0"),
+            portfolio_weight=row.portfolio_weight if hasattr(row, "portfolio_weight") else None,
+            portfolio_change=row.portfolio_change if hasattr(row, "portfolio_change") else None,
         )

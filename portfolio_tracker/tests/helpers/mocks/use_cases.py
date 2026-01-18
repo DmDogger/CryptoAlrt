@@ -7,6 +7,10 @@ from infrastructures.database.repositories.portfolio import SQLAlchemyPortfolioR
 from application.use_cases.recalculate_portfolio_change import RecalculatePortfolioChangeUseCase
 from application.use_cases.initiate_portfolio import InitiatePortfolioUseCase
 
+from application.use_cases.get_analytics import GetPortfolioAnalyticsUseCase
+
+from application.use_cases.calculate_asset_change import CalculateAssetChangeUseCase
+
 
 @pytest.fixture
 def mock_calculate_weight_uc(
@@ -35,4 +39,12 @@ def mock_recalculate_portfolio_uc(fake_portfolio_repository) -> RecalculatePortf
 def mock_initiate_portfolio_uc(fake_portfolio_repository):
     return InitiatePortfolioUseCase(
         repository=fake_portfolio_repository,
+    )
+
+
+@pytest.fixture
+def mock_get_analytics_uc(fake_portfolio_repository):
+    return GetPortfolioAnalyticsUseCase(
+        repository=fake_portfolio_repository,
+        calculate_change=CalculateAssetChangeUseCase(repository=fake_portfolio_repository),
     )
