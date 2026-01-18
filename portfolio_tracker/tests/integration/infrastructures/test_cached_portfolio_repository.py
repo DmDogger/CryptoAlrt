@@ -1,4 +1,5 @@
 from decimal import Decimal
+from typing import TYPE_CHECKING
 
 import pytest
 import redis.exceptions
@@ -10,6 +11,9 @@ from infrastructures.database.repositories.cached_portfolio_repository import (
 
 from config.cache import cache_settings
 from fixtures.infra_fixtures import async_session
+
+if TYPE_CHECKING:
+    from fixtures.domain_fixtures import sample_empty_portfolio_entity, sample_portfolio_entity
 
 
 class TestCachedPortfolioRepository:
@@ -49,8 +53,11 @@ class TestCachedPortfolioRepository:
 
     @pytest.mark.asyncio
     async def test_get_portfolio_with_assets_count(
-        self, async_session, mock_cached_portfolio_repository, sample_custom_portfolio_entity
-    ):
+        self,
+        async_session: "AsyncSession",
+        mock_cached_portfolio_repository: CachedPortfolioRepository,
+        sample_custom_portfolio_entity: "Callable[..., PortfolioEntity]",
+    ) -> None:
 
         portfolio = sample_custom_portfolio_entity(asset_counted=2, asset_counts=2)
 
@@ -70,8 +77,10 @@ class TestCachedPortfolioRepository:
 
     @pytest.mark.asyncio
     async def test_get_portfolio_with_assets_count_raises_data_error(
-        self, sample_portfolio_entity, full_mocked_cached_repository
-    ):
+        self,
+        sample_portfolio_entity: PortfolioEntity,
+        full_mocked_cached_repository: CachedPortfolioRepository,
+    ) -> None:
 
         full_mocked_cached_repository._original.get_portfolio_with_assets_count.side_effect = (
             redis.exceptions.DataError
@@ -84,8 +93,11 @@ class TestCachedPortfolioRepository:
 
     @pytest.mark.asyncio
     async def test_save_portfolio(
-        self, sample_empty_portfolio_entity, mock_redis_cache, mock_cached_portfolio_repository
-    ):
+        self,
+        sample_empty_portfolio_entity: PortfolioEntity,
+        mock_redis_cache: "Any",
+        mock_cached_portfolio_repository: CachedPortfolioRepository,
+    ) -> None:
         await mock_cached_portfolio_repository._original.save_portfolio(
             sample_empty_portfolio_entity
         )

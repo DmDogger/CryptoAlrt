@@ -206,13 +206,8 @@ async def fill_integration_base_fields(integration_portfolio_entity, async_sessi
         )
         async_session.add(price_history)
 
-    with async_session.no_autoflush:
-        existing_asset = await async_session.execute(
-            select(Asset).where(Asset.wallet_address == wallet_address, Asset.ticker == ticker)
-        )
-        if existing_asset.scalar_one_or_none() is None:
-            asset_model = AssetDBMapper.to_database(integration_portfolio_entity.assets[0])
-            async_session.add(asset_model)
+    # Assets will be created via cascade when portfolio is saved
+    # No need to create them here to avoid duplicates
 
     yield
 
@@ -274,6 +269,29 @@ async def fill_eth_price(async_session):
             updated_at=datetime.now(UTC).replace(tzinfo=None),
         )
         async_session.add(eth_price)
+
+    yield
+
+    await async_session.rollback()
+
+
+@pytest_asyncio.fixture
+async def fill_btc_eth_prices(async_session):
+    """Fixture that adds CryptoPrice for BTC and ETH tickers."""
+    from sqlalchemy import select
+
+    for ticker in ["BTC", "ETH"]:
+        existing = await async_session.execute(
+            select(CryptoPrice).where(CryptoPrice.cryptocurrency == ticker)
+        )
+        if existing.scalar_one_or_none() is None:
+            crypto_price = CryptoPrice(
+                cryptocurrency=ticker,
+                price=Decimal("90000.00") if ticker == "BTC" else Decimal("3000.00"),
+                updated_at=datetime.now(UTC).replace(tzinfo=None),
+            )
+            async_session.add(crypto_price)
+    await async_session.commit()
 
     yield
 

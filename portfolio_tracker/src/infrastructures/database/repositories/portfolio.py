@@ -194,7 +194,7 @@ class SQLAlchemyPortfolioRepository(PortfolioRepositoryProtocol):
             )
             stmt = (
                 select(Portfolio, func.count(Asset.asset_id).label("total_assets_count"))
-                .join(Asset, Asset.wallet_address == Portfolio.wallet_address)
+                .outerjoin(Asset, Asset.wallet_address == Portfolio.wallet_address)
                 .where(Portfolio.wallet_address == wallet_address)
                 .options(
                     selectinload(
@@ -405,7 +405,7 @@ class SQLAlchemyPortfolioRepository(PortfolioRepositoryProtocol):
             stmt = select(Portfolio).where(Portfolio.wallet_address == wallet_address)
 
             res_obj = await self._session.execute(stmt)
-            portfolio = res_obj.scalar_one_or_none()
+            portfolio = res_obj.unique().scalar_one_or_none()
 
             if portfolio is None:
                 return None
@@ -676,9 +676,80 @@ class SQLAlchemyPortfolioRepository(PortfolioRepositoryProtocol):
                 f"Unexpected error occurred while saving asset: {str(e)}"
             ) from e
 
+    async def bulk_add_assets(self, assets: list[AssetEntity]) -> list[AssetEntity]:
+        try:
+            db_assets_list = [self._asset_mapper.to_database(asset) for asset in assets]
+            self._session.add_all(db_assets_list)
+            await self._session.commit()
+            return assets
+        except IntegrityError as e:
+            await self._session.rollback()
+            logger.error(
+                "Database constraint violation occurred during bulk saving assets",
+                error=str(e),
+                error_type=type(e).__name__,
+                exc_info=True,
+            )
+            raise DatabaseSavingError(
+                f"Failed to bulk add assets: constraint violation - {str(e)}"
+            ) from e
+
+        except SQLAlchemyError as e:
+            await self._session.rollback()
+            logger.error(
+                "SQLAlchemy error occurred while bulk saving assets",
+                error=str(e),
+                error_type=type(e).__name__,
+                exc_info=True,
+            )
+            raise DatabaseSavingError(f"Failed to bulk save assets in database: {str(e)}") from e
+
+        except Exception as e:
+            await self._session.rollback()
+            logger.error(
+                "Unexpected error occurred while bulk saving assets",
+                error=str(e),
+                error_type=type(e).__name__,
+                exc_info=True,
+            )
+            raise DatabaseSavingError(
+                f"Unexpected error occurred while bulk saving assets: {str(e)}"
+            ) from e
+
     async def get_asset_by_id(self, asset_id: UUID) -> AssetEntity | None:
         try:
             stmt = select(Asset).where(Asset.asset_id == asset_id)
+            res_obj = await self._session.execute(stmt)
+            asset = res_obj.scalar_one_or_none()
+
+            if asset is None:
+                return None
+
+            return self._asset_mapper.from_database(asset)
+
+        except SQLAlchemyError as e:
+            logger.error(
+                "SQLAlchemy error occurred while retrieve asset",
+                error=str(e),
+                error_type=type(e).__name__,
+                exc_info=True,
+            )
+            raise RepositoryError("Occurred error during retrieving asset") from e
+
+        except Exception as e:
+            logger.error(
+                "Unexpected error occurred while retrieving asset",
+                error=str(e),
+                error_type=type(e).__name__,
+                exc_info=True,
+            )
+            raise RepositoryError("Occurred error during retrieving asset") from e
+
+    async def get_asset_by_ticker(self, ticker: str, wallet_address: str) -> AssetEntity | None:
+        try:
+            stmt = select(Asset).where(
+                Asset.ticker == ticker, Asset.wallet_address == wallet_address
+            )
             res_obj = await self._session.execute(stmt)
             asset = res_obj.scalar_one_or_none()
 

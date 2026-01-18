@@ -44,7 +44,8 @@ def sample_price_updated_event(sample_uuid):
 
 
 @pytest.fixture
-def sample_asset_entity(sample_uuid):
+def sample_asset_entity():
+    """Fixture providing a sample AssetEntity with unique UUID for each test."""
     return AssetEntity.create(
         ticker="BTC",
         amount=Decimal("0.0005"),
@@ -53,7 +54,7 @@ def sample_asset_entity(sample_uuid):
 
 
 @pytest.fixture
-def sample_custom_portfolio_entity(sample_asset_entity):
+def sample_custom_portfolio_entity():
     def _create(
         wallet_address: str | None = None,
         assets_counted: int | None = None,
@@ -65,10 +66,23 @@ def sample_custom_portfolio_entity(sample_asset_entity):
     ):
         final_assets_counted = assets_counted or asset_counted
         final_assets_count = assets_count or asset_counts
+        final_wallet_address = (
+            wallet_address if wallet_address else f"wallet_address{randint(1,200)}"
+        )
+
+        # Create unique assets with unique UUIDs for each asset
+        assets = [
+            AssetEntity.create(
+                ticker="BTC",
+                amount=Decimal("0.0005"),
+                wallet_address=final_wallet_address,
+            )
+            for _ in range(final_assets_counted or 1)
+        ]
 
         return PortfolioEntity(
-            wallet_address=wallet_address if wallet_address else f"wallet_address{randint(1,200)}",
-            assets=[sample_asset_entity] * (final_assets_counted or 1),
+            wallet_address=final_wallet_address,
+            assets=assets,
             total_value=total_value if total_value else Decimal("100"),
             weight=weight if weight else Decimal("100"),
             portfolio_total=Decimal("2000.00"),
@@ -114,9 +128,14 @@ def unique_wallet_address():
 
 
 @pytest.fixture
-def integration_portfolio_entity(unique_wallet_address, sample_asset_entity):
+def integration_portfolio_entity(unique_wallet_address):
     """Portfolio entity with unique wallet address for integration tests."""
-    asset_with_unique_wallet = replace(sample_asset_entity, wallet_address=unique_wallet_address)
+    # Create new asset with unique UUID and wallet address for each test
+    asset_with_unique_wallet = AssetEntity.create(
+        ticker="BTC",
+        amount=Decimal("0.0005"),
+        wallet_address=unique_wallet_address,
+    )
     return PortfolioEntity(
         wallet_address=unique_wallet_address,
         assets=[asset_with_unique_wallet],

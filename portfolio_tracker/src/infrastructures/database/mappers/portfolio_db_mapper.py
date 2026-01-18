@@ -20,6 +20,23 @@ class PortfolioDBMapper:
         if updated_at.tzinfo is not None:
             updated_at = updated_at.replace(tzinfo=None)
 
+        if portfolio.assets:
+            seen_ids = set()
+            unique_assets = []
+            for asset in portfolio.assets:
+                if asset.asset_id not in seen_ids:
+                    seen_ids.add(asset.asset_id)
+                    unique_assets.append(asset)
+
+            return Portfolio(
+                wallet_address=portfolio.wallet_address,
+                assets=[AssetDBMapper.to_database(asset) for asset in unique_assets],
+                total_value=portfolio.total_value,
+                weight=portfolio.weight,
+                portfolio_total=portfolio.portfolio_total,
+                assets_count=portfolio.assets_count,
+                updated_at=updated_at,
+            )
         return Portfolio(
             wallet_address=portfolio.wallet_address,
             total_value=portfolio.total_value,
@@ -36,6 +53,12 @@ class PortfolioDBMapper:
         if updated_at.tzinfo is None:
             updated_at = updated_at.replace(tzinfo=UTC)
 
+        total_value = Decimal(str(model.total_value)) if model.total_value is not None else None
+        weight = Decimal(str(model.weight)) if model.weight is not None else None
+        portfolio_total = (
+            Decimal(str(model.portfolio_total)) if model.portfolio_total is not None else None
+        )
+
         return PortfolioEntity(
             wallet_address=model.wallet_address,
             assets=(
@@ -43,9 +66,9 @@ class PortfolioDBMapper:
                 if model.assets
                 else None
             ),
-            total_value=model.total_value,
-            weight=model.weight,
-            portfolio_total=model.portfolio_total,
+            total_value=total_value,
+            weight=weight,
+            portfolio_total=portfolio_total,
             assets_count=model.assets_count,
             updated_at=updated_at,
         )

@@ -1,5 +1,7 @@
 from decimal import Decimal
 from collections.abc import Callable, Coroutine
+from typing import TYPE_CHECKING
+from uuid import UUID
 
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -15,6 +17,9 @@ from domain.value_objects.analytics_vo import AnalyticsValueObject
 from domain.entities.asset_entity import AssetEntity
 from fixtures.domain_fixtures import integration_portfolio_entity, sample_uuid, sample_asset_entity
 from fixtures.infra_fixtures import portfolio_repository_for_transactions, async_session
+
+if TYPE_CHECKING:
+    from typing import Any
 
 
 class TestPortfolioRepository:
@@ -70,18 +75,16 @@ class TestPortfolioRepository:
     async def test_get_portfolio_with_assets_count_and_update(
         self,
         portfolio_repository_for_transactions: SQLAlchemyPortfolioRepository,
-        integration_empty_portfolio_entity: PortfolioEntity,
+        integration_portfolio_entity: PortfolioEntity,
         fill_integration_base_fields: None,
         async_session: AsyncSession,
     ) -> None:
-        await portfolio_repository_for_transactions.save_portfolio(
-            integration_empty_portfolio_entity
-        )
+        await portfolio_repository_for_transactions.save_portfolio(integration_portfolio_entity)
         await async_session.commit()
 
         portfolio, assets_counted = (
             await portfolio_repository_for_transactions.get_portfolio_with_assets_count(
-                wallet_address=integration_empty_portfolio_entity.wallet_address
+                wallet_address=integration_portfolio_entity.wallet_address
             )
         )
 
@@ -97,12 +100,12 @@ class TestPortfolioRepository:
     async def test_save_portfolio_without_assets_then_add_assets(
         self,
         async_session: AsyncSession,
-        integration_portfolio_entity: PortfolioEntity,
+        integration_empty_portfolio_entity: PortfolioEntity,
         portfolio_repository_for_transactions: SQLAlchemyPortfolioRepository,
         add_asset_and_crypto_price_for_portfolio: Callable[[], Coroutine[None, None, None]],
     ) -> None:
         portfolio_to_save = await portfolio_repository_for_transactions.save_portfolio(
-            integration_portfolio_entity
+            integration_empty_portfolio_entity
         )
         not_saved = (
             await portfolio_repository_for_transactions.get_portfolio_with_assets_and_prices(
@@ -159,7 +162,7 @@ class TestPortfolioRepository:
         integration_portfolio_entity: PortfolioEntity,
         portfolio_repository_for_transactions: SQLAlchemyPortfolioRepository,
         fill_integration_base_fields: None,
-    ):
+    ) -> None:
 
         await portfolio_repository_for_transactions.save_portfolio(integration_portfolio_entity)
 
@@ -181,7 +184,7 @@ class TestPortfolioRepository:
         integration_portfolio_entity: PortfolioEntity,
         portfolio_repository_for_transactions: SQLAlchemyPortfolioRepository,
         fill_integration_base_fields: None,
-    ):
+    ) -> None:
 
         await portfolio_repository_for_transactions.save_portfolio(integration_portfolio_entity)
 
@@ -201,7 +204,7 @@ class TestPortfolioRepository:
         async_session: AsyncSession,
         portfolio_repository_for_transactions: SQLAlchemyPortfolioRepository,
         fill_integration_base_fields: None,
-    ):
+    ) -> None:
 
         await portfolio_repository_for_transactions.save_portfolio(integration_portfolio_entity)
 
@@ -216,17 +219,19 @@ class TestPortfolioRepository:
     @pytest.mark.asyncio
     async def test_get_portfolio_total_value_only_returns_none_when_no_assets(
         self,
-        integration_portfolio_entity: PortfolioEntity,
+        integration_empty_portfolio_entity: PortfolioEntity,
         async_session: AsyncSession,
         portfolio_repository_for_transactions: SQLAlchemyPortfolioRepository,
-    ):
+    ) -> None:
 
-        await portfolio_repository_for_transactions.save_portfolio(integration_portfolio_entity)
+        await portfolio_repository_for_transactions.save_portfolio(
+            integration_empty_portfolio_entity
+        )
 
         await async_session.commit()
 
         none_res = await portfolio_repository_for_transactions.get_portfolio_total_value_only(
-            wallet_address=integration_portfolio_entity.wallet_address
+            wallet_address=integration_empty_portfolio_entity.wallet_address
         )
 
         assert none_res is None
@@ -238,7 +243,7 @@ class TestPortfolioRepository:
         portfolio_repository_for_transactions: SQLAlchemyPortfolioRepository,
         fill_integration_base_fields: None,
         async_session: AsyncSession,
-    ):
+    ) -> None:
         await portfolio_repository_for_transactions.save_portfolio(integration_portfolio_entity)
 
         await async_session.commit()
@@ -261,7 +266,7 @@ class TestPortfolioRepository:
         portfolio_repository_for_transactions: SQLAlchemyPortfolioRepository,
         fill_integration_base_fields: None,
         async_session: AsyncSession,
-    ):
+    ) -> None:
         await portfolio_repository_for_transactions.save_portfolio(integration_portfolio_entity)
 
         await async_session.commit()
@@ -276,9 +281,9 @@ class TestPortfolioRepository:
     @pytest.mark.asyncio
     async def test_get_asset_by_id_returns_none_when_not_found(
         self,
-        sample_uuid,
+        sample_uuid: UUID,
         portfolio_repository_for_transactions: SQLAlchemyPortfolioRepository,
-    ):
+    ) -> None:
         none_asset = await portfolio_repository_for_transactions.get_asset_by_id(
             asset_id=sample_uuid
         )
@@ -289,10 +294,10 @@ class TestPortfolioRepository:
     async def test_add_asset_saves_to_database(
         self,
         sample_asset_entity: AssetEntity,
-        integration_portfolio_entity,
+        integration_portfolio_entity: PortfolioEntity,
         portfolio_repository_for_transactions: SQLAlchemyPortfolioRepository,
         async_session: AsyncSession,
-    ):
+    ) -> None:
         portfolio = PortfolioEntity.create(wallet_address=sample_asset_entity.wallet_address)
 
         await portfolio_repository_for_transactions.save_portfolio(portfolio)
@@ -310,11 +315,11 @@ class TestPortfolioRepository:
     @pytest.mark.asyncio
     async def test_update_asset_works_correctly(
         self,
-        portfolio_repository_for_transactions,
-        integration_portfolio_entity,
+        portfolio_repository_for_transactions: SQLAlchemyPortfolioRepository,
+        integration_portfolio_entity: PortfolioEntity,
         fill_eth_price: None,
         async_session: AsyncSession,
-    ):
+    ) -> None:
         portfolio = PortfolioEntity.create(
             wallet_address=integration_portfolio_entity.wallet_address
         )

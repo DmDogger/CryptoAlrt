@@ -20,3 +20,11 @@ class TotalValueUnableToCalculate(ApplicationError):
 
 class AnalyticsDataIsEmpty(ApplicationError):
     pass
+
+
+class AssetNotExist(ApplicationError):
+    pass
+
+
+class AssetUpdatingError(ApplicationError):
+    pass

@@ -50,6 +50,4 @@ class AddAssetToPortfolioUseCase:
                 error=str(e),
                 timestamp=datetime.now(UTC),
             )
-            raise UseCaseError(
-                "Occurred unexpected error during adding asset to portfolio"
-            ) from e
+            raise UseCaseError("Occurred unexpected error during adding asset to portfolio") from e
