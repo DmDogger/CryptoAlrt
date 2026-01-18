@@ -23,8 +23,6 @@ class TestCalculateAssetChangeIntegration:
         assert percent >= 5
 
     @pytest.mark.asyncio
-    async def test_use_case_raises_error_correctly(
-        self, asset_change_uc_integration
-    ) -> None:
+    async def test_use_case_raises_error_correctly(self, asset_change_uc_integration) -> None:
         with pytest.raises(application.exceptions.UseCaseError):
             await asset_change_uc_integration.execute(ticker="NO_COIN")

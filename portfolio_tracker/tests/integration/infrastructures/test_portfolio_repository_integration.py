@@ -11,7 +11,9 @@ from domain.entities.portfolio_entity import PortfolioEntity
 from infrastructures.database.repositories.portfolio import SQLAlchemyPortfolioRepository
 
 from domain.value_objects.analytics_vo import AnalyticsValueObject
-from fixtures.domain_fixtures import integration_portfolio_entity
+
+from domain.entities.asset_entity import AssetEntity
+from fixtures.domain_fixtures import integration_portfolio_entity, sample_uuid, sample_asset_entity
 from fixtures.infra_fixtures import portfolio_repository_for_transactions, async_session
 
 
@@ -270,3 +272,66 @@ class TestPortfolioRepository:
 
         assert isinstance(counted_assets, int)
         assert counted_assets == 1
+
+    @pytest.mark.asyncio
+    async def test_get_asset_by_id_returns_none_when_not_found(
+        self,
+        sample_uuid,
+        portfolio_repository_for_transactions: SQLAlchemyPortfolioRepository,
+    ):
+        none_asset = await portfolio_repository_for_transactions.get_asset_by_id(
+            asset_id=sample_uuid
+        )
+
+        assert none_asset is None
+
+    @pytest.mark.asyncio
+    async def test_add_asset_saves_to_database(
+        self,
+        sample_asset_entity: AssetEntity,
+        integration_portfolio_entity,
+        portfolio_repository_for_transactions: SQLAlchemyPortfolioRepository,
+        async_session: AsyncSession,
+    ):
+        portfolio = PortfolioEntity.create(wallet_address=sample_asset_entity.wallet_address)
+
+        await portfolio_repository_for_transactions.save_portfolio(portfolio)
+        await async_session.commit()
+
+        asset = await portfolio_repository_for_transactions.add_asset(sample_asset_entity)
+        await async_session.commit()
+
+        retrieved_asset = await portfolio_repository_for_transactions.get_asset_by_id(
+            sample_asset_entity.asset_id
+        )
+
+        assert asset == retrieved_asset
+
+    @pytest.mark.asyncio
+    async def test_update_asset_works_correctly(
+        self,
+        portfolio_repository_for_transactions,
+        integration_portfolio_entity,
+        fill_eth_price: None,
+        async_session: AsyncSession,
+    ):
+        portfolio = PortfolioEntity.create(
+            wallet_address=integration_portfolio_entity.wallet_address
+        )
+        await portfolio_repository_for_transactions.save_portfolio(portfolio)
+        await async_session.commit()
+
+        asset_entity = integration_portfolio_entity.assets[0]
+        await portfolio_repository_for_transactions.add_asset(asset_entity)
+        await async_session.commit()
+
+        with_new_ticker = asset_entity.change_ticker(ticker="ETH")
+        await portfolio_repository_for_transactions.update_asset(with_new_ticker)
+        await async_session.commit()
+
+        with_new_ticker_from_db = await portfolio_repository_for_transactions.get_asset_by_id(
+            asset_entity.asset_id
+        )
+
+        assert with_new_ticker_from_db is not None
+        assert with_new_ticker_from_db.ticker == "ETH"

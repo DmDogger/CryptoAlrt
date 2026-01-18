@@ -12,3 +12,11 @@ class HistoricalPriceError(ApplicationError):
 
 class CurrentPriceNotExist(ApplicationError):
     pass
+
+
+class TotalValueUnableToCalculate(ApplicationError):
+    pass
+
+
+class AnalyticsDataIsEmpty(ApplicationError):
+    pass

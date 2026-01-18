@@ -1,8 +1,7 @@
 import pytest
 
-from application.use_cases.calculate_portfolio_change import CalculateAssetChangeUseCase
-
-from helpers.mocks.repositories import fake_portfolio_repository
+from application.use_cases.calculate_asset_change import CalculateAssetChangeUseCase
+from application.use_cases.recalculate_portfolio_change import RecalculatePortfolioChangeUseCase
 
 
 @pytest.fixture
@@ -13,3 +12,8 @@ def mock_calculate_asset_change_uc(fake_portfolio_repository):
 @pytest.fixture
 async def asset_change_uc_integration(portfolio_repository_for_transactions):
     return CalculateAssetChangeUseCase(repository=portfolio_repository_for_transactions)
+
+
+@pytest.fixture
+async def recalculating_uc_integration(portfolio_repository_for_transactions):
+    return RecalculatePortfolioChangeUseCase(repository=portfolio_repository_for_transactions)

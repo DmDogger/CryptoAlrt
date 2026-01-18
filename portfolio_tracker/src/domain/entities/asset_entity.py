@@ -30,6 +30,7 @@ class AssetEntity:
     amount: Decimal
     wallet_address: str
     created_at: datetime
+    updated_at: datetime | None
 
     def __post_init__(self):
         if len(self.ticker) < 3 and len(self.ticker) < 10:
@@ -66,24 +67,12 @@ class AssetEntity:
         amount: Decimal,
         wallet_address: str,
         created_at: datetime | None = None,
+        updated_at: datetime | None = None,
     ) -> "AssetEntity":
         """Create a new AssetEntity instance.
 
         Factory method that creates a new asset entity with a generated UUID
         and optional timestamp. If no timestamp is provided, uses current UTC time.
-
-        Args:
-            ticker: Cryptocurrency ticker symbol (3-10 characters).
-            amount: Amount of the asset (must be positive).
-            wallet_address: Address of the wallet holding this asset.
-            created_at: Optional timestamp. Defaults to current UTC time.
-
-        Returns:
-            A new immutable AssetEntity instance.
-
-        Raises:
-            DomainValidationError: If any validation fails (ticker length,
-                negative amount, empty wallet address, future timestamp).
         """
         return cls(
             asset_id=uuid4(),
@@ -91,27 +80,26 @@ class AssetEntity:
             amount=amount,
             wallet_address=wallet_address,
             created_at=created_at or datetime.now(UTC),
+            updated_at=updated_at,
         )
 
     def set_amount(self, amount: Decimal) -> "AssetEntity":
-        """Create a new AssetEntity with updated amount.
-
-        Since AssetEntity is immutable, this method returns a new instance
-        with the same attributes except for the amount.
-
-        Args:
-            amount: New amount value (must be positive).
-
-        Returns:
-            A new AssetEntity instance with updated amount.
-
-        Raises:
-            DomainValidationError: If the new amount is negative or invalid.
-        """
+        """Create a new AssetEntity with updated amount."""
         return AssetEntity(
             asset_id=self.asset_id,
             ticker=self.ticker,
             amount=amount,
             wallet_address=self.wallet_address,
             created_at=self.created_at,
+            updated_at=None,
+        )
+
+    def change_ticker(self, ticker: str) -> "AssetEntity":
+        return AssetEntity(
+            asset_id=self.asset_id,
+            ticker=ticker,
+            amount=self.amount,
+            wallet_address=self.wallet_address,
+            created_at=self.created_at,
+            updated_at=datetime.now(UTC),
         )

@@ -71,6 +71,7 @@ def mock_portfolio_repository(
     return SQLAlchemyPortfolioRepository(
         _session=mock_async_session,
         _mapper=mock_portfolio_mapper,
+        _asset_mapper=AssetDBMapper(),
     )
 
 
@@ -132,6 +133,7 @@ async def portfolio_repository_for_transactions(async_session):
     return SQLAlchemyPortfolioRepository(
         _session=async_session,
         _mapper=PortfolioDBMapper(),
+        _asset_mapper=AssetDBMapper(),
     )
 
 
@@ -251,6 +253,27 @@ async def fill_prices_only(integration_portfolio_entity, async_session):
             timestamp=datetime.now(UTC).replace(tzinfo=None) - timedelta(hours=1),
         )
         async_session.add(price_history)
+
+    yield
+
+    await async_session.rollback()
+
+
+@pytest_asyncio.fixture
+async def fill_eth_price(async_session):
+    """Fixture that adds CryptoPrice for ETH ticker."""
+    from sqlalchemy import select
+
+    existing_eth_price = await async_session.execute(
+        select(CryptoPrice).where(CryptoPrice.cryptocurrency == "ETH")
+    )
+    if existing_eth_price.scalar_one_or_none() is None:
+        eth_price = CryptoPrice(
+            cryptocurrency="ETH",
+            price=Decimal("3000.00"),
+            updated_at=datetime.now(UTC).replace(tzinfo=None),
+        )
+        async_session.add(eth_price)
 
     yield
 
